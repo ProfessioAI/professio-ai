@@ -132,6 +132,12 @@ export const MenuIcon = (p: IconProps) => (
     <path d="M4 7h16M4 12h16M4 17h10" />
   </Svg>
 );
+export const PanelIcon = (p: IconProps) => (
+  <Svg {...p}>
+    <rect x="3" y="4" width="18" height="16" rx="2" />
+    <path d="M15 4v16" />
+  </Svg>
+);
 export const CloseIcon = (p: IconProps) => (
   <Svg {...p}>
     <path d="M18 6 6 18M6 6l12 12" />

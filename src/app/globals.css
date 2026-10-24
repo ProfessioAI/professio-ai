@@ -30,6 +30,8 @@
   --warn-strong: #8a4b00;
   --error-bg: #fdecec;
   --error-fg: #8a1c1c;
+  --bar-warn: #d97706;
+  --bar-danger: #d92d20;
   color-scheme: light;
 }
 
@@ -62,6 +64,8 @@
     --warn-strong: #f6c177;
     --error-bg: #3a1717;
     --error-fg: #f4b4b4;
+    --bar-warn: #e5a04a;
+    --bar-danger: #f97066;
     color-scheme: dark;
   }
 }
@@ -94,6 +98,8 @@
   --color-warn-strong: var(--warn-strong);
   --color-error-bg: var(--error-bg);
   --color-error-fg: var(--error-fg);
+  --color-bar-warn: var(--bar-warn);
+  --color-bar-danger: var(--bar-danger);
   --font-sans: var(--font-inter), system-ui, sans-serif;
   --font-mono: var(--font-plex-mono), ui-monospace, monospace;
 }

@@ -58,7 +58,8 @@ type AssistantProps = {
   isLast: boolean;
   busy: boolean;
   status: string | null;
-  onPrompt: (prompt: string) => void;
+  /** Sends a prompt; `draftTitle` marks the reply as a draft for the case panel. */
+  onPrompt: (prompt: string, draftTitle?: string) => void;
   onRegenerate: () => void;
 };
 
@@ -123,7 +124,9 @@ export function AssistantMessage({
                   <>
                     <button
                       type="button"
-                      onClick={() => onPrompt("Draft a response letter based on this, for my review.")}
+                      onClick={() =>
+                        onPrompt("Draft a response letter based on this, for my review.", "Response letter")
+                      }
                       className="flex h-10 items-center gap-2 rounded-lg bg-accent px-3.5 text-sm font-semibold text-white hover:bg-accent-hover"
                     >
                       <PenIcon size={16} />
@@ -132,7 +135,10 @@ export function AssistantMessage({
                     <button
                       type="button"
                       onClick={() =>
-                        onPrompt("Make a checklist of the documents the client should gather.")
+                        onPrompt(
+                          "Make a checklist of the documents the client should gather.",
+                          "Client document checklist",
+                        )
                       }
                       className="h-10 rounded-lg border border-border-strong bg-surface px-3.5 text-sm font-medium text-text-2 hover:bg-hover"
                     >

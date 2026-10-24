@@ -1,8 +1,31 @@
 import type { Attachment, ChatMessage } from "@/lib/chat-types";
 import { MAX_FILE_BYTES } from "@/lib/chat-types";
 
-/** A chat message plus what only the page needs (tool activity). */
-export type UIMessage = ChatMessage & { tools?: string[] };
+/**
+ * A chat message plus what only the page needs: tool activity, and for a
+ * user message that asked for a letter or checklist, the draft's title.
+ */
+export type UIMessage = ChatMessage & { tools?: string[]; draftTitle?: string };
+
+export type Draft = { title: string; text: string };
+
+/** Replies to "draft" requests, once they've finished streaming. */
+export function collectDrafts(messages: UIMessage[], streaming: boolean): Draft[] {
+  const drafts: Draft[] = [];
+  messages.forEach((m, i) => {
+    const reply = messages[i + 1];
+    const replyDone = !(streaming && i + 1 === messages.length - 1);
+    if (m.role === "user" && m.draftTitle && reply?.role === "assistant" && reply.text.trim() && replyDone) {
+      drafts.push({ title: m.draftTitle, text: reply.text.trim() });
+    }
+  });
+  return drafts;
+}
+
+/** Names of every document attached in the conversation, without repeats. */
+export function documentNames(messages: UIMessage[]): string[] {
+  return [...new Set(messages.flatMap((m) => m.attachments?.map((a) => a.name) ?? []))];
+}
 
 export function conversationTitle(messages: UIMessage[]): string {
   const first = messages.find((m) => m.role === "user");

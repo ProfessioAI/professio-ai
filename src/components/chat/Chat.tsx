@@ -3,14 +3,19 @@
 import { useEffect, useRef, useState } from "react";
 import type { Attachment, StreamEvent } from "@/lib/chat-types";
 import { MAX_FILES_PER_MESSAGE } from "@/lib/chat-types";
+import type { NoticeDetails } from "@/lib/notice-types";
+import CasePanel from "./CasePanel";
 import Composer from "./Composer";
-import { DownloadIcon, MenuIcon, PenIcon } from "./Icons";
+import { DownloadIcon, MenuIcon, PanelIcon, PenIcon } from "./Icons";
 import { AssistantMessage, UserMessage } from "./Messages";
+import { countdown, formatDate, type DetailsState } from "./notice-utils";
 import Sidebar from "./Sidebar";
 import {
+  collectDrafts,
   conversationMarkdown,
   conversationTitle,
   documentCount,
+  documentNames,
   readFiles,
   type UIMessage,
 } from "./types";
@@ -29,13 +34,21 @@ export default function Chat() {
   const [notice, setNotice] = useState<string | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [focusKey, setFocusKey] = useState(0);
+  const [details, setDetails] = useState<DetailsState>({ status: "idle" });
+  const [panelOpen, setPanelOpen] = useState(false);
   const abortRef = useRef<AbortController | null>(null);
+  const extractAbortRef = useRef<AbortController | null>(null);
+  const lastExtractFilesRef = useRef<Attachment[] | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
 
   const empty = messages.length === 0;
   const title = empty ? null : conversationTitle(messages);
   const docs = documentCount(messages);
+  const drafts = collectDrafts(messages, busy);
+  const noticeInfo =
+    details.status === "ready" && details.data.isIrsNotice ? details.data : null;
+  const deadline = noticeInfo?.respondBy ? countdown(noticeInfo.respondBy, noticeInfo.noticeDate) : null;
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
@@ -131,14 +144,50 @@ export default function Chat() {
     }
   }
 
-  function send(text: string) {
+  /** Reads the notice's key facts for the case panel, alongside the chat reply. */
+  async function extract(attachments: Attachment[]) {
+    extractAbortRef.current?.abort();
+    const controller = new AbortController();
+    extractAbortRef.current = controller;
+    lastExtractFilesRef.current = attachments;
+    // Keep showing the current notice while a new document is read.
+    setDetails((prev) => (prev.status === "ready" && prev.data.isIrsNotice ? prev : { status: "loading" }));
+    try {
+      const res = await fetch("/api/extract", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ attachments }),
+        signal: controller.signal,
+      });
+      const body = await res.json().catch(() => null);
+      if (!res.ok || !body) throw new Error(body?.error ?? "Couldn't read the notice details.");
+      const data = body as NoticeDetails;
+      // A non-notice upload doesn't replace a notice already shown.
+      setDetails((prev) =>
+        data.isIrsNotice || !(prev.status === "ready" && prev.data.isIrsNotice)
+          ? { status: "ready", data }
+          : prev,
+      );
+    } catch (err) {
+      if (controller.signal.aborted) return;
+      setDetails((prev) =>
+        prev.status === "ready" && prev.data.isIrsNotice
+          ? prev
+          : { status: "error", message: err instanceof Error ? err.message : "Couldn't read the notice details." },
+      );
+    }
+  }
+
+  function send(text: string, draftTitle?: string) {
     const trimmed = text.trim();
     if (busy || (!trimmed && files.length === 0)) return;
     const userMessage: UIMessage = {
       role: "user",
       text: trimmed,
       ...(files.length ? { attachments: files } : {}),
+      ...(draftTitle ? { draftTitle } : {}),
     };
+    if (files.length) extract(files);
     setInput("");
     setFiles([]);
     run([...messages, userMessage]);
@@ -150,9 +199,9 @@ export default function Chat() {
     if (history.length) run(history);
   }
 
-  function quickAction(prompt: string) {
+  function quickAction(prompt: string, draftTitle?: string) {
     if (files.length) {
-      send(prompt);
+      send(prompt, draftTitle);
     } else {
       setInput(prompt);
       setNotice("Attach a notice first, or edit the question and press Enter.");
@@ -166,6 +215,10 @@ export default function Chat() {
 
   function newChat() {
     stop();
+    extractAbortRef.current?.abort();
+    lastExtractFilesRef.current = null;
+    setDetails({ status: "idle" });
+    setPanelOpen(false);
     setMessages([]);
     setFiles([]);
     setInput("");
@@ -247,10 +300,21 @@ export default function Chat() {
             <h1 className="truncate text-[15px] font-semibold tracking-tight lg:text-[17px]">
               {title ?? "ProfessioAI"}
             </h1>
-            <span className="text-xs text-muted lg:text-[13px]">
-              {empty
-                ? "Pilot · test data only"
-                : `${docs ? `${docs} document${docs === 1 ? "" : "s"} · ` : ""}Started today`}
+            <span className="truncate text-xs text-muted lg:text-[13px]">
+              {empty ? (
+                "Pilot · test data only"
+              ) : (
+                <>
+                  {docs ? `${docs} document${docs === 1 ? "" : "s"} · ` : ""}
+                  {deadline && noticeInfo?.respondBy ? (
+                    <span className={deadline.tone === "ok" ? "" : "font-medium text-warn-strong"}>
+                      Respond by {formatDate(noticeInfo.respondBy, false)} · {deadline.label}
+                    </span>
+                  ) : (
+                    "Started today"
+                  )}
+                </>
+              )}
             </span>
           </div>
           {!empty ? (
@@ -263,6 +327,16 @@ export default function Chat() {
             >
               <DownloadIcon size={16} />
               <span className="hidden sm:inline">Export</span>
+            </button>
+          ) : null}
+          {!empty ? (
+            <button
+              type="button"
+              onClick={() => setPanelOpen(true)}
+              aria-label="Show notice details"
+              className="flex size-11 items-center justify-center rounded-lg text-text-2 hover:bg-hover xl:hidden"
+            >
+              <PanelIcon size={20} />
             </button>
           ) : null}
           <button
@@ -310,6 +384,35 @@ export default function Chat() {
           </>
         )}
       </main>
+
+      {!empty ? (
+        <CasePanel
+          details={details}
+          documents={documentNames(messages)}
+          drafts={drafts}
+          onRetry={() => lastExtractFilesRef.current && extract(lastExtractFilesRef.current)}
+          className="hidden xl:flex"
+        />
+      ) : null}
+
+      {!empty && panelOpen ? (
+        <div className="fixed inset-0 z-40 flex justify-end xl:hidden">
+          <button
+            type="button"
+            aria-label="Close details"
+            className="absolute inset-0 bg-black/40"
+            onClick={() => setPanelOpen(false)}
+          />
+          <CasePanel
+            details={details}
+            documents={documentNames(messages)}
+            drafts={drafts}
+            onRetry={() => lastExtractFilesRef.current && extract(lastExtractFilesRef.current)}
+            onClose={() => setPanelOpen(false)}
+            className="relative flex h-full max-w-[90vw]"
+          />
+        </div>
+      ) : null}
     </div>
   );
 }

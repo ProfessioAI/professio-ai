@@ -18,14 +18,15 @@ export const QUICK_ACTIONS = [
     title: "Draft a response",
     detail: "A letter ready for your review",
     prompt: "Draft a response letter to this notice for my review.",
+    draftTitle: "Response letter",
     Icon: PenIcon,
   },
-];
+] as { title: string; detail: string; prompt: string; draftTitle?: string; Icon: typeof InfoIcon }[];
 
 type Props = {
   onFiles: (files: FileList) => void;
   onChooseFile: () => void;
-  onQuickAction: (prompt: string) => void;
+  onQuickAction: (prompt: string, draftTitle?: string) => void;
   composer: React.ReactNode;
 };
 
@@ -78,11 +79,11 @@ export default function Welcome({ onFiles, onChooseFile, onQuickAction, composer
         </div>
 
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-          {QUICK_ACTIONS.map(({ title, detail, prompt, Icon }) => (
+          {QUICK_ACTIONS.map(({ title, detail, prompt, draftTitle, Icon }) => (
             <button
               key={title}
               type="button"
-              onClick={() => onQuickAction(prompt)}
+              onClick={() => onQuickAction(prompt, draftTitle)}
               className="flex flex-col gap-1.5 rounded-xl border border-border bg-surface p-4 text-left hover:border-border-strong hover:bg-hover"
             >
               <Icon className="text-accent-text" />

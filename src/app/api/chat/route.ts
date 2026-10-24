@@ -2,6 +2,8 @@ import Anthropic from "@anthropic-ai/sdk";
 import { z } from "zod";
 import type { ChatMessage, StreamEvent } from "@/lib/chat-types";
 import { MAX_FILES_PER_MESSAGE } from "@/lib/chat-types";
+import { friendlyError } from "@/lib/api-errors";
+import { AttachmentSchema, toDocumentBlocks } from "@/lib/documents";
 import { SYSTEM_PROMPT } from "@/lib/system-prompt";
 import { runTool, toolDefinitions } from "@/lib/tools";
 
@@ -11,13 +13,6 @@ const MODEL = "claude-opus-5-5";
 const EFFORT = "medium";
 // Safety cap on how many tool-call rounds one reply can take.
 const MAX_TOOL_ROUNDS = 8;
-
-// Base64 is about 4/3 the size of the file, so 30M characters ~ a 22 MB file.
-const AttachmentSchema = z.object({
-  name: z.string().min(1).max(200),
-  mediaType: z.enum(["application/pdf", "text/plain"]),
-  data: z.string().min(1).max(30_000_000),
-});
 
 const RequestSchema = z.object({
   messages: z
@@ -40,41 +35,11 @@ function toApiMessages(history: ChatMessage[]): Anthropic.Beta.BetaMessageParam[
       if (m.text.trim()) out.push({ role: "assistant", content: m.text });
       continue;
     }
-    const content: Anthropic.Beta.BetaContentBlockParam[] = (m.attachments ?? []).map((a) => ({
-      type: "document",
-      title: a.name,
-      source:
-        a.mediaType === "application/pdf"
-          ? { type: "base64", media_type: "application/pdf", data: a.data }
-          : { type: "text", media_type: "text/plain", data: a.data },
-    }));
+    const content = toDocumentBlocks(m.attachments ?? []);
     content.push({ type: "text", text: m.text.trim() || "Please review the attached document." });
     out.push({ role: "user", content });
   }
   return out;
-}
-
-function friendlyError(err: unknown): string {
-  if (err instanceof Anthropic.AuthenticationError) {
-    return "The Anthropic API key is missing or invalid. Add ANTHROPIC_API_KEY to .env.local and restart the app.";
-  }
-  if (err instanceof Anthropic.PermissionDeniedError) {
-    return "This API key doesn't have access to the model. Check your Anthropic Console account.";
-  }
-  if (err instanceof Anthropic.RateLimitError) {
-    return "Rate limit reached. Wait a moment and try again.";
-  }
-  if (err instanceof Anthropic.BadRequestError) {
-    return `The request was rejected: ${err.message}`;
-  }
-  if (err instanceof Anthropic.APIError) {
-    return `The AI service returned an error (${err.status ?? "network"}). Try again in a moment.`;
-  }
-  if (err instanceof Anthropic.AnthropicError) {
-    // Typically: no API key configured at all.
-    return "Couldn't connect to the AI service. Check that ANTHROPIC_API_KEY is set in .env.local, then restart the app.";
-  }
-  return "Something went wrong while generating the reply.";
 }
 
 export async function POST(req: Request) {
