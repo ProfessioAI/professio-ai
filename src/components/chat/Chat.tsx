@@ -1,0 +1,315 @@
+"use client";
+
+import { useEffect, useRef, useState } from "react";
+import type { Attachment, StreamEvent } from "@/lib/chat-types";
+import { MAX_FILES_PER_MESSAGE } from "@/lib/chat-types";
+import Composer from "./Composer";
+import { DownloadIcon, MenuIcon, PenIcon } from "./Icons";
+import { AssistantMessage, UserMessage } from "./Messages";
+import Sidebar from "./Sidebar";
+import {
+  conversationMarkdown,
+  conversationTitle,
+  documentCount,
+  readFiles,
+  type UIMessage,
+} from "./types";
+import Welcome from "./Welcome";
+
+const TOOL_STATUS: Record<string, string> = {
+  lookup_irs_notice: "Looking up the IRS notice…",
+};
+
+export default function Chat() {
+  const [messages, setMessages] = useState<UIMessage[]>([]);
+  const [input, setInput] = useState("");
+  const [files, setFiles] = useState<Attachment[]>([]);
+  const [busy, setBusy] = useState(false);
+  const [status, setStatus] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [focusKey, setFocusKey] = useState(0);
+  const abortRef = useRef<AbortController | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const bottomRef = useRef<HTMLDivElement>(null);
+
+  const empty = messages.length === 0;
+  const title = empty ? null : conversationTitle(messages);
+  const docs = documentCount(messages);
+
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
+  }, [messages, status]);
+
+  async function addFiles(list: FileList | File[]) {
+    setNotice(null);
+    const { attachments, errors } = await readFiles(list);
+    if (errors.length) setNotice(errors.join(" "));
+    setFiles((prev) => {
+      const next = [...prev, ...attachments];
+      if (next.length > MAX_FILES_PER_MESSAGE) {
+        setNotice(`Up to ${MAX_FILES_PER_MESSAGE} files per message.`);
+      }
+      return next.slice(0, MAX_FILES_PER_MESSAGE);
+    });
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  }
+
+  function updateLastAssistant(update: (m: UIMessage) => UIMessage) {
+    setMessages((prev) => {
+      const copy = [...prev];
+      const last = copy[copy.length - 1];
+      if (last?.role === "assistant") copy[copy.length - 1] = update(last);
+      return copy;
+    });
+  }
+
+  /** Sends `history` (ending with a user message) and streams the reply. */
+  async function run(history: UIMessage[]) {
+    setMessages([...history, { role: "assistant", text: "", tools: [] }]);
+    setNotice(null);
+    setBusy(true);
+    setStatus("Thinking…");
+
+    const controller = new AbortController();
+    abortRef.current = controller;
+
+    try {
+      const res = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          messages: history.map(({ role, text, attachments }) => ({
+            role,
+            text,
+            ...(attachments?.length ? { attachments } : {}),
+          })),
+        }),
+        signal: controller.signal,
+      });
+      if (!res.ok || !res.body) {
+        const err = await res.json().catch(() => null);
+        throw new Error(err?.error ?? `Request failed (${res.status}).`);
+      }
+
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = "";
+      for (;;) {
+        const { value, done } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split("\n");
+        buffer = lines.pop() ?? "";
+        for (const line of lines) {
+          if (!line.trim()) continue;
+          const event = JSON.parse(line) as StreamEvent;
+          if (event.type === "text") {
+            setStatus(null);
+            updateLastAssistant((m) => ({ ...m, text: m.text + event.text }));
+          } else if (event.type === "status") {
+            setStatus(
+              event.status === "tool"
+                ? (TOOL_STATUS[event.detail ?? ""] ?? "Using a tool…")
+                : "Thinking…",
+            );
+          } else if (event.type === "tool") {
+            updateLastAssistant((m) => ({ ...m, tools: [...(m.tools ?? []), event.label] }));
+          } else if (event.type === "error") {
+            setNotice(event.message);
+          }
+        }
+      }
+    } catch (err) {
+      if (!controller.signal.aborted) {
+        setNotice(err instanceof Error ? err.message : "Something went wrong.");
+      }
+    } finally {
+      setBusy(false);
+      setStatus(null);
+      abortRef.current = null;
+    }
+  }
+
+  function send(text: string) {
+    const trimmed = text.trim();
+    if (busy || (!trimmed && files.length === 0)) return;
+    const userMessage: UIMessage = {
+      role: "user",
+      text: trimmed,
+      ...(files.length ? { attachments: files } : {}),
+    };
+    setInput("");
+    setFiles([]);
+    run([...messages, userMessage]);
+  }
+
+  function regenerate() {
+    if (busy) return;
+    const history = messages[messages.length - 1]?.role === "assistant" ? messages.slice(0, -1) : messages;
+    if (history.length) run(history);
+  }
+
+  function quickAction(prompt: string) {
+    if (files.length) {
+      send(prompt);
+    } else {
+      setInput(prompt);
+      setNotice("Attach a notice first, or edit the question and press Enter.");
+      setFocusKey((k) => k + 1);
+    }
+  }
+
+  function stop() {
+    abortRef.current?.abort();
+  }
+
+  function newChat() {
+    stop();
+    setMessages([]);
+    setFiles([]);
+    setInput("");
+    setNotice(null);
+    setDrawerOpen(false);
+  }
+
+  function exportChat() {
+    const blob = new Blob([conversationMarkdown(messages)], { type: "text/markdown" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "professioai-conversation.md";
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  const composer = (
+    <Composer
+      value={input}
+      onChange={setInput}
+      onSubmit={() => send(input)}
+      files={files}
+      onRemoveFile={(i) => setFiles((prev) => prev.filter((_, j) => j !== i))}
+      onAttach={() => fileInputRef.current?.click()}
+      busy={busy}
+      onStop={stop}
+      notice={notice}
+      placeholder={empty ? "Or ask a tax or accounting question…" : "Ask a follow-up, or attach another notice…"}
+      autoFocusKey={focusKey}
+    />
+  );
+
+  return (
+    <div className="flex h-dvh bg-background text-foreground">
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept=".pdf,.txt,application/pdf,text/plain"
+        multiple
+        hidden
+        onChange={(e) => e.target.files && addFiles(e.target.files)}
+      />
+
+      <Sidebar title={title} onNewChat={newChat} className="hidden lg:flex" />
+
+      {drawerOpen ? (
+        <div className="fixed inset-0 z-40 flex lg:hidden">
+          <button
+            type="button"
+            aria-label="Close menu"
+            className="absolute inset-0 bg-black/40"
+            onClick={() => setDrawerOpen(false)}
+          />
+          <Sidebar
+            title={title}
+            onNewChat={newChat}
+            onClose={() => setDrawerOpen(false)}
+            className="relative flex h-full max-w-[85vw]"
+          />
+        </div>
+      ) : null}
+
+      <main className="flex min-w-0 flex-1 flex-col">
+        <header
+          className={`flex items-center gap-1 border-b border-border bg-surface px-2 py-3 sm:gap-3 lg:px-8 lg:py-4 ${
+            empty ? "lg:hidden" : ""
+          }`}
+        >
+          <button
+            type="button"
+            onClick={() => setDrawerOpen(true)}
+            aria-label="Open menu"
+            className="flex size-11 items-center justify-center rounded-lg text-text-2 hover:bg-hover lg:hidden"
+          >
+            <MenuIcon size={20} />
+          </button>
+          <div className="flex min-w-0 flex-1 flex-col leading-tight">
+            <h1 className="truncate text-[15px] font-semibold tracking-tight lg:text-[17px]">
+              {title ?? "ProfessioAI"}
+            </h1>
+            <span className="text-xs text-muted lg:text-[13px]">
+              {empty
+                ? "Pilot · test data only"
+                : `${docs ? `${docs} document${docs === 1 ? "" : "s"} · ` : ""}Started today`}
+            </span>
+          </div>
+          {!empty ? (
+            <button
+              type="button"
+              onClick={exportChat}
+              disabled={busy}
+              aria-label="Export conversation"
+              className="flex h-10 items-center gap-2 rounded-lg border border-border-strong bg-surface px-3 text-sm font-medium text-text-2 hover:bg-hover disabled:opacity-50 sm:px-3.5"
+            >
+              <DownloadIcon size={16} />
+              <span className="hidden sm:inline">Export</span>
+            </button>
+          ) : null}
+          <button
+            type="button"
+            onClick={newChat}
+            aria-label="New conversation"
+            className="flex size-11 items-center justify-center rounded-lg text-text-2 hover:bg-hover lg:hidden"
+          >
+            <PenIcon size={20} />
+          </button>
+        </header>
+
+        {empty ? (
+          <Welcome
+            onFiles={addFiles}
+            onChooseFile={() => fileInputRef.current?.click()}
+            onQuickAction={quickAction}
+            composer={composer}
+          />
+        ) : (
+          <>
+            <div className="flex-1 overflow-y-auto px-4 pt-6 sm:px-8 sm:pt-8">
+              <div className="mx-auto flex w-full max-w-[760px] flex-col gap-7 pb-4">
+                {messages.map((m, i) =>
+                  m.role === "user" ? (
+                    <UserMessage key={i} message={m} />
+                  ) : (
+                    <AssistantMessage
+                      key={i}
+                      message={m}
+                      isLast={i === messages.length - 1}
+                      busy={busy}
+                      status={status}
+                      onPrompt={send}
+                      onRegenerate={regenerate}
+                    />
+                  ),
+                )}
+                <div ref={bottomRef} />
+              </div>
+            </div>
+            <div className="px-3 pt-3 pb-4 sm:px-8 sm:pt-4 sm:pb-6">
+              <div className="mx-auto max-w-[760px]">{composer}</div>
+            </div>
+          </>
+        )}
+      </main>
+    </div>
+  );
+}

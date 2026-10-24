@@ -179,7 +179,8 @@ export async function POST(req: Request) {
           messages.push({ role: "assistant", content: message.content });
           const results = await Promise.all(
             toolUses.map(async (t): Promise<Anthropic.Beta.BetaToolResultBlockParam> => {
-              const result = await runTool(t.name, t.input);
+              const { label, ...result } = await runTool(t.name, t.input);
+              if (label) send({ type: "tool", label });
               return { type: "tool_result", tool_use_id: t.id, ...result };
             }),
           );

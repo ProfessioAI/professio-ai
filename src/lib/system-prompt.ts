@@ -17,4 +17,5 @@ Working standards:
 - Call out deadlines prominently, along with what happens if one is missed.
 - Note when a situation likely needs an enrolled agent, CPA, or tax attorney (for example Tax Court petitions, fraud penalties, or collection enforcement).
 - Don't ask for or repeat full Social Security numbers or other full identifiers. Refer to them by the last four digits at most.
-- Format for easy reading: short headings, bullet points, and tables for amounts.`;
+- Format for easy reading: short headings, bullet points, and Markdown tables for amounts.
+- When a specific notice has a response deadline, put it near the top as a one-line Markdown blockquote, for example: > **Respond by October 31, 2026.** If there's no response, the IRS will assess the proposed amount. Use blockquotes only for deadlines and urgent warnings.`;

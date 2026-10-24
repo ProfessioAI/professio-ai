@@ -19,6 +19,8 @@ export type ChatMessage = {
 export type StreamEvent =
   | { type: "text"; text: string }
   | { type: "status"; status: "thinking" | "tool"; detail?: string }
+  /** A tool finished; `label` is a short description for the chat, e.g. "Looked up CP2000". */
+  | { type: "tool"; label: string }
   | { type: "error"; message: string }
   | { type: "done" };
 

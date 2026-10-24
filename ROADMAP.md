@@ -19,7 +19,7 @@ Core pieces:
 
 - [x] GitHub repo set up (`ProfessioAI/professio-ai`)
 - [x] README and .gitignore
-- [x] Phase 1: Working chat app (built; first live run with an API key still to do)
+- [x] Phase 1: Working chat app
 
 ## Phases
 
@@ -34,7 +34,7 @@ Core pieces:
       (`lookup_irs_notice`)
 - [x] README updated with setup steps
 - [x] First fictional test document (`samples/irs-notices/cp2000-fictional.txt`)
-- [ ] First live run with an API key
+- [x] First live run with an API key
 
 **First focus:** IRS notices (e.g. CP2000 letters, audit letters). Common for firms
 of every size, clearly structured, and easy to create fictional versions of.

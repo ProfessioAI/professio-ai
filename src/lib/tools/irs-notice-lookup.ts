@@ -230,4 +230,10 @@ export const irsNoticeLookup = defineTool(
       note: "Reference summary for drafting only. Confirm the deadline printed on the notice.",
     });
   },
+  ({ notice_code }) => {
+    const match = NOTICES.find((n) => normalizeCode(n.code) === normalizeCode(notice_code));
+    return match
+      ? `Looked up ${match.code} in the notice reference`
+      : `Checked the notice reference for ${notice_code}`;
+  },
 );
