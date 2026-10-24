@@ -1,0 +1,59 @@
+*** FICTIONAL SAMPLE FOR TESTING ONLY. NOT A REAL IRS NOTICE. ALL NAMES, NUMBERS AND ADDRESSES ARE INVENTED. ***
+
+Department of the Treasury
+Internal Revenue Service
+
+Notice CP2000
+Tax year: 2024
+Notice date: October 1, 2026
+Respond by: October 31, 2026
+Social Security number: XXX-XX-0000
+To contact us: 1-800-000-0000 (fictional)
+
+JORDAN A SAMPLE
+100 EXAMPLE LANE
+SPRINGFIELD ST 00000
+
+Changes to your 2024 Form 1040
+
+The income and payment information we have on file from third parties doesn't match the
+information you reported on your tax return. If our information is correct, you will owe
+additional tax, a penalty, and interest.
+
+Summary of proposed changes
+
+  Proposed increase in tax                          $3,170.00
+  Accuracy-related penalty (IRC section 6662)         $634.00
+  Interest charged                                    $212.00
+  ----------------------------------------------------------
+  Amount you owe                                    $4,016.00
+
+Income information we received that was not reported (or reported differently)
+
+  1. Form 1099-NEC, Nonemployee compensation
+     Payer: Northwind Consulting Group LLC (fictional), EIN 00-0000001
+     Amount reported to IRS: $8,400.00
+     Amount shown on your return: $0.00
+     Difference: $8,400.00
+
+  2. Form 1099-INT, Interest income
+     Payer: First Example Savings Bank (fictional), EIN 00-0000002
+     Amount reported to IRS: $612.00
+     Amount shown on your return: $0.00
+     Difference: $612.00
+
+How we figured the change
+  The unreported nonemployee compensation increases your self-employment tax and your
+  taxable income. The unreported interest increases your taxable income.
+
+What you need to do
+  Review this notice and compare our information with your records.
+  - If you agree with the changes, sign and return the response form.
+  - If you don't agree, complete the response form, explain why, and include copies of
+    documents supporting your position.
+  - If you agree with some of the changes, mark "partially agree" and explain.
+
+If we don't hear from you by October 31, 2026, we will send you a Statutory Notice of
+Deficiency proposing the changes shown on this notice.
+
+*** END OF FICTIONAL SAMPLE ***

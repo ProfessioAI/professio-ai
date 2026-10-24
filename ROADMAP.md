@@ -19,19 +19,22 @@ Core pieces:
 
 - [x] GitHub repo set up (`ProfessioAI/professio-ai`)
 - [x] README and .gitignore
-- [ ] Phase 1: Working chat app
+- [x] Phase 1: Working chat app (built; first live run with an API key still to do)
 
 ## Phases
 
 ### Phase 1: Working chat app
-- [ ] Next.js + TypeScript project
-- [ ] Chat page with streaming replies (Claude API)
-- [ ] System prompt for the tax/accounting role
-- [ ] Disclaimer shown in the app: outputs are drafts for professional review,
+- [x] Next.js + TypeScript project
+- [x] Chat page with streaming replies (Claude API)
+- [x] System prompt for the tax/accounting role
+- [x] Disclaimer shown in the app: outputs are drafts for professional review,
       not tax or legal advice
-- [ ] PDF upload and questions about the uploaded document
-- [ ] One example API link (tool) as the pattern for future integrations
-- [ ] README updated with setup steps
+- [x] PDF and .txt upload, with questions about the uploaded document
+- [x] One example API link (tool) as the pattern for future integrations
+      (`lookup_irs_notice`)
+- [x] README updated with setup steps
+- [x] First fictional test document (`samples/irs-notices/cp2000-fictional.txt`)
+- [ ] First live run with an API key
 
 **First focus:** IRS notices (e.g. CP2000 letters, audit letters). Common for firms
 of every size, clearly structured, and easy to create fictional versions of.

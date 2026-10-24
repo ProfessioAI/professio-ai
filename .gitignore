@@ -28,3 +28,12 @@ venv/
 
 # Logs
 *.log
+
+# Next.js
+/.next/
+/out/
+/coverage
+next-env.d.ts
+*.tsbuildinfo
+*.pem
+.vercel
