@@ -1,0 +1,38 @@
+*** FICTIONAL SAMPLE FOR TESTING ONLY. NOT A REAL IRS NOTICE. ALL NAMES, NUMBERS AND ADDRESSES ARE INVENTED. ***
+
+Department of the Treasury
+Internal Revenue Service
+
+Notice CP2501
+Tax year: 2024
+Notice date: October 15, 2026
+Social Security number: XXX-XX-0000
+To contact us: 1-800-000-0000 (fictional)
+
+RILEY J DEMO
+75 SAMPLE AVENUE
+SPRINGFIELD ST 00000
+
+We received information that doesn't match your 2024 tax return
+
+This is not a bill. We have not changed your return or assessed any tax.
+
+Our records show that a payer reported income to us that we could not match to your
+return:
+
+  Form 1099-MISC, Rents
+  Payer: Lakeside Rentals Cooperative (fictional), EIN 00-0000004
+  Amount reported to IRS:                  $3,200.00
+  Amount shown on your return:                 $0.00
+
+What you need to do
+  Please review your records and respond using the enclosed response form. Tell us
+  whether you agree that this income should have been reported, or explain why you
+  believe it was reported correctly or doesn't belong to you. The time you have to
+  respond is shown on the response form.
+
+(The response form was not included with this copy of the notice.)
+
+If you don't respond, we may send you a notice proposing changes to your return.
+
+*** END OF FICTIONAL SAMPLE ***

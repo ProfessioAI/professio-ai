@@ -1,0 +1,39 @@
+*** FICTIONAL SAMPLE FOR TESTING ONLY. NOT A REAL IRS NOTICE. ALL NAMES, NUMBERS AND ADDRESSES ARE INVENTED. ***
+
+Department of the Treasury
+Internal Revenue Service
+
+Notice CP3219A
+Notice of Deficiency
+Tax year: 2023 (Form 1040)
+Notice date: October 16, 2026
+Last day to file a petition with the United States Tax Court: January 14, 2027
+Social Security number: XXX-XX-0000
+To contact us: 1-800-000-0000 (fictional)
+
+HARPER Z SAMPLEFIELD
+12 PLACEHOLDER WAY
+SPRINGFIELD ST 00000
+
+We have determined there is a deficiency in your 2023 income tax
+
+  Deficiency (additional tax)                        $6,420.00
+  Accuracy-related penalty (IRC section 6662)        $1,284.00
+  ----------------------------------------------------------
+  Total proposed, not including interest             $7,704.00
+
+We based this on income reported to us by third parties that does not appear on your
+return. Interest will be added.
+
+Your rights
+  If you disagree, you can ask the United States Tax Court to review this notice
+  before you pay. To do so, you must file a petition with the Tax Court by
+  January 14, 2027. The Tax Court sets this date by law and we cannot extend it.
+
+  If you agree, sign and return the enclosed Form 5564, Notice of Deficiency Waiver,
+  and we will assess the amount.
+
+  If you don't file a petition by the date above and don't respond, we will assess the
+  amount shown after that date, and interest will continue to build.
+
+*** END OF FICTIONAL SAMPLE ***

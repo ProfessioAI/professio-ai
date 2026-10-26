@@ -1,0 +1,39 @@
+*** FICTIONAL SAMPLE FOR TESTING ONLY. NOT A REAL IRS NOTICE. ALL NAMES, NUMBERS AND ADDRESSES ARE INVENTED. ***
+
+Department of the Treasury
+Internal Revenue Service
+
+Notice CP11
+Tax year: 2025
+Notice date: October 12, 2026
+Pay by: November 2, 2026
+Social Security number: XXX-XX-0000
+To contact us: 1-800-000-0000 (fictional)
+
+DREW M NOTREAL
+7 MOCK LANE
+SPRINGFIELD ST 00000
+
+We changed your 2025 Form 1040 because of a math error
+
+We found an error when we checked the arithmetic on your return. As a result, the tax
+on your return changed and you owe additional tax.
+
+  Tax figured on your return                         $3,962.00
+  Tax we figured after correcting the error          $4,380.00
+  ----------------------------------------------------------
+  Increase in tax                                      $418.00
+  Amount you owe                                       $418.00
+
+The error: on line 15 the amount carried over from the tax computation did not match
+the amount on line 16.
+
+What you need to do
+  If you agree, pay the amount you owe by November 2, 2026 to avoid additional interest
+  and penalties.
+
+  If you disagree, you must contact us within 60 days of the date of this notice,
+  which is December 11, 2026, and tell us why. If you do, we will reverse the change
+  while we review your response.
+
+*** END OF FICTIONAL SAMPLE ***

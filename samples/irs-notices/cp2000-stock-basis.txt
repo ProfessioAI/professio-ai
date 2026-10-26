@@ -1,0 +1,55 @@
+*** FICTIONAL SAMPLE FOR TESTING ONLY. NOT A REAL IRS NOTICE. ALL NAMES, NUMBERS AND ADDRESSES ARE INVENTED. ***
+
+Department of the Treasury
+Internal Revenue Service
+
+Notice CP2000
+Tax year: 2023
+Notice date: October 12, 2026
+Respond by: November 11, 2026
+Social Security number: XXX-XX-0000
+To contact us: 1-800-000-0000 (fictional)
+
+MORGAN T TESTCASE
+210 EXAMPLE STREET
+SPRINGFIELD ST 00000
+
+Changes to your 2023 Form 1040
+
+The income and payment information we have on file from third parties doesn't match the
+information on your tax return. If our information is correct, you will owe additional
+tax, a penalty, and interest.
+
+Summary of proposed changes
+
+  Proposed increase in tax                          $5,700.00
+  Accuracy-related penalty (IRC section 6662)       $1,140.00
+  Interest charged                                    $410.00
+  ----------------------------------------------------------
+  Amount you owe                                    $7,250.00
+
+Information we received
+
+  Form 1099-B, Proceeds from broker transactions
+  Payer: Example Brokerage Services LLC (fictional), EIN 00-0000003
+  Proceeds reported to IRS:                          $42,500.00
+  Cost or other basis reported to IRS:               not reported
+  Amount shown on your return for this item:          $4,500.00
+  Difference:                                        $38,000.00
+
+How we figured the change
+  Because no cost basis was reported to us, we treated the $38,000.00 difference as
+  long-term capital gain, taxed at 15%: $38,000.00 x 15% = $5,700.00.
+  The accuracy-related penalty is 20% of the increase in tax: $1,140.00.
+
+What you need to do
+  - If you agree, sign and return the response form and pay the amount you owe.
+  - If you disagree, complete the response form, explain why, and attach copies of
+    documents that support your position, such as purchase confirmations or statements
+    showing what you paid for the securities.
+  - If you agree with some of the changes, mark "partially agree" and explain.
+
+If we don't hear from you by November 11, 2026, we will send you a Statutory Notice of
+Deficiency proposing the changes shown on this notice.
+
+*** END OF FICTIONAL SAMPLE ***

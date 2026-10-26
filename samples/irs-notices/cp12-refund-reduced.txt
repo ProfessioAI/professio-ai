@@ -1,0 +1,36 @@
+*** FICTIONAL SAMPLE FOR TESTING ONLY. NOT A REAL IRS NOTICE. ALL NAMES, NUMBERS AND ADDRESSES ARE INVENTED. ***
+
+Department of the Treasury
+Internal Revenue Service
+
+Notice CP12
+Tax year: 2025
+Notice date: October 19, 2026
+Social Security number: XXX-XX-0000
+To contact us: 1-800-000-0000 (fictional)
+
+JAMIE K FAKENAME
+515 TESTING STREET
+SPRINGFIELD ST 00000
+
+We changed your 2025 Form 1040 and your refund is different
+
+We found an error on your return. We corrected it, and this changed your refund.
+
+  Refund you claimed                                 $1,850.00
+  Adjustment: federal income tax withheld             -$430.00
+  ----------------------------------------------------------
+  Your corrected refund                              $1,420.00
+
+The error: on line 25 you reported $11,230.00 of federal income tax withheld. The Forms
+W-2 we have on file show $10,800.00 withheld, a difference of $430.00.
+
+Your refund of $1,420.00 will be sent to you in 4 to 6 weeks. You don't need to do
+anything if you agree with this change.
+
+If you disagree
+  If you believe our change is wrong, contact us within 60 days of the date of this
+  notice, which is December 18, 2026. Tell us why you disagree and include copies of
+  your Forms W-2 or other records that support the withholding you reported.
+
+*** END OF FICTIONAL SAMPLE ***
