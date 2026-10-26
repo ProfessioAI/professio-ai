@@ -59,13 +59,25 @@ and ask for an explanation and a response plan.
   are estimates. Prices are in `src/lib/usage.ts`; re-check them against Anthropic's pricing
   page before charging customers from them. Replies stopped early aren't counted.
 - **Settings:** the profile row at the bottom of the sidebar opens Settings, with six tabs:
-  Appearance (theme, accent color, text size, spacing, reading width, font, reduce motion),
-  Chat (send key, scrolling, what to show, answer detail and tone), Notices (automatic
-  reading, details panel, deadline warning, date format), Practice (your name and details,
-  used to sign drafts), Data & privacy (usage meter, export format, resets), and About.
+  - **Appearance:** style (Classic or Glass), theme (system, light, dark), accent color (presets,
+    or any color from a color wheel), **custom colors** (ten colors each for light and dark, picked
+    with color wheels or loaded and saved as JSON), font (seven choices, each shown in its own
+    typeface), text size, spacing, reading width, and reduce motion.
+  - **Chat:** the **LLM model** (Claude Opus 5.5, Sonnet 5.5, Haiku 5.5, or Fable 5.1, with prices),
+    answer detail and tone, send key, scrolling, and what to show.
+  - **Notices:** automatic reading, details panel, deadline warning, date format.
+  - **Practice:** your name and details, used to sign drafts.
+  - **Data & privacy:** usage meter, export format, resets.
+  - **About:** the pilot name (**Taurus**), the current model, and keyboard shortcuts.
+
   Everything is saved in the browser. Code: `src/components/settings/` and `src/lib/settings.ts`.
-  Answer detail, tone, and practice details are sent to the AI with each message, on the latest
-  message only, so the saved instructions and the cache aren't affected.
+  The model, answer detail, tone, and practice details are sent to the AI with each message. The
+  server only accepts models from `src/lib/models.ts`. Answer style and practice details go on the
+  latest message only, so the saved instructions and the cache aren't affected.
+- **Custom colors:** a theme is ten colors per mode (`src/lib/custom-theme.ts`). Hover shades,
+  borders, soft backgrounds, and text on buttons are worked out from them, so a custom theme stays
+  readable. The JSON format is `{"format": "professioai-theme", "version": 1, "name": "...",
+  "light": {...}, "dark": {...}}`; missing colors are filled in from Classic or Glass.
 - **Documents:** PDF and .txt files are sent to Claude with the question. Nothing is stored;
   the conversation lives in the browser tab and is gone when you refresh.
 - **API links:** the assistant can call tools. The example tool,
@@ -92,8 +104,10 @@ ranges that can't be real), and that every document has an entry in the answer k
 
 ## Troubleshooting
 
-**Style changes don't show up.** The development server can hold on to an old stylesheet. Stop
-it (Ctrl + C), delete the hidden `.next` folder in the project, and run `npm run dev` again.
+**Style changes don't show up.** Tailwind CSS runs as a PostCSS plugin (`postcss.config.mjs`), and edits
+to the stylesheet normally appear straight away. An earlier setup could keep serving an old
+stylesheet after a file was replaced. If it ever happens again, stop the app (Ctrl + C), delete the
+hidden `.next` folder in the project, and run `npm run dev` again.
 
 ## Roadmap
 

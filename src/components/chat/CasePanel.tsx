@@ -221,7 +221,7 @@ export default function CasePanel({ details, documents, drafts, onRetry, onClose
   return (
     <aside
       aria-label="Notice details"
-      className={`w-[300px] shrink-0 flex-col gap-6 overflow-y-auto border-l border-border bg-surface px-5 py-6 ${className}`}
+      className={`ui-panel w-[300px] shrink-0 flex-col gap-6 overflow-y-auto border-l border-border bg-surface px-5 py-6 ${className}`}
     >
       <section>
         <div className="flex items-start justify-between">

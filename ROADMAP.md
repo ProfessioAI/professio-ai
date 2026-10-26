@@ -68,11 +68,12 @@ Phase 3 should measure a fix for this.
 - [ ] Saved chats and documents (Supabase)
 - [x] In-app usage meter: estimated cost per reply, per conversation, per day, and all
       time, kept in the browser (`src/lib/usage.ts`, prices last checked 2026-10-06)
-- [x] User settings: theme, accent color, text size, spacing, width, font, motion; send key,
-      scrolling, what to show in chats, answer detail and tone; notice reading, details panel,
-      deadline warning, date format; practice details for signing drafts; usage and export
-      options. Saved in the browser (`src/lib/settings.ts`)
-- [ ] Move settings to the user's account, so they follow the user between devices
+- [x] User settings, saved in the browser (`src/lib/settings.ts`): style (Classic or Glass),
+      theme, accent (presets or a color wheel), fully custom colors (color wheels or JSON), seven
+      fonts, text size, spacing, width, motion; LLM model (Opus 5.5, Sonnet 5.5, Haiku 5.5,
+      Fable 5.1); send key, scrolling, what to show, answer detail and tone; notice reading,
+      details panel, deadline warning, date format; practice details; usage and export options
+- [ ] Move settings (including custom themes) to the user's account, so they follow the user between devices
 - [ ] Per-user usage tracking on the server (needed for seat licensing and cost control)
 
 ### Phase 5: Legal and privacy review (before any real client data)

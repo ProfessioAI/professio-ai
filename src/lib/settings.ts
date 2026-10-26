@@ -3,15 +3,29 @@
 // Settings are saved in this browser (localStorage) for now. When sign-in exists they can
 // move to the user's account without changing what the options mean.
 
+import { normalizeHex } from "./color";
+import {
+  BASE_THEMES,
+  accentOnlyVars,
+  sanitizeTheme,
+  themeVars,
+  type BaseStyle,
+  type CustomTheme,
+} from "./custom-theme";
+import { DEFAULT_MODEL, MODEL_IDS, type ModelId } from "./models";
+
 export const SETTINGS_KEY = "professioai.settings.v1";
 
 // Allowed values, in the order they are shown.
 export const THEMES = ["system", "light", "dark"] as const;
-export const ACCENTS = ["teal", "blue", "indigo", "rose", "graphite"] as const;
+export const STYLES = ["classic", "glass"] as const;
+/** "auto" follows the style (teal for Classic, blue for Glass); "custom" uses `customAccent`. */
+export const ACCENTS = ["auto", "teal", "blue", "indigo", "rose", "graphite", "custom"] as const;
 export const TEXT_SIZES = ["small", "default", "large", "xlarge"] as const;
 export const DENSITIES = ["comfortable", "compact"] as const;
 export const READING_WIDTHS = ["narrow", "standard", "wide"] as const;
-export const FONTS = ["inter", "system", "serif"] as const;
+/** "auto" follows the style (Inter for Classic, Manrope for Glass). */
+export const FONTS = ["auto", "inter", "manrope", "system", "serif", "readable", "mono"] as const;
 export const MOTIONS = ["system", "reduced"] as const;
 export const SEND_KEYS = ["enter", "modEnter"] as const;
 export const REPLY_DETAILS = ["brief", "standard", "detailed"] as const;
@@ -22,6 +36,7 @@ export const DATE_FORMATS = ["us", "numeric", "eu", "iso"] as const;
 export const EXPORT_FORMATS = ["markdown", "text"] as const;
 
 export type Theme = (typeof THEMES)[number];
+export type StyleChoice = (typeof STYLES)[number];
 export type Accent = (typeof ACCENTS)[number];
 export type TextSize = (typeof TEXT_SIZES)[number];
 export type Density = (typeof DENSITIES)[number];
@@ -39,7 +54,19 @@ export type ExportFormat = (typeof EXPORT_FORMATS)[number];
 export type Settings = {
   // Appearance
   theme: Theme;
+  style: StyleChoice;
   accent: Accent;
+  /** The accent when `accent` is "custom", as "#rrggbb". */
+  customAccent: string;
+  /** Use `customTheme` for every color in the app. */
+  useCustomTheme: boolean;
+  /** Ten colors each for light and dark mode. Null until the user creates one. */
+  customTheme: CustomTheme | null;
+  /**
+   * The CSS variables that `accent: "custom"` or a custom theme need, worked out from the
+   * settings above. Saved so the page can apply them before it first paints.
+   */
+  themeVars: Record<string, string>;
   textSize: TextSize;
   density: Density;
   readingWidth: ReadingWidth;
@@ -47,6 +74,7 @@ export type Settings = {
   motion: Motion;
 
   // Chat
+  model: ModelId;
   sendKey: SendKey;
   autoScroll: boolean;
   showToolChips: boolean;
@@ -77,13 +105,19 @@ export type Settings = {
 
 export const DEFAULT_SETTINGS: Settings = {
   theme: "system",
-  accent: "teal",
+  style: "classic",
+  accent: "auto",
+  customAccent: "#7c3aed",
+  useCustomTheme: false,
+  customTheme: null,
+  themeVars: {},
   textSize: "default",
   density: "comfortable",
   readingWidth: "standard",
-  font: "inter",
+  font: "auto",
   motion: "system",
 
+  model: DEFAULT_MODEL,
   sendKey: "enter",
   autoScroll: true,
   showToolChips: true,
@@ -124,6 +158,7 @@ export const TEXT_LIMITS = {
  */
 export const APPEARANCE_ATTRIBUTES = {
   theme: "theme",
+  style: "style",
   accent: "accent",
   text: "textSize",
   density: "density",
@@ -152,15 +187,23 @@ export function cleanLine(value: unknown, max: number): string {
 export function sanitizeSettings(raw: unknown): Settings {
   const r = (raw && typeof raw === "object" ? raw : {}) as Record<string, unknown>;
   const d = DEFAULT_SETTINGS;
-  return {
+  const style = pick(r.style, STYLES, d.style);
+  const customTheme = r.customTheme ? sanitizeTheme(r.customTheme, BASE_THEMES[style]) : null;
+  const out: Settings = {
     theme: pick(r.theme, THEMES, d.theme),
+    style,
     accent: pick(r.accent, ACCENTS, d.accent),
+    customAccent: normalizeHex(r.customAccent) ?? d.customAccent,
+    customTheme,
+    useCustomTheme: bool(r.useCustomTheme, false) && customTheme !== null,
+    themeVars: {},
     textSize: pick(r.textSize, TEXT_SIZES, d.textSize),
     density: pick(r.density, DENSITIES, d.density),
     readingWidth: pick(r.readingWidth, READING_WIDTHS, d.readingWidth),
     font: pick(r.font, FONTS, d.font),
     motion: pick(r.motion, MOTIONS, d.motion),
 
+    model: pick(r.model, MODEL_IDS, d.model),
     sendKey: pick(r.sendKey, SEND_KEYS, d.sendKey),
     autoScroll: bool(r.autoScroll, d.autoScroll),
     showToolChips: bool(r.showToolChips, d.showToolChips),
@@ -185,6 +228,18 @@ export function sanitizeSettings(raw: unknown): Settings {
     usageDetailsOpen: bool(r.usageDetailsOpen, d.usageDetailsOpen),
     exportFormat: pick(r.exportFormat, EXPORT_FORMATS, d.exportFormat),
   };
+  // Always worked out fresh, never trusted from storage.
+  out.themeVars = computeThemeVars(out);
+  return out;
+}
+
+/** The CSS variables a custom theme, or a custom accent, puts on the page. Empty otherwise. */
+export function computeThemeVars(
+  s: Pick<Settings, "style" | "accent" | "customAccent" | "useCustomTheme" | "customTheme">,
+) {
+  if (s.useCustomTheme && s.customTheme) return themeVars(s.customTheme);
+  if (s.accent === "custom") return accentOnlyVars(s.customAccent, s.style as BaseStyle);
+  return {};
 }
 
 /** Initials for the profile avatar: "Jordan Sample" -> "JS", empty -> "P". */

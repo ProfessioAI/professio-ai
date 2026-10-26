@@ -28,12 +28,18 @@ function Svg({
 
 export function Logo({ size = 30 }: { size?: number }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 30 30" aria-hidden="true" className="shrink-0">
-      <rect width="30" height="30" rx="8" className="fill-accent" />
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 30 30"
+      aria-hidden="true"
+      className="shrink-0 text-primary-fg"
+    >
+      <rect width="30" height="30" rx="8" className="fill-primary" />
       <path
         d="M10 22V8h6a4.5 4.5 0 0 1 0 9h-6"
         fill="none"
-        stroke="#fff"
+        stroke="currentColor"
         strokeWidth="2.4"
         strokeLinecap="round"
         strokeLinejoin="round"

@@ -1,3 +1,4 @@
+import { PILOT_NAME } from "@/lib/config";
 import { initials } from "@/lib/settings";
 import { useSettings } from "@/components/settings/settings-store";
 import { CloseIcon, DocIcon, GearIcon, Logo, PlusIcon } from "./Icons";
@@ -28,12 +29,15 @@ export default function Sidebar({
   return (
     <nav
       aria-label="Conversations"
-      className={`w-[264px] shrink-0 flex-col gap-5 border-r border-border bg-surface px-4 py-5 ${className}`}
+      className={`ui-panel w-[264px] shrink-0 flex-col gap-5 border-r border-border bg-surface px-4 py-5 ${className}`}
     >
       <div className="flex items-center gap-2.5 px-1">
         <Logo />
         <span className="text-[1.0625rem] font-bold tracking-tight">ProfessioAI</span>
-        <span className="ml-auto rounded-full bg-pill-bg px-2 py-0.5 text-[0.6875rem] font-semibold text-pill-fg">
+        <span
+          title={`Pilot: ${PILOT_NAME}`}
+          className="ml-auto rounded-full bg-pill-bg px-2 py-0.5 text-[0.6875rem] font-semibold text-pill-fg"
+        >
           Pilot
         </span>
         {onClose ? (
@@ -51,7 +55,7 @@ export default function Sidebar({
       <button
         type="button"
         onClick={onNewChat}
-        className="flex h-11 items-center justify-center gap-2 rounded-[10px] bg-accent text-sm font-semibold text-white hover:bg-accent-hover"
+        className="flex h-11 items-center justify-center gap-2 ui-primary rounded-[10px] bg-primary text-sm font-semibold text-primary-fg hover:bg-primary-hover"
       >
         <PlusIcon />
         New conversation
@@ -62,7 +66,7 @@ export default function Sidebar({
           <div className="px-2 pb-1 text-xs font-semibold tracking-[0.06em] text-muted uppercase">Today</div>
           <div
             aria-current="page"
-            className="flex items-center gap-2.5 rounded-lg bg-accent-soft p-2.5 text-sm font-semibold"
+            className="ui-pill flex items-center gap-2.5 rounded-lg bg-accent-soft p-2.5 text-sm font-semibold"
           >
             <DocIcon size={16} className="shrink-0 text-accent-text" />
             <span className="truncate">{title}</span>
@@ -72,7 +76,7 @@ export default function Sidebar({
 
       <div className="mt-auto flex flex-col gap-3 overflow-y-auto">
         {settings.showUsageMeter ? meter : null}
-        <div className="rounded-[10px] border border-warn-border bg-warn-bg px-3.5 py-3 text-[0.8125rem] leading-snug text-warn-fg">
+        <div className="ui-soft rounded-[10px] border border-warn-border bg-warn-bg px-3.5 py-3 text-[0.8125rem] leading-snug text-warn-fg">
           <strong className="mb-0.5 block">Pilot mode</strong>
           Use fictional or public test data only. Conversations aren&apos;t saved after you close the tab;
           only the usage totals stay in this browser.

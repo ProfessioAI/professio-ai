@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useId, useRef, useState } from "react";
+import { normalizeHex } from "@/lib/color";
 
 // Small building blocks for the settings screen.
 
@@ -43,7 +44,7 @@ export function Card({
   children: React.ReactNode;
 }) {
   return (
-    <section className="rounded-xl border border-border bg-surface px-5 py-1">
+    <section className="ui-panel rounded-xl border border-border bg-surface px-5 py-1">
       <header className="pt-4 pb-1">
         <h2 className="text-[0.9375rem] font-semibold">{title}</h2>
         {description ? <p className="mt-0.5 text-[0.8125rem] text-muted">{description}</p> : null}
@@ -87,7 +88,7 @@ export function Segmented<T extends string | number>({
     <div
       role="radiogroup"
       aria-label={label}
-      className="inline-flex max-w-full flex-wrap gap-0.5 rounded-[0.625rem] bg-hover p-0.5"
+      className="ui-inset ui-pill inline-flex max-w-full flex-wrap gap-0.5 rounded-[0.625rem] bg-hover p-0.5"
     >
       {options.map((o, i) => {
         const selected = o.value === value;
@@ -214,7 +215,7 @@ export function TextField({
       onKeyDown={(e) => {
         if (e.key === "Enter") commit();
       }}
-      className="h-10 w-full rounded-lg border border-border-strong bg-background px-3 text-sm outline-none placeholder:text-muted focus:border-accent-text sm:w-72"
+      className="ui-inset ui-pill h-10 w-full rounded-lg border border-border-strong bg-background px-3 text-sm outline-none placeholder:text-muted focus:border-accent-text sm:w-72"
     />
   );
 }
@@ -252,7 +253,7 @@ export function ConfirmButton({
           setConfirming(true);
         }
       }}
-      className={`h-10 rounded-lg border px-3.5 text-sm font-medium whitespace-nowrap ${
+      className={`ui-raised ui-pill h-10 rounded-lg border px-3.5 text-sm font-medium whitespace-nowrap ${
         confirming
           ? "border-transparent bg-error-bg text-error-fg"
           : danger
@@ -270,9 +271,135 @@ export function ActionButton({ label, onClick }: { label: string; onClick: () =>
     <button
       type="button"
       onClick={onClick}
-      className="h-10 rounded-lg border border-border-strong px-3.5 text-sm font-medium whitespace-nowrap text-text-2 hover:bg-hover"
+      className="ui-raised ui-pill h-10 rounded-lg border border-border-strong px-3.5 text-sm font-medium whitespace-nowrap text-text-2 hover:bg-hover"
     >
       {label}
     </button>
+  );
+}
+
+/** A set of larger choices shown as cards, where exactly one is selected. Arrow keys move between them. */
+export function ChoiceCards<T extends string>({
+  label,
+  value,
+  options,
+  onChange,
+  className = "grid-cols-1 sm:grid-cols-2",
+}: {
+  label: string;
+  value: T;
+  options: readonly { value: T; content: React.ReactNode }[];
+  onChange: (value: T) => void;
+  className?: string;
+}) {
+  const refs = useRef<(HTMLButtonElement | null)[]>([]);
+
+  function onKeyDown(e: React.KeyboardEvent, index: number) {
+    const step =
+      e.key === "ArrowRight" || e.key === "ArrowDown"
+        ? 1
+        : e.key === "ArrowLeft" || e.key === "ArrowUp"
+          ? -1
+          : 0;
+    if (!step) return;
+    e.preventDefault();
+    const next = (index + step + options.length) % options.length;
+    onChange(options[next].value);
+    refs.current[next]?.focus();
+  }
+
+  return (
+    <div role="radiogroup" aria-label={label} className={`grid gap-2.5 ${className}`}>
+      {options.map((o, i) => {
+        const selected = o.value === value;
+        return (
+          <button
+            key={o.value}
+            ref={(el) => {
+              refs.current[i] = el;
+            }}
+            type="button"
+            role="radio"
+            aria-checked={selected}
+            tabIndex={selected ? 0 : -1}
+            onClick={() => onChange(o.value)}
+            onKeyDown={(e) => onKeyDown(e, i)}
+            className={`ui-raised ui-soft rounded-xl border p-3.5 text-left transition-colors ${
+              selected
+                ? "border-accent-text bg-accent-soft ring-1 ring-accent-text"
+                : "border-border bg-surface hover:border-border-strong hover:bg-hover"
+            }`}
+          >
+            {o.content}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+/**
+ * A color: the browser's own color picker (a wheel or spectrum) plus a hex box.
+ * Typing is only applied once it's a complete color, so half-typed values never break anything.
+ */
+export function ColorField({
+  value,
+  onChange,
+  label,
+  id,
+}: {
+  value: string;
+  onChange: (hex: string) => void;
+  label: string;
+  id: string;
+}) {
+  const [typed, setTyped] = useState<string | null>(null);
+  const shown = typed ?? value;
+  const valid = typed === null || normalizeHex(typed) !== null;
+
+  return (
+    <div className="flex items-center gap-2">
+      <input
+        type="color"
+        aria-label={`${label}: pick a color`}
+        value={value}
+        onChange={(e) => {
+          setTyped(null);
+          onChange(e.target.value.toLowerCase());
+        }}
+        className="h-9 w-11 shrink-0 cursor-pointer rounded-lg border border-border-strong bg-transparent p-0.5"
+      />
+      <input
+        id={id}
+        type="text"
+        value={shown}
+        aria-label={`${label}: hex code`}
+        aria-invalid={!valid}
+        maxLength={7}
+        spellCheck={false}
+        autoComplete="off"
+        onChange={(e) => {
+          const next = e.target.value;
+          setTyped(next);
+          const hex = normalizeHex(next);
+          if (hex && next.trim().length >= 4) onChange(hex);
+        }}
+        onBlur={() => {
+          // Leaving the box applies a complete color (such as "abc") and drops half-typed text.
+          const hex = typed === null ? null : normalizeHex(typed);
+          if (hex) onChange(hex);
+          setTyped(null);
+        }}
+        onKeyDown={(e) => {
+          if (e.key !== "Enter") return;
+          const hex = typed === null ? null : normalizeHex(typed);
+          if (hex) onChange(hex);
+          setTyped(null);
+        }}
+        className={`h-9 w-24 rounded-lg border bg-background px-2.5 font-mono text-[0.8125rem] outline-none focus:border-accent-text ${
+          valid ? "border-border-strong" : "border-error-fg text-error-fg"
+        }`}
+      />
+    </div>
   );
 }

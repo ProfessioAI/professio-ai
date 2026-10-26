@@ -39,7 +39,10 @@ export default function UsageMeter({ meter }: { meter: Meter }) {
     : null;
 
   return (
-    <section aria-label="AI usage" className="rounded-[10px] border border-border px-3.5 py-3 text-[0.8125rem]">
+    <section
+      aria-label="AI usage"
+      className="ui-inset ui-soft rounded-[10px] border border-border px-3.5 py-3 text-[0.8125rem]"
+    >
       <div className="mb-2 flex items-center justify-between">
         <h2 className="text-xs font-semibold tracking-[0.06em] text-muted uppercase">Usage</h2>
         <span className="text-[0.6875rem] text-muted" title="Estimated from tokens used, at published prices">
@@ -63,14 +66,20 @@ export default function UsageMeter({ meter }: { meter: Meter }) {
               <thead>
                 <tr className="text-muted">
                   <th scope="col" className="pb-1 text-left font-medium" />
-                  <th scope="col" className="pb-1 text-right font-medium">Chat</th>
-                  <th scope="col" className="pb-1 text-right font-medium">All</th>
+                  <th scope="col" className="pb-1 text-right font-medium">
+                    Chat
+                  </th>
+                  <th scope="col" className="pb-1 text-right font-medium">
+                    All
+                  </th>
                 </tr>
               </thead>
               <tbody>
                 {tokenRows(conversation.tokens).map(([label, n], i) => (
                   <tr key={label}>
-                    <th scope="row" className="py-0.5 text-left font-normal text-text-3">{label}</th>
+                    <th scope="row" className="py-0.5 text-left font-normal text-text-3">
+                      {label}
+                    </th>
                     <td className="py-0.5 text-right">{formatTokens(n)}</td>
                     <td className="py-0.5 text-right">{formatTokens(tokenRows(total.tokens)[i][1])}</td>
                   </tr>

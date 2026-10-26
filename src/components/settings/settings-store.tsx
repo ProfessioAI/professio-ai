@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useSyncExternalStore } from "react";
+import { sanitizeVars } from "@/lib/custom-theme";
 import {
   APPEARANCE_ATTRIBUTES,
   DEFAULT_SETTINGS,
@@ -44,12 +45,19 @@ function parseSettings(raw: string | null): Settings {
   }
 }
 
-/** Puts the appearance settings on <html> for the stylesheet to read. */
+// The custom-color variables currently set on <html>, so they can be removed again.
+let appliedVars: string[] = [];
+
+/** Puts the appearance settings on <html> for the stylesheet to read, and applies custom colors. */
 function applyAppearance(settings: Settings) {
   const root = document.documentElement;
   for (const [attribute, key] of Object.entries(APPEARANCE_ATTRIBUTES)) {
     root.setAttribute(`data-${attribute}`, String(settings[key]));
   }
+  const vars = sanitizeVars(settings.themeVars);
+  for (const name of appliedVars) if (!(name in vars)) root.style.removeProperty(name);
+  for (const [name, value] of Object.entries(vars)) root.style.setProperty(name, value);
+  appliedVars = Object.keys(vars);
 }
 
 export type SettingsApi = {

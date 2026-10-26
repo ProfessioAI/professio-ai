@@ -7,7 +7,7 @@ import { addReports, emptyReport, reportFromMessage } from "@/lib/usage";
 import { AttachmentSchema, toDocumentBlocks } from "@/lib/documents";
 import { SYSTEM_PROMPT } from "@/lib/system-prompt";
 import { runTool, toolDefinitions } from "@/lib/tools";
-import { AI_MODEL as MODEL } from "@/lib/config";
+import { DEFAULT_MODEL, MODEL_IDS, modelInfo } from "@/lib/models";
 import {
   DRAFT_TONES,
   REPLY_DETAILS,
@@ -23,6 +23,8 @@ const EFFORT = "medium";
 const MAX_TOOL_ROUNDS = 8;
 
 const RequestSchema = z.object({
+  // Which model answers. Only ids from the allowed list are accepted.
+  model: z.enum(MODEL_IDS).optional(),
   messages: z
     .array(
       z.object({
@@ -83,6 +85,8 @@ export async function POST(req: Request) {
   if (!parsed.success) {
     return Response.json({ error: z.prettifyError(parsed.error) }, { status: 400 });
   }
+  const model = parsed.data.model ?? DEFAULT_MODEL;
+  const { serverFallback } = modelInfo(model);
   const history = parsed.data.messages;
   if (history[history.length - 1].role !== "user") {
     return Response.json({ error: "The last message must be from the user." }, { status: 400 });
@@ -108,13 +112,14 @@ export async function POST(req: Request) {
         for (let round = 0; round < MAX_TOOL_ROUNDS; round++) {
           const response = client.beta.messages.stream(
             {
-              model: MODEL,
+              model,
               max_tokens: 64000,
               output_config: { effort: EFFORT },
-              // If a safety check declines the request, let the API retry it
-              // on a suitable fallback model inside the same call.
-              betas: ["server-side-fallback-2026-07-01"],
-              fallbacks: "default",
+              // If a safety check declines the request, let the API retry it on a suitable
+              // fallback model inside the same call. (Not every model supports this.)
+              ...(serverFallback
+                ? { betas: ["server-side-fallback-2026-07-01"], fallbacks: "default" as const }
+                : {}),
               // Caches the system prompt, tools, and earlier turns (including
               // uploaded documents) so follow-up questions cost less.
               cache_control: { type: "ephemeral" },

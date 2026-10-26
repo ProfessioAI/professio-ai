@@ -1,15 +1,9 @@
 "use client";
 
 import { useId, useState } from "react";
-import { AI_MODEL_NAME } from "@/lib/config";
-import {
-  ACCENTS,
-  DEFAULT_SETTINGS,
-  TEXT_LIMITS,
-  type Accent,
-  type DateFormat,
-  type Settings,
-} from "@/lib/settings";
+import { PILOT_NAME } from "@/lib/config";
+import { modelInfo } from "@/lib/models";
+import { DEFAULT_SETTINGS, TEXT_LIMITS, type DateFormat, type Settings } from "@/lib/settings";
 import { formatDate } from "@/components/chat/notice-utils";
 import { CalendarIcon } from "@/components/chat/Icons";
 import type { UsageMeter } from "@/components/chat/usage-store";
@@ -23,6 +17,8 @@ import {
   TextField,
   type Option,
 } from "./controls";
+import CustomColors from "./CustomColors";
+import { AccentPicker, FontPicker, ModelPicker, StylePicker } from "./pickers";
 import { useSettings } from "./settings-store";
 
 const TABS = [
@@ -35,14 +31,6 @@ const TABS = [
 ] as const;
 type TabId = (typeof TABS)[number]["id"];
 
-const SWATCH: Record<Accent, { label: string; color: string }> = {
-  teal: { label: "Teal", color: "#0b6b5c" },
-  blue: { label: "Blue", color: "#1d4ed8" },
-  indigo: { label: "Indigo", color: "#4338ca" },
-  rose: { label: "Rose", color: "#be123c" },
-  graphite: { label: "Graphite", color: "#1f2937" },
-};
-
 const SAMPLE_DATE = "2026-10-31";
 const dateOptions: Option<DateFormat>[] = (["us", "numeric", "eu", "iso"] as const).map((v) => ({
   value: v,
@@ -51,55 +39,17 @@ const dateOptions: Option<DateFormat>[] = (["us", "numeric", "eu", "iso"] as con
 
 type Patch = (p: Partial<Settings>) => void;
 
-function AccentPicker({ value, onChange }: { value: Accent; onChange: (a: Accent) => void }) {
-  return (
-    <div role="radiogroup" aria-label="Accent color" className="flex flex-wrap gap-2">
-      {ACCENTS.map((a) => {
-        const selected = a === value;
-        return (
-          <button
-            key={a}
-            type="button"
-            role="radio"
-            aria-checked={selected}
-            aria-label={SWATCH[a].label}
-            title={SWATCH[a].label}
-            onClick={() => onChange(a)}
-            className={`flex size-9 items-center justify-center rounded-full ring-offset-2 ring-offset-surface ${
-              selected ? "ring-2 ring-foreground" : "ring-1 ring-border-strong hover:ring-foreground/40"
-            }`}
-            style={{ backgroundColor: SWATCH[a].color }}
-          >
-            {selected ? (
-              <svg
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="#fff"
-                strokeWidth="3"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                aria-hidden="true"
-              >
-                <path d="M20 6 9 17l-5-5" />
-              </svg>
-            ) : null}
-          </button>
-        );
-      })}
-    </div>
-  );
-}
-
 /** A small sample of the conversation, so appearance changes can be judged at a glance. */
 function Preview() {
   return (
-    <div aria-hidden="true" className="mb-4 rounded-xl border border-border bg-background p-4">
+    <div
+      aria-hidden="true"
+      className="ui-inset ui-soft mb-4 rounded-xl border border-border bg-background p-4"
+    >
       <div className="mb-1 text-xs font-semibold tracking-[0.06em] text-muted uppercase">Preview</div>
       <div className="flex flex-col gap-[var(--chat-gap)]">
         <div className="flex justify-end">
-          <div className="max-w-[85%] rounded-[14px_14px_4px_14px] bg-user-bubble px-4 py-2.5 text-user-bubble-fg">
+          <div className="ui-bubble max-w-[85%] rounded-[14px_14px_4px_14px] bg-user-bubble px-4 py-2.5 text-user-bubble-fg">
             What does this notice ask for?
           </div>
         </div>
@@ -117,7 +67,7 @@ function Preview() {
           </p>
         </div>
         <div>
-          <span className="inline-flex h-10 items-center rounded-lg bg-accent px-3.5 text-sm font-semibold text-white">
+          <span className="ui-primary inline-flex h-10 items-center rounded-lg bg-primary px-3.5 text-sm font-semibold text-primary-fg">
             Draft response letter
           </span>
         </div>
@@ -126,11 +76,34 @@ function Preview() {
   );
 }
 
+function Block({
+  label,
+  description,
+  children,
+}: {
+  label: string;
+  description?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="border-b border-border py-4 last:border-b-0">
+      <div className="mb-2.5 text-sm font-medium">{label}</div>
+      {description ? (
+        <p className="-mt-1.5 mb-2.5 text-[0.8125rem] leading-snug text-muted">{description}</p>
+      ) : null}
+      {children}
+    </div>
+  );
+}
+
 function Appearance({ s, set }: { s: Settings; set: Patch }) {
   return (
     <>
       <Preview />
-      <Card title="Theme and color">
+      <Card title="Style, theme, and color">
+        <Block label="Style" description="The overall look: shapes, panels, and fonts.">
+          <StylePicker value={s.style} onChange={(style) => set({ style })} />
+        </Block>
         <SettingRow label="Theme" description="System follows your computer's light or dark setting.">
           <Segmented
             label="Theme"
@@ -143,11 +116,27 @@ function Appearance({ s, set }: { s: Settings; set: Patch }) {
             ]}
           />
         </SettingRow>
-        <SettingRow label="Accent color" description="Buttons, links, and highlights.">
-          <AccentPicker value={s.accent} onChange={(accent) => set({ accent })} />
+        <SettingRow
+          label="Accent color"
+          description={
+            s.useCustomTheme
+              ? "Your custom colors are on, so the accent comes from them (see Custom colors below)."
+              : "Buttons, links, and highlights. The last circle opens a color wheel for any color."
+          }
+        >
+          <AccentPicker
+            value={s.accent}
+            customHex={s.customAccent}
+            onChange={(accent) => set({ accent })}
+            onCustom={(customAccent) => set({ accent: "custom", customAccent })}
+          />
         </SettingRow>
       </Card>
+      <CustomColors s={s} set={set} />
       <Card title="Text and layout">
+        <Block label="Font" description="Applies to the whole app.">
+          <FontPicker value={s.font} onChange={(font) => set({ font })} />
+        </Block>
         <SettingRow label="Text size" description="Scales the whole app, including buttons and spacing.">
           <Segmented
             label="Text size"
@@ -184,18 +173,6 @@ function Appearance({ s, set }: { s: Settings; set: Patch }) {
             ]}
           />
         </SettingRow>
-        <SettingRow label="Font" description="Serif applies to the assistant's answers only.">
-          <Segmented
-            label="Font"
-            value={s.font}
-            onChange={(font) => set({ font })}
-            options={[
-              { value: "inter", label: "Inter" },
-              { value: "system", label: "System" },
-              { value: "serif", label: "Serif answers" },
-            ]}
-          />
-        </SettingRow>
       </Card>
       <Card title="Motion">
         <SettingRow
@@ -216,6 +193,19 @@ function Appearance({ s, set }: { s: Settings; set: Patch }) {
 function Chat({ s, set }: { s: Settings; set: Patch }) {
   return (
     <>
+      <Card
+        title="LLM model"
+        description="The large language model that writes the answers and reads your notices. Applies from your next message."
+      >
+        <Block label="Model">
+          <ModelPicker value={s.model} onChange={(model) => set({ model })} />
+          <p className="mt-3 text-[0.8125rem] leading-snug text-muted">
+            Prices are what the model provider charges per million tokens, and the cost per answer is a guide.
+            Changing the model in the middle of a conversation re-reads any attached documents at full price
+            once. Every model writes drafts for professional review, and any of them can be wrong.
+          </p>
+        </Block>
+      </Card>
       <Card title="Answers" description="These two are sent to the AI with each message.">
         <SettingRow
           label="Answer detail"
@@ -530,22 +520,32 @@ function Data({
   );
 }
 
-function About() {
-  const rows = [
-    ["Version", "ProfessioAI pilot 0.1"],
-    ["AI model", AI_MODEL_NAME],
-    ["Tools", "IRS notice reference"],
-  ];
+function About({ model, onChangeModel }: { model: string; onChangeModel: () => void }) {
   return (
     <>
       <Card title="ProfessioAI">
         <dl className="py-3 text-sm">
-          {rows.map(([k, v]) => (
-            <div key={k} className="flex justify-between gap-4 border-b border-border py-2.5 last:border-b-0">
-              <dt className="text-text-3">{k}</dt>
-              <dd className="font-medium">{v}</dd>
-            </div>
-          ))}
+          <div className="flex justify-between gap-4 border-b border-border py-2.5">
+            <dt className="text-text-3">Pilot</dt>
+            <dd className="font-medium">{PILOT_NAME}</dd>
+          </div>
+          <div className="flex items-center justify-between gap-4 border-b border-border py-2.5">
+            <dt className="text-text-3">LLM model</dt>
+            <dd className="flex items-center gap-3 font-medium">
+              {modelInfo(model).name}
+              <button
+                type="button"
+                onClick={onChangeModel}
+                className="text-[0.8125rem] font-medium text-accent-text underline underline-offset-2"
+              >
+                Change
+              </button>
+            </dd>
+          </div>
+          <div className="flex justify-between gap-4 py-2.5">
+            <dt className="text-text-3">Tools</dt>
+            <dd className="font-medium">IRS notice reference</dd>
+          </div>
         </dl>
       </Card>
       <Card title="Keyboard">
@@ -592,11 +592,11 @@ export default function SettingsView({ onBack, meter }: { onBack: () => void; me
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
-      <header className="flex items-center gap-3 border-b border-border bg-surface px-3 py-3 sm:px-8 sm:py-4">
+      <header className="ui-panel ui-header flex items-center gap-3 border-b border-border bg-surface px-3 py-3 sm:px-8 sm:py-4">
         <button
           type="button"
           onClick={onBack}
-          className="flex h-10 items-center gap-1.5 rounded-lg px-2.5 text-sm font-medium text-text-2 hover:bg-hover"
+          className="ui-raised ui-pill flex h-10 items-center gap-1.5 rounded-lg px-2.5 text-sm font-medium text-text-2 hover:bg-hover"
         >
           <svg
             width="18"
@@ -673,7 +673,7 @@ export default function SettingsView({ onBack, meter }: { onBack: () => void; me
                 onCleared={() => setRevision((r) => r + 1)}
               />
             )}
-            {tab === "about" && <About />}
+            {tab === "about" && <About model={settings.model} onChangeModel={() => setTab("chat")} />}
           </div>
         </div>
       </div>

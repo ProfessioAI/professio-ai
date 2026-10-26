@@ -110,7 +110,8 @@ export default function Chat() {
             text,
             ...(attachments?.length ? { attachments } : {}),
           })),
-          // Answer style and signing details from Settings (left out when all defaults).
+          // The model chosen in Settings, and the answer style and signing details (left out when default).
+          model: settings.model,
           preferences: aiPreferences(settings),
         }),
         signal: controller.signal,
@@ -172,7 +173,7 @@ export default function Chat() {
       const res = await fetch("/api/extract", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ attachments }),
+        body: JSON.stringify({ attachments, model: settings.model }),
         signal: controller.signal,
       });
       const body = await res.json().catch(() => null);
@@ -283,7 +284,7 @@ export default function Chat() {
   );
 
   return (
-    <div className="flex h-dvh bg-background text-foreground">
+    <div className="ui-shell flex h-dvh text-foreground">
       <input
         ref={fileInputRef}
         type="file"
@@ -325,13 +326,13 @@ export default function Chat() {
         </div>
       ) : null}
 
-      <main className="flex min-w-0 flex-1 flex-col">
+      <main className="ui-main flex min-w-0 flex-1 flex-col">
         {view === "settings" ? (
           <SettingsView onBack={() => setView("chat")} meter={meter} />
         ) : (
           <>
             <header
-              className={`flex items-center gap-1 border-b border-border bg-surface px-2 py-3 sm:gap-3 lg:px-8 lg:py-4 ${
+              className={`ui-panel ui-header flex items-center gap-1 border-b border-border bg-surface px-2 py-3 sm:gap-3 lg:px-8 lg:py-4 ${
                 empty ? "lg:hidden" : ""
               }`}
             >
@@ -371,7 +372,7 @@ export default function Chat() {
                   onClick={exportChat}
                   disabled={busy}
                   aria-label="Export conversation"
-                  className="flex h-10 items-center gap-2 rounded-lg border border-border-strong bg-surface px-3 text-sm font-medium text-text-2 hover:bg-hover disabled:opacity-50 sm:px-3.5"
+                  className="ui-raised ui-pill flex h-10 items-center gap-2 rounded-lg border border-border-strong bg-surface px-3 text-sm font-medium text-text-2 hover:bg-hover disabled:opacity-50 sm:px-3.5"
                 >
                   <DownloadIcon size={16} />
                   <span className="hidden sm:inline">Export</span>

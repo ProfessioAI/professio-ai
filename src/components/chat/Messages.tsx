@@ -47,7 +47,7 @@ export function UserMessage({ message }: { message: UIMessage }) {
         </div>
       ))}
       {message.text ? (
-        <div className="max-w-[min(560px,85%)] rounded-[14px_14px_4px_14px] bg-user-bubble px-4 py-3 whitespace-pre-wrap text-user-bubble-fg">
+        <div className="ui-bubble max-w-[min(560px,85%)] rounded-[14px_14px_4px_14px] bg-user-bubble px-4 py-3 whitespace-pre-wrap text-user-bubble-fg">
           {message.text}
         </div>
       ) : null}
@@ -83,8 +83,11 @@ export function AssistantMessage({ message, isLast, busy, status, onPrompt, onRe
 
   return (
     <>
-      <article aria-label="ProfessioAI response" className="flex flex-col gap-3 sm:flex-row sm:gap-3.5">
-        <div className="flex items-center gap-2">
+      <article
+        aria-label="ProfessioAI response"
+        className="ui-panel ui-reply flex flex-col gap-3 sm:flex-row sm:gap-3.5"
+      >
+        <div className="flex items-center gap-2 sm:self-start">
           <Logo />
           <span className="text-[0.8125rem] font-semibold sm:hidden">ProfessioAI</span>
         </div>
@@ -92,7 +95,7 @@ export function AssistantMessage({ message, isLast, busy, status, onPrompt, onRe
           {(settings.showToolChips ? message.tools : undefined)?.map((label, i) => (
             <div
               key={`${label}-${i}`}
-              className="inline-flex items-center gap-2 self-start rounded-full border border-border bg-surface py-1 pr-3 pl-2 text-[0.8125rem] text-text-3"
+              className="ui-inset ui-pill inline-flex items-center gap-2 self-start rounded-full border border-border bg-surface py-1 pr-3 pl-2 text-[0.8125rem] text-text-3"
             >
               <CheckIcon size={16} className="text-accent-text" />
               {label}
@@ -123,7 +126,7 @@ export function AssistantMessage({ message, isLast, busy, status, onPrompt, onRe
                       onClick={() =>
                         onPrompt("Draft a response letter based on this, for my review.", "Response letter")
                       }
-                      className="flex h-10 items-center gap-2 rounded-lg bg-accent px-3.5 text-sm font-semibold text-white hover:bg-accent-hover"
+                      className="flex h-10 items-center gap-2 ui-primary rounded-lg bg-primary px-3.5 text-sm font-semibold text-primary-fg hover:bg-primary-hover"
                     >
                       <PenIcon size={16} />
                       Draft response letter
@@ -136,7 +139,7 @@ export function AssistantMessage({ message, isLast, busy, status, onPrompt, onRe
                           "Client document checklist",
                         )
                       }
-                      className="h-10 rounded-lg border border-border-strong bg-surface px-3.5 text-sm font-medium text-text-2 hover:bg-hover"
+                      className="ui-raised ui-pill h-10 rounded-lg border border-border-strong bg-surface px-3.5 text-sm font-medium text-text-2 hover:bg-hover"
                     >
                       Client document checklist
                     </button>
@@ -185,7 +188,7 @@ export function AssistantMessage({ message, isLast, busy, status, onPrompt, onRe
               key={f}
               type="button"
               onClick={() => onPrompt(f)}
-              className="min-h-9 rounded-full border border-border-strong bg-surface px-3.5 py-1.5 text-[0.8125rem] text-text-2 hover:bg-hover"
+              className="ui-raised ui-pill min-h-9 rounded-full border border-border-strong bg-surface px-3.5 py-1.5 text-[0.8125rem] text-text-2 hover:bg-hover"
             >
               {f}
             </button>

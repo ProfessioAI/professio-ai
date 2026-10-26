@@ -10,9 +10,10 @@ import { reportFromMessage } from "@/lib/usage";
 // Reads the key facts off an uploaded notice for the case panel.
 // This is a simple, well-defined task, so it runs at low effort.
 
-import { AI_MODEL as MODEL } from "@/lib/config";
+import { DEFAULT_MODEL, MODEL_IDS, modelInfo } from "@/lib/models";
 
 const RequestSchema = z.object({
+  model: z.enum(MODEL_IDS).optional(),
   attachments: z.array(AttachmentSchema).min(1).max(MAX_FILES_PER_MESSAGE),
 });
 
@@ -48,8 +49,7 @@ const ExtractionSchema = z.object({
 });
 
 const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
-const cleanDate = (d: string | null) =>
-  d && ISO_DATE.test(d) && !Number.isNaN(Date.parse(d)) ? d : null;
+const cleanDate = (d: string | null) => (d && ISO_DATE.test(d) && !Number.isNaN(Date.parse(d)) ? d : null);
 
 export async function POST(req: Request) {
   let body: unknown;
@@ -63,15 +63,19 @@ export async function POST(req: Request) {
     return Response.json({ error: z.prettifyError(parsed.error) }, { status: 400 });
   }
 
+  const model = parsed.data.model ?? DEFAULT_MODEL;
+  const { serverFallback } = modelInfo(model);
+
   try {
     const client = new Anthropic();
     const response = await client.beta.messages.parse(
       {
-        model: MODEL,
+        model,
         max_tokens: 16000,
         output_config: { effort: "low", format: betaZodOutputFormat(ExtractionSchema) },
-        betas: ["server-side-fallback-2026-07-01"],
-        fallbacks: "default",
+        ...(serverFallback
+          ? { betas: ["server-side-fallback-2026-07-01"], fallbacks: "default" as const }
+          : {}),
         system:
           "You read tax documents and copy key facts from them exactly. Only report what is printed in the documents. If several documents are attached, use the main IRS notice.",
         messages: [

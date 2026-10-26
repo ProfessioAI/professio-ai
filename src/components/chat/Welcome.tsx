@@ -42,8 +42,8 @@ export default function Welcome({ onFiles, onChooseFile, onQuickAction, composer
             What are we working on?
           </h1>
           <p className="max-w-[520px] text-text-3">
-            Upload an IRS notice and get a plain-language explanation, the deadlines that matter,
-            and a draft response to review.
+            Upload an IRS notice and get a plain-language explanation, the deadlines that matter, and a draft
+            response to review.
           </p>
         </div>
 
@@ -58,7 +58,7 @@ export default function Welcome({ onFiles, onChooseFile, onQuickAction, composer
             setDragging(false);
             if (e.dataTransfer.files.length) onFiles(e.dataTransfer.files);
           }}
-          className={`flex flex-col items-center gap-2.5 rounded-2xl border-[1.5px] border-dashed bg-surface p-7 text-center transition-colors ${
+          className={`ui-panel ui-big flex flex-col items-center gap-2.5 rounded-2xl border-[1.5px] border-dashed bg-surface p-7 text-center transition-colors ${
             dragging ? "border-accent-text bg-accent-soft" : "border-dashed-border"
           }`}
         >
@@ -72,7 +72,7 @@ export default function Welcome({ onFiles, onChooseFile, onQuickAction, composer
           <button
             type="button"
             onClick={onChooseFile}
-            className="mt-1.5 h-10 rounded-lg border border-border-strong bg-surface px-4 text-sm font-medium text-text-2 hover:bg-hover"
+            className="ui-raised ui-pill mt-1.5 h-10 rounded-lg border border-border-strong bg-surface px-4 text-sm font-medium text-text-2 hover:bg-hover"
           >
             Choose file
           </button>
@@ -84,7 +84,7 @@ export default function Welcome({ onFiles, onChooseFile, onQuickAction, composer
               key={title}
               type="button"
               onClick={() => onQuickAction(prompt, draftTitle)}
-              className="flex flex-col gap-1.5 rounded-xl border border-border bg-surface p-4 text-left hover:border-border-strong hover:bg-hover"
+              className="ui-raised ui-card flex flex-col gap-1.5 rounded-xl border border-border bg-surface p-4 text-left hover:border-border-strong hover:bg-hover"
             >
               <Icon className="text-accent-text" />
               <span className="text-sm font-semibold">{title}</span>

@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { IBM_Plex_Mono, Inter } from "next/font/google";
+import { Atkinson_Hyperlegible, IBM_Plex_Mono, Inter, Manrope } from "next/font/google";
 import { SettingsProvider } from "@/components/settings/settings-store";
 import { SETTINGS_BOOTSTRAP } from "@/lib/settings-bootstrap";
 import "./globals.css";
@@ -7,6 +7,21 @@ import "./globals.css";
 const inter = Inter({
   variable: "--font-inter",
   subsets: ["latin"],
+});
+
+// Fonts that are only used when chosen in Settings (or by the Glass style) aren't
+// preloaded; the browser fetches them when something actually uses them.
+const manrope = Manrope({
+  variable: "--font-manrope",
+  subsets: ["latin"],
+  preload: false,
+});
+
+const readable = Atkinson_Hyperlegible({
+  variable: "--font-readable",
+  subsets: ["latin"],
+  weight: ["400", "700"],
+  preload: false,
 });
 
 const plexMono = IBM_Plex_Mono({
@@ -33,7 +48,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     // (saved theme, text size, and so on) before React starts.
     <html
       lang="en"
-      className={`${inter.variable} ${plexMono.variable} h-full antialiased`}
+      className={`${inter.variable} ${manrope.variable} ${readable.variable} ${plexMono.variable} h-full antialiased`}
       suppressHydrationWarning
     >
       <head>

@@ -67,6 +67,21 @@ function ratesFor(model: string): { rates: Rates; known: boolean } {
   return { rates: HIGHEST, known: false };
 }
 
+/** Dollars per million tokens for a model's input and output, for showing in Settings. */
+export function pricePerMillion(model: string): { input: number; output: number; known: boolean } {
+  const { rates: r, known } = ratesFor(model);
+  return { input: r.input, output: r.output, known };
+}
+
+/**
+ * About what one typical answer costs: 3,000 tokens in and 2,000 tokens out, which is close
+ * to what a notice question used in testing. Only a guide for comparing models.
+ */
+export function typicalAnswerUsd(model: string): number {
+  const { input, output } = pricePerMillion(model);
+  return (3000 * input + 2000 * output) / 1e6;
+}
+
 export const emptyReport = (): UsageReport => ({
   tokens: { input: 0, cacheRead: 0, cacheWrite: 0, output: 0 },
   costUsd: 0,

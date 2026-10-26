@@ -61,7 +61,7 @@ export default function Composer({
           {notice}
         </p>
       ) : null}
-      <div className="flex flex-col gap-2 rounded-[14px] border border-border-strong bg-surface py-2.5 pr-3 pl-4 shadow-[0_1px_2px_rgba(16,24,40,0.05),0_4px_12px_rgba(16,24,40,0.04)] focus-within:border-accent-text">
+      <div className="ui-panel flex flex-col gap-2 rounded-[14px] border border-border-strong bg-surface py-2.5 pr-3 pl-4 shadow-[0_1px_2px_rgba(16,24,40,0.05),0_4px_12px_rgba(16,24,40,0.04)] focus-within:border-accent-text">
         {files.length ? (
           <div className="flex flex-wrap gap-2 pt-1">
             {files.map((f, i) => (
@@ -110,7 +110,7 @@ export default function Composer({
             onClick={onAttach}
             disabled={busy || files.length >= MAX_FILES_PER_MESSAGE}
             aria-label="Attach a PDF or text file"
-            className="flex size-10 items-center justify-center rounded-lg text-text-3 hover:bg-hover disabled:opacity-40"
+            className="ui-raised ui-pill flex size-10 items-center justify-center rounded-lg text-text-3 hover:bg-hover disabled:opacity-40"
           >
             <PaperclipIcon />
           </button>
@@ -122,7 +122,7 @@ export default function Composer({
               type="button"
               onClick={onStop}
               aria-label="Stop generating"
-              className="ml-auto flex size-10 items-center justify-center rounded-[10px] border border-border-strong text-text-2 hover:bg-hover"
+              className="ui-raised ui-pill ml-auto flex size-10 items-center justify-center rounded-[10px] border border-border-strong text-text-2 hover:bg-hover"
             >
               <StopIcon />
             </button>
@@ -131,7 +131,7 @@ export default function Composer({
               type="submit"
               disabled={!canSend}
               aria-label="Send message"
-              className="ml-auto flex size-10 items-center justify-center rounded-[10px] bg-accent text-white hover:bg-accent-hover disabled:opacity-40"
+              className="ui-pill ml-auto flex size-10 items-center justify-center rounded-[10px] bg-accent text-accent-fg hover:bg-accent-hover disabled:opacity-40"
             >
               <SendIcon />
             </button>

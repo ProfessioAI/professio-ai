@@ -37,18 +37,30 @@
   --bar-warn: light-dark(#d97706, #e5a04a);
   --bar-danger: light-dark(#d92d20, #f97066);
 
-  /* Accent (default: teal) */
+  /* Accent (default: teal). --accent-fg is the text color on top of the accent. */
   --accent: light-dark(#0b6b5c, #0e7c6b);
   --accent-hover: light-dark(#08493f, #11927e);
   --accent-text: light-dark(#0b6b5c, #5cc8b2);
   --accent-soft: light-dark(#e7f3f0, #15302b);
+  --accent-fg: #ffffff;
+
+  /* Primary buttons follow the accent. The Glass style makes them neutral instead. */
+  --primary: var(--accent);
+  --primary-hover: var(--accent-hover);
+  --primary-fg: var(--accent-fg);
+
+  /* Raised and inset surfaces, used by the Glass style */
+  --raised-bg: light-dark(#f4f6f9, #1f2229);
+  --inset-bg: light-dark(#e9ecf1, #111317);
+  --page-gradient: none;
 
   /* Layout and type, changed by the density, width, and font settings */
   --chat-width: 760px;
   --chat-gap: 1.75rem;
   --md-gap: 0.85rem;
   --leading: 1.55;
-  --app-font: var(--font-inter), system-ui, sans-serif;
+  --auto-font: var(--font-inter), system-ui, sans-serif;
+  --app-font: var(--auto-font);
 }
 
 /* Theme */
@@ -111,12 +123,24 @@
   --chat-width: 960px;
 }
 
-/* Font */
+/* Font. "auto" follows the style: Inter for Classic, Manrope for Glass. */
+:root[data-font="inter"] {
+  --app-font: var(--font-inter), system-ui, sans-serif;
+}
+:root[data-font="manrope"] {
+  --app-font: var(--font-manrope), system-ui, sans-serif;
+}
 :root[data-font="system"] {
   --app-font: ui-sans-serif, -apple-system, system-ui, "Segoe UI", Roboto, sans-serif;
 }
-:root[data-font="serif"] .markdown {
-  font-family: Georgia, "Times New Roman", serif;
+:root[data-font="serif"] {
+  --app-font: Georgia, "Iowan Old Style", "Times New Roman", serif;
+}
+:root[data-font="readable"] {
+  --app-font: var(--font-readable), system-ui, sans-serif;
+}
+:root[data-font="mono"] {
+  --app-font: var(--font-plex-mono), ui-monospace, "SF Mono", Menlo, monospace;
 }
 
 /* Reduce motion: when asked for in settings, or by the computer's own setting */
@@ -156,6 +180,12 @@
   --color-accent-hover: var(--accent-hover);
   --color-accent-text: var(--accent-text);
   --color-accent-soft: var(--accent-soft);
+  --color-accent-fg: var(--accent-fg);
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-fg: var(--primary-fg);
+  --color-raised: var(--raised-bg);
+  --color-inset: var(--inset-bg);
   --color-icon-bg: var(--icon-bg);
   --color-user-bubble: var(--user-bubble);
   --color-user-bubble-fg: var(--user-bubble-fg);
@@ -174,7 +204,8 @@
 }
 
 body {
-  background: var(--background);
+  background: var(--page-gradient), var(--background);
+  background-attachment: fixed;
   color: var(--foreground);
   font-family: var(--app-font);
   font-size: 0.9375rem;
@@ -186,6 +217,177 @@ button {
 }
 button:disabled {
   cursor: default;
+}
+
+/* ==========================================================================
+   Glass style (html[data-style="glass"]): frosted rounded panels over a soft
+   gradient, pill buttons, raised cards, inset tables. From the Glass design.
+   The ui-... classes on components do nothing in the Classic style.
+   ========================================================================== */
+:root[data-style="glass"] {
+  --background: light-dark(#e8ebf0, #15171c);
+  --surface: light-dark(rgba(255, 255, 255, 0.45), rgba(255, 255, 255, 0.045));
+  --surface-2: light-dark(rgba(255, 255, 255, 0.35), rgba(255, 255, 255, 0.04));
+  --foreground: light-dark(#1e2330, #eceef2);
+  --text-2: light-dark(#3a4150, #c3c8d2);
+  --text-3: light-dark(#545c6b, #a2a9b6);
+  --muted: light-dark(#545c6b, #8c93a1);
+  --border: light-dark(rgba(30, 35, 48, 0.1), rgba(255, 255, 255, 0.09));
+  --border-strong: light-dark(rgba(30, 35, 48, 0.18), rgba(255, 255, 255, 0.15));
+  --border-row: light-dark(rgba(30, 35, 48, 0.07), rgba(255, 255, 255, 0.06));
+  --dashed-border: light-dark(rgba(30, 35, 48, 0.28), rgba(255, 255, 255, 0.22));
+  --hover: light-dark(rgba(30, 35, 48, 0.06), rgba(255, 255, 255, 0.07));
+  --icon-bg: light-dark(#e4e7ec, #111317);
+  --user-bubble: light-dark(#ffffff, #262a33);
+  --user-bubble-fg: light-dark(#1e2330, #f4f5f8);
+  --pill-bg: light-dark(#fdebd3, #2b2218);
+  --pill-fg: light-dark(#7a3300, #f7c08a);
+  --warn-bg: light-dark(rgba(255, 237, 213, 0.65), rgba(232, 89, 12, 0.1));
+  --warn-border: light-dark(rgba(232, 89, 12, 0.22), rgba(240, 140, 58, 0.28));
+  --warn-fg: light-dark(#7a3300, #ebcba8);
+  --warn-strong: light-dark(#7a3300, #f7c08a);
+
+  --primary: light-dark(#1e2330, #eceef2);
+  --primary-hover: light-dark(#0f131c, #d3d7df);
+  --primary-fg: light-dark(#ffffff, #15171c);
+  --raised-bg: light-dark(#f4f6f9, #1f2229);
+  --inset-bg: light-dark(#e9ecf1, #111317);
+
+  /* Shadow colors. Shadows are built from these so they follow light and dark. */
+  --sh-dark: light-dark(rgba(163, 173, 190, 0.45), rgba(0, 0, 0, 0.5));
+  --sh-light: light-dark(rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.04));
+  --sh-panel: light-dark(rgba(40, 50, 80, 0.08), rgba(0, 0, 0, 0.35));
+  --sh-primary: light-dark(rgba(30, 35, 48, 0.25), rgba(0, 0, 0, 0.35));
+  --glass-edge: light-dark(rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.09));
+
+  --auto-font: var(--font-manrope), system-ui, sans-serif;
+  --page-gradient:
+    radial-gradient(900px 520px at 85% 105%, rgba(201, 184, 240, 0.55), transparent 70%),
+    radial-gradient(800px 480px at 12% 110%, rgba(244, 196, 206, 0.45), transparent 70%);
+}
+@media (prefers-color-scheme: dark) {
+  :root[data-style="glass"]:not([data-theme="light"]) {
+    --page-gradient:
+      radial-gradient(900px 520px at 85% 105%, rgba(121, 80, 242, 0.2), transparent 70%),
+      radial-gradient(800px 480px at 8% -8%, rgba(66, 99, 235, 0.14), transparent 70%);
+  }
+}
+:root[data-style="glass"][data-theme="dark"] {
+  --page-gradient:
+    radial-gradient(900px 520px at 85% 105%, rgba(121, 80, 242, 0.2), transparent 70%),
+    radial-gradient(800px 480px at 8% -8%, rgba(66, 99, 235, 0.14), transparent 70%);
+}
+/* Glass accent when "Auto" is chosen: blue */
+:root[data-style="glass"][data-accent="auto"] {
+  --accent: light-dark(#3b5bdb, #4263eb);
+  --accent-hover: light-dark(#2f4bc0, #3550d0);
+  --accent-text: light-dark(#2f4bc0, #9db0ff);
+  --accent-soft: light-dark(#e7ecff, rgba(66, 99, 235, 0.22));
+}
+
+/* Floating layout: the app sits on the gradient as separate rounded panels */
+:root[data-style="glass"] .ui-shell {
+  padding: 0.75rem;
+  gap: 0.75rem;
+}
+@media (min-width: 1024px) {
+  :root[data-style="glass"] .ui-shell {
+    padding: 1.25rem;
+    gap: 1.25rem;
+  }
+}
+:root[data-style="glass"] .ui-main {
+  gap: 1rem;
+}
+
+/* Frosted panels */
+:root[data-style="glass"] .ui-panel {
+  -webkit-backdrop-filter: blur(20px) saturate(130%);
+  backdrop-filter: blur(20px) saturate(130%);
+  border: 1.5px solid var(--glass-edge);
+  border-radius: 28px;
+  box-shadow: 0 18px 40px var(--sh-panel);
+}
+:root[data-style="glass"] .ui-header {
+  border-radius: 999px;
+  box-shadow: 0 12px 30px var(--sh-panel);
+}
+:root[data-style="glass"] .ui-reply {
+  padding: 1.5rem 1.75rem;
+  border-radius: 32px;
+  background: var(--surface);
+}
+:root[data-style="glass"] .ui-big {
+  border-radius: 32px;
+}
+:root[data-style="glass"] .ui-bubble {
+  border-radius: 24px 24px 8px 24px;
+  box-shadow:
+    6px 6px 16px var(--sh-dark),
+    -6px -6px 16px var(--sh-light);
+  font-weight: 500;
+}
+
+/* Buttons and cards */
+:root[data-style="glass"] .ui-pill {
+  border-radius: 999px;
+}
+:root[data-style="glass"] .ui-primary {
+  border-radius: 999px;
+  box-shadow: 0 10px 22px var(--sh-primary);
+}
+:root[data-style="glass"] .ui-raised {
+  background: var(--raised-bg);
+  border-color: transparent;
+  box-shadow:
+    6px 6px 14px var(--sh-dark),
+    -6px -6px 14px var(--sh-light);
+}
+:root[data-style="glass"] .ui-card {
+  border-radius: 26px;
+  box-shadow:
+    8px 8px 18px var(--sh-dark),
+    -8px -8px 18px var(--sh-light);
+}
+:root[data-style="glass"] .ui-inset {
+  background: var(--inset-bg);
+  border-color: transparent;
+  box-shadow:
+    inset 3px 3px 7px var(--sh-dark),
+    inset -3px -3px 7px var(--sh-light);
+}
+/* A button on a surface that is already raised (a panel, or an inset area) is flat: no shadow of
+   its own. Only buttons sitting directly on the page, like the quick-action cards, stay raised. */
+:root[data-style="glass"] :is(.ui-panel, .ui-inset) :is(button, span).ui-raised,
+:root[data-style="glass"] :is(.ui-panel, .ui-inset) :is(button, span).ui-primary {
+  box-shadow: none;
+}
+/* Every button turns darker when hovered, in light and in dark mode. */
+:root[data-style="glass"] button.ui-raised:hover {
+  background: color-mix(in srgb, var(--raised-bg) 88%, #000);
+}
+:root[data-style="glass"] button.ui-primary:hover {
+  background: color-mix(in srgb, var(--primary) 86%, #000);
+}
+:root[data-style="glass"] button.bg-accent:hover {
+  background: color-mix(in srgb, var(--accent) 86%, #000);
+}
+:root[data-style="glass"] .ui-soft {
+  border-radius: 20px;
+}
+:root[data-style="glass"] .markdown .md-table {
+  background: var(--inset-bg);
+  border-color: transparent;
+  border-radius: 22px;
+  box-shadow:
+    inset 4px 4px 10px var(--sh-dark),
+    inset -4px -4px 10px var(--sh-light);
+}
+:root[data-style="glass"] .markdown .md-table th {
+  background: transparent;
+}
+:root[data-style="glass"] .markdown .md-note {
+  border-radius: 20px;
 }
 
 /* Assistant replies (rendered Markdown) */
