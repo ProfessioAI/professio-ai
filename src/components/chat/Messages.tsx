@@ -3,7 +3,15 @@ import ReactMarkdown, { type Components } from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { formatUsd } from "@/lib/usage";
 import { useSettings } from "@/components/settings/settings-store";
-import { CalendarIcon, CheckIcon, CopyIcon, DocLinesIcon, Logo, PenIcon, RegenerateIcon } from "./Icons";
+import {
+  CalendarIcon,
+  CheckIcon,
+  CopyIcon,
+  DocLinesIcon,
+  Logo,
+  PenIcon,
+  RegenerateIcon,
+} from "./Icons";
 import type { UIMessage } from "./types";
 
 const FOLLOW_UPS = [
@@ -41,7 +49,9 @@ export function UserMessage({ message }: { message: UIMessage }) {
           <div className="flex flex-col leading-tight">
             <span className="text-sm font-medium">{a.name}</span>
             <span className="text-xs text-muted">
-              {a.mediaType === "application/pdf" ? "PDF document" : "Text document"}
+              {a.mediaType === "application/pdf"
+                ? "PDF document"
+                : "Text document"}
             </span>
           </div>
         </div>
@@ -65,7 +75,14 @@ type AssistantProps = {
   onRegenerate: () => void;
 };
 
-export function AssistantMessage({ message, isLast, busy, status, onPrompt, onRegenerate }: AssistantProps) {
+export function AssistantMessage({
+  message,
+  isLast,
+  busy,
+  status,
+  onPrompt,
+  onRegenerate,
+}: AssistantProps) {
   const { settings } = useSettings();
   const [copied, setCopied] = useState(false);
   const streaming = isLast && busy;
@@ -89,22 +106,29 @@ export function AssistantMessage({ message, isLast, busy, status, onPrompt, onRe
       >
         <div className="flex items-center gap-2 sm:self-start">
           <Logo />
-          <span className="text-[0.8125rem] font-semibold sm:hidden">ProfessioAI</span>
+          <span className="text-[0.8125rem] font-semibold sm:hidden">
+            ProfessioAI
+          </span>
         </div>
         <div className="flex min-w-0 flex-1 flex-col gap-4">
-          {(settings.showToolChips ? message.tools : undefined)?.map((label, i) => (
-            <div
-              key={`${label}-${i}`}
-              className="ui-inset ui-pill inline-flex items-center gap-2 self-start rounded-full border border-border bg-surface py-1 pr-3 pl-2 text-[0.8125rem] text-text-3"
-            >
-              <CheckIcon size={16} className="text-accent-text" />
-              {label}
-            </div>
-          ))}
+          {(settings.showToolChips ? message.tools : undefined)?.map(
+            (label, i) => (
+              <div
+                key={`${label}-${i}`}
+                className="ui-inset ui-pill inline-flex items-center gap-2 self-start rounded-full border border-border bg-surface py-1 pr-3 pl-2 text-[0.8125rem] text-text-3"
+              >
+                <CheckIcon size={16} className="text-accent-text" />
+                {label}
+              </div>
+            ),
+          )}
 
           {message.text ? (
             <div className="markdown">
-              <ReactMarkdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
+              <ReactMarkdown
+                remarkPlugins={[remarkGfm]}
+                components={markdownComponents}
+              >
                 {message.text}
               </ReactMarkdown>
             </div>
@@ -124,7 +148,10 @@ export function AssistantMessage({ message, isLast, busy, status, onPrompt, onRe
                     <button
                       type="button"
                       onClick={() =>
-                        onPrompt("Draft a response letter based on this, for my review.", "Response letter")
+                        onPrompt(
+                          "Draft a response letter based on this, for my review.",
+                          "Response letter",
+                        )
                       }
                       className="flex h-10 items-center gap-2 ui-primary rounded-lg bg-primary px-3.5 text-sm font-semibold text-primary-fg hover:bg-primary-hover"
                     >
@@ -147,7 +174,10 @@ export function AssistantMessage({ message, isLast, busy, status, onPrompt, onRe
                 ) : null}
                 <span className="flex-1" />
                 {settings.showReplyCost && message.costUsd !== undefined ? (
-                  <span className="text-xs text-muted tabular-nums" title="Estimated cost of this reply">
+                  <span
+                    className="text-xs text-muted tabular-nums"
+                    title="Estimated cost of this reply"
+                  >
                     ≈ {formatUsd(message.costUsd)}
                   </span>
                 ) : null}
@@ -158,7 +188,11 @@ export function AssistantMessage({ message, isLast, busy, status, onPrompt, onRe
                   title={copied ? "Copied" : "Copy"}
                   className="flex size-10 items-center justify-center rounded-lg text-text-3 hover:bg-hover"
                 >
-                  {copied ? <CheckIcon size={17} className="text-accent-text" /> : <CopyIcon size={17} />}
+                  {copied ? (
+                    <CheckIcon size={17} className="text-accent-text" />
+                  ) : (
+                    <CopyIcon size={17} />
+                  )}
                 </button>
                 {isLast ? (
                   <button
@@ -173,8 +207,8 @@ export function AssistantMessage({ message, isLast, busy, status, onPrompt, onRe
                 ) : null}
               </div>
               <p className="text-[0.8125rem] text-muted">
-                Draft for professional review. Check every figure against the original notice before sending
-                anything to the IRS or a client.
+                Draft for professional review. Check every figure against the
+                original notice before sending anything to the IRS or a client.
               </p>
             </>
           ) : null}

@@ -2,7 +2,12 @@ import { useState } from "react";
 import { CheckIcon, CloseIcon, CopyIcon, DocIcon, DownloadIcon } from "./Icons";
 import { useSettings } from "@/components/settings/settings-store";
 import type { DateFormat, WarnDays } from "@/lib/settings";
-import { countdown, formatDate, formatMoney, type DetailsState } from "./notice-utils";
+import {
+  countdown,
+  formatDate,
+  formatMoney,
+  type DetailsState,
+} from "./notice-utils";
 import type { Draft } from "./types";
 
 type Props = {
@@ -16,12 +21,22 @@ type Props = {
 
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
-    <div className="mb-2.5 text-xs font-semibold tracking-[0.06em] text-muted uppercase">{children}</div>
+    <div className="mb-2.5 text-xs font-semibold tracking-[0.06em] text-muted uppercase">
+      {children}
+    </div>
   );
 }
 
-const BAR_TONE = { ok: "bg-accent", warn: "bg-bar-warn", danger: "bg-bar-danger" } as const;
-const TEXT_TONE = { ok: "text-foreground", warn: "text-warn-strong", danger: "text-bar-danger" } as const;
+const BAR_TONE = {
+  ok: "bg-accent",
+  warn: "bg-bar-warn",
+  danger: "bg-bar-danger",
+} as const;
+const TEXT_TONE = {
+  ok: "text-foreground",
+  warn: "text-warn-strong",
+  danger: "text-bar-danger",
+} as const;
 
 function NoticeSection({
   details,
@@ -53,7 +68,11 @@ function NoticeSection({
         </div>
       );
     }
-    return <p className="text-[0.8125rem] text-muted">Attach a notice to see its key details here.</p>;
+    return (
+      <p className="text-[0.8125rem] text-muted">
+        Attach a notice to see its key details here.
+      </p>
+    );
   }
   if (details.status === "loading") {
     return (
@@ -87,14 +106,19 @@ function NoticeSection({
   if (!d.isIrsNotice) {
     return (
       <p className="text-[0.8125rem] text-muted">
-        This document doesn&apos;t look like an IRS notice, so there are no notice details to show.
+        This document doesn&apos;t look like an IRS notice, so there are no
+        notice details to show.
       </p>
     );
   }
 
   const rows: { label: string; value: string; className?: string }[] = [];
   if (d.taxYear) rows.push({ label: "Tax year", value: d.taxYear });
-  if (d.noticeDate) rows.push({ label: "Notice date", value: formatDate(d.noticeDate, true, dateFormat) });
+  if (d.noticeDate)
+    rows.push({
+      label: "Notice date",
+      value: formatDate(d.noticeDate, true, dateFormat),
+    });
   if (d.respondBy)
     rows.push({
       label: "Respond by",
@@ -111,15 +135,21 @@ function NoticeSection({
   return (
     <div>
       <div className="flex flex-wrap items-baseline gap-x-2.5 gap-y-1">
-        <span className="font-mono text-[1.375rem] font-medium">{d.code ?? "IRS notice"}</span>
-        {d.name ? <span className="text-[0.8125rem] text-text-3">{d.name}</span> : null}
+        <span className="font-mono text-[1.375rem] font-medium">
+          {d.code ?? "IRS notice"}
+        </span>
+        {d.name ? (
+          <span className="text-[0.8125rem] text-text-3">{d.name}</span>
+        ) : null}
       </div>
       {rows.length ? (
         <dl className="mt-4 grid grid-cols-2 gap-x-3 gap-y-3.5 text-[0.8125rem]">
           {rows.map((r) => (
             <div key={r.label}>
               <dt className="text-muted">{r.label}</dt>
-              <dd className={`mt-0.5 font-medium ${r.className ?? ""}`}>{r.value}</dd>
+              <dd className={`mt-0.5 font-medium ${r.className ?? ""}`}>
+                {r.value}
+              </dd>
             </div>
           ))}
         </dl>
@@ -143,7 +173,9 @@ function DeadlineSection({
       <SectionLabel>Deadline</SectionLabel>
       <div className="mb-2 flex justify-between text-[0.8125rem]">
         <span className={`font-semibold ${TEXT_TONE[c.tone]}`}>{c.label}</span>
-        {c.totalDays !== null ? <span className="text-muted">of {c.totalDays}</span> : null}
+        {c.totalDays !== null ? (
+          <span className="text-muted">of {c.totalDays}</span>
+        ) : null}
       </div>
       {c.usedFraction !== null && c.totalDays !== null ? (
         <div
@@ -158,7 +190,8 @@ function DeadlineSection({
         </div>
       ) : null}
       <p className="mt-3 text-xs leading-snug text-muted">
-        Read from the notice by AI. Confirm the date on the original, and allow for mailing time.
+        Read from the notice by AI. Confirm the date on the original, and allow
+        for mailing time.
       </p>
     </section>
   );
@@ -190,7 +223,9 @@ function DraftItem({ draft }: { draft: Draft }) {
   return (
     <div className="flex items-center gap-2 rounded-[10px] border border-border p-2.5 pl-3">
       <DocIcon size={16} className="shrink-0 text-accent-text" />
-      <span className="min-w-0 flex-1 truncate text-sm font-medium">{draft.title}</span>
+      <span className="min-w-0 flex-1 truncate text-sm font-medium">
+        {draft.title}
+      </span>
       <button
         type="button"
         onClick={copy}
@@ -198,7 +233,11 @@ function DraftItem({ draft }: { draft: Draft }) {
         title={copied ? "Copied" : "Copy"}
         className="flex size-8 items-center justify-center rounded-md text-text-3 hover:bg-hover"
       >
-        {copied ? <CheckIcon size={15} className="text-accent-text" /> : <CopyIcon size={15} />}
+        {copied ? (
+          <CheckIcon size={15} className="text-accent-text" />
+        ) : (
+          <CopyIcon size={15} />
+        )}
       </button>
       <button
         type="button"
@@ -213,10 +252,21 @@ function DraftItem({ draft }: { draft: Draft }) {
   );
 }
 
-export default function CasePanel({ details, documents, drafts, onRetry, onClose, className = "" }: Props) {
+export default function CasePanel({
+  details,
+  documents,
+  drafts,
+  onRetry,
+  onClose,
+  className = "",
+}: Props) {
   const { settings } = useSettings();
-  const respondBy = details.status === "ready" && details.data.isIrsNotice ? details.data.respondBy : null;
-  const noticeDate = details.status === "ready" ? details.data.noticeDate : null;
+  const respondBy =
+    details.status === "ready" && details.data.isIrsNotice
+      ? details.data.respondBy
+      : null;
+  const noticeDate =
+    details.status === "ready" ? details.data.noticeDate : null;
 
   return (
     <aside
@@ -247,7 +297,11 @@ export default function CasePanel({ details, documents, drafts, onRetry, onClose
       </section>
 
       {respondBy ? (
-        <DeadlineSection respondBy={respondBy} noticeDate={noticeDate} warnDays={settings.warnDays} />
+        <DeadlineSection
+          respondBy={respondBy}
+          noticeDate={noticeDate}
+          warnDays={settings.warnDays}
+        />
       ) : null}
 
       <section className="border-t border-border pt-5">
@@ -262,7 +316,9 @@ export default function CasePanel({ details, documents, drafts, onRetry, onClose
             ))}
           </ul>
         ) : (
-          <p className="text-[0.8125rem] text-muted">No documents attached yet.</p>
+          <p className="text-[0.8125rem] text-muted">
+            No documents attached yet.
+          </p>
         )}
       </section>
 

@@ -1,5 +1,10 @@
 import type { Metadata, Viewport } from "next";
-import { Atkinson_Hyperlegible, IBM_Plex_Mono, Inter, Manrope } from "next/font/google";
+import {
+  Atkinson_Hyperlegible,
+  IBM_Plex_Mono,
+  Inter,
+  Manrope,
+} from "next/font/google";
 import { SettingsProvider } from "@/components/settings/settings-store";
 import { SETTINGS_BOOTSTRAP } from "@/lib/settings-bootstrap";
 import "./globals.css";

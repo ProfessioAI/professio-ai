@@ -5,13 +5,15 @@ export const QUICK_ACTIONS = [
   {
     title: "Explain a notice",
     detail: "What the IRS wants and why",
-    prompt: "Explain what this notice is asking for and give me a response plan.",
+    prompt:
+      "Explain what this notice is asking for and give me a response plan.",
     Icon: InfoIcon,
   },
   {
     title: "Find the deadlines",
     detail: "Response dates and what happens if missed",
-    prompt: "What are the deadlines in this notice, and what happens if each one is missed?",
+    prompt:
+      "What are the deadlines in this notice, and what happens if each one is missed?",
     Icon: CalendarIcon,
   },
   {
@@ -21,7 +23,13 @@ export const QUICK_ACTIONS = [
     draftTitle: "Response letter",
     Icon: PenIcon,
   },
-] as { title: string; detail: string; prompt: string; draftTitle?: string; Icon: typeof InfoIcon }[];
+] as {
+  title: string;
+  detail: string;
+  prompt: string;
+  draftTitle?: string;
+  Icon: typeof InfoIcon;
+}[];
 
 type Props = {
   onFiles: (files: FileList) => void;
@@ -30,7 +38,12 @@ type Props = {
   composer: React.ReactNode;
 };
 
-export default function Welcome({ onFiles, onChooseFile, onQuickAction, composer }: Props) {
+export default function Welcome({
+  onFiles,
+  onChooseFile,
+  onQuickAction,
+  composer,
+}: Props) {
   const [dragging, setDragging] = useState(false);
 
   return (
@@ -42,8 +55,8 @@ export default function Welcome({ onFiles, onChooseFile, onQuickAction, composer
             What are we working on?
           </h1>
           <p className="max-w-[520px] text-text-3">
-            Upload an IRS notice and get a plain-language explanation, the deadlines that matter, and a draft
-            response to review.
+            Upload an IRS notice and get a plain-language explanation, the
+            deadlines that matter, and a draft response to review.
           </p>
         </div>
 
@@ -59,7 +72,9 @@ export default function Welcome({ onFiles, onChooseFile, onQuickAction, composer
             if (e.dataTransfer.files.length) onFiles(e.dataTransfer.files);
           }}
           className={`ui-panel ui-big flex flex-col items-center gap-2.5 rounded-2xl border-[1.5px] border-dashed bg-surface p-7 text-center transition-colors ${
-            dragging ? "border-accent-text bg-accent-soft" : "border-dashed-border"
+            dragging
+              ? "border-accent-text bg-accent-soft"
+              : "border-dashed-border"
           }`}
         >
           <span className="flex size-12 items-center justify-center rounded-xl bg-accent-soft text-accent-text">
@@ -88,7 +103,9 @@ export default function Welcome({ onFiles, onChooseFile, onQuickAction, composer
             >
               <Icon className="text-accent-text" />
               <span className="text-sm font-semibold">{title}</span>
-              <span className="text-[0.8125rem] leading-snug text-muted">{detail}</span>
+              <span className="text-[0.8125rem] leading-snug text-muted">
+                {detail}
+              </span>
             </button>
           ))}
         </div>

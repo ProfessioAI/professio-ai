@@ -55,6 +55,7 @@
   --page-gradient: none;
 
   /* Layout and type, changed by the density, width, and font settings */
+  --round: 1;
   --chat-width: 760px;
   --chat-gap: 1.75rem;
   --md-gap: 0.85rem;
@@ -131,7 +132,8 @@
   --app-font: var(--font-manrope), system-ui, sans-serif;
 }
 :root[data-font="system"] {
-  --app-font: ui-sans-serif, -apple-system, system-ui, "Segoe UI", Roboto, sans-serif;
+  --app-font:
+    ui-sans-serif, -apple-system, system-ui, "Segoe UI", Roboto, sans-serif;
 }
 :root[data-font="serif"] {
   --app-font: Georgia, "Iowan Old Style", "Times New Roman", serif;
@@ -233,9 +235,15 @@ button:disabled {
   --text-3: light-dark(#545c6b, #a2a9b6);
   --muted: light-dark(#545c6b, #8c93a1);
   --border: light-dark(rgba(30, 35, 48, 0.1), rgba(255, 255, 255, 0.09));
-  --border-strong: light-dark(rgba(30, 35, 48, 0.18), rgba(255, 255, 255, 0.15));
+  --border-strong: light-dark(
+    rgba(30, 35, 48, 0.18),
+    rgba(255, 255, 255, 0.15)
+  );
   --border-row: light-dark(rgba(30, 35, 48, 0.07), rgba(255, 255, 255, 0.06));
-  --dashed-border: light-dark(rgba(30, 35, 48, 0.28), rgba(255, 255, 255, 0.22));
+  --dashed-border: light-dark(
+    rgba(30, 35, 48, 0.28),
+    rgba(255, 255, 255, 0.22)
+  );
   --hover: light-dark(rgba(30, 35, 48, 0.06), rgba(255, 255, 255, 0.07));
   --icon-bg: light-dark(#e4e7ec, #111317);
   --user-bubble: light-dark(#ffffff, #262a33);
@@ -247,6 +255,23 @@ button:disabled {
   --warn-fg: light-dark(#7a3300, #ebcba8);
   --warn-strong: light-dark(#7a3300, #f7c08a);
 
+  /* Corner radii. Everything is multiplied by --round (0 = square, 1 = the design, above 1 = rounder).
+     Controls up to 48px tall are full pills at 1, because the radius is half their height. */
+  --r-panel: calc(28px * var(--round));
+  --r-header: calc(32px * var(--round));
+  --r-big: calc(32px * var(--round));
+  --r-card: calc(26px * var(--round));
+  --r-bubble: calc(24px * var(--round));
+  --r-bubble-tail: calc(8px * var(--round));
+  --r-soft: calc(20px * var(--round));
+  --r-inset: calc(22px * var(--round));
+  --r-pill: calc(24px * var(--round));
+  --r-10: calc(16px * var(--round));
+  --radius-md: calc(0.75rem * var(--round));
+  --radius-lg: calc(1.25rem * var(--round));
+  --radius-xl: calc(1.5rem * var(--round));
+  --radius-2xl: calc(2rem * var(--round));
+
   --primary: light-dark(#1e2330, #eceef2);
   --primary-hover: light-dark(#0f131c, #d3d7df);
   --primary-fg: light-dark(#ffffff, #15171c);
@@ -255,27 +280,54 @@ button:disabled {
 
   /* Shadow colors. Shadows are built from these so they follow light and dark. */
   --sh-dark: light-dark(rgba(163, 173, 190, 0.45), rgba(0, 0, 0, 0.5));
-  --sh-light: light-dark(rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.04));
+  --sh-light: light-dark(rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0.025));
   --sh-panel: light-dark(rgba(40, 50, 80, 0.08), rgba(0, 0, 0, 0.35));
   --sh-primary: light-dark(rgba(30, 35, 48, 0.25), rgba(0, 0, 0, 0.35));
-  --glass-edge: light-dark(rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.09));
+  --glass-edge: light-dark(
+    rgba(255, 255, 255, 0.85),
+    rgba(255, 255, 255, 0.09)
+  );
 
   --auto-font: var(--font-manrope), system-ui, sans-serif;
   --page-gradient:
-    radial-gradient(900px 520px at 85% 105%, rgba(201, 184, 240, 0.55), transparent 70%),
-    radial-gradient(800px 480px at 12% 110%, rgba(244, 196, 206, 0.45), transparent 70%);
+    radial-gradient(
+      900px 520px at 85% 105%,
+      rgba(201, 184, 240, 0.55),
+      transparent 70%
+    ),
+    radial-gradient(
+      800px 480px at 12% 110%,
+      rgba(244, 196, 206, 0.45),
+      transparent 70%
+    );
 }
 @media (prefers-color-scheme: dark) {
   :root[data-style="glass"]:not([data-theme="light"]) {
     --page-gradient:
-      radial-gradient(900px 520px at 85% 105%, rgba(121, 80, 242, 0.2), transparent 70%),
-      radial-gradient(800px 480px at 8% -8%, rgba(66, 99, 235, 0.14), transparent 70%);
+      radial-gradient(
+        900px 520px at 85% 105%,
+        rgba(121, 80, 242, 0.2),
+        transparent 70%
+      ),
+      radial-gradient(
+        800px 480px at 8% -8%,
+        rgba(66, 99, 235, 0.14),
+        transparent 70%
+      );
   }
 }
 :root[data-style="glass"][data-theme="dark"] {
   --page-gradient:
-    radial-gradient(900px 520px at 85% 105%, rgba(121, 80, 242, 0.2), transparent 70%),
-    radial-gradient(800px 480px at 8% -8%, rgba(66, 99, 235, 0.14), transparent 70%);
+    radial-gradient(
+      900px 520px at 85% 105%,
+      rgba(121, 80, 242, 0.2),
+      transparent 70%
+    ),
+    radial-gradient(
+      800px 480px at 8% -8%,
+      rgba(66, 99, 235, 0.14),
+      transparent 70%
+    );
 }
 /* Glass accent when "Auto" is chosen: blue */
 :root[data-style="glass"][data-accent="auto"] {
@@ -300,66 +352,74 @@ button:disabled {
   gap: 1rem;
 }
 
+/* Plain 10px-radius elements follow the roundness scale. Hook classes below override this. */
+:root[data-style="glass"] [class*="rounded-[10px]"] {
+  border-radius: var(--r-10);
+}
+
 /* Frosted panels */
 :root[data-style="glass"] .ui-panel {
   -webkit-backdrop-filter: blur(20px) saturate(130%);
   backdrop-filter: blur(20px) saturate(130%);
   border: 1.5px solid var(--glass-edge);
-  border-radius: 28px;
+  border-radius: var(--r-panel);
   box-shadow: 0 18px 40px var(--sh-panel);
 }
 :root[data-style="glass"] .ui-header {
-  border-radius: 999px;
+  border-radius: var(--r-header);
   box-shadow: 0 12px 30px var(--sh-panel);
 }
 :root[data-style="glass"] .ui-reply {
   padding: 1.5rem 1.75rem;
-  border-radius: 32px;
+  border-radius: var(--r-big);
   background: var(--surface);
 }
 :root[data-style="glass"] .ui-big {
-  border-radius: 32px;
+  border-radius: var(--r-big);
 }
 :root[data-style="glass"] .ui-bubble {
-  border-radius: 24px 24px 8px 24px;
+  border-radius: var(--r-bubble) var(--r-bubble) var(--r-bubble-tail)
+    var(--r-bubble);
   box-shadow:
-    6px 6px 16px var(--sh-dark),
-    -6px -6px 16px var(--sh-light);
+    4px 4px 12px var(--sh-dark),
+    -3px -3px 10px var(--sh-light);
   font-weight: 500;
 }
 
 /* Buttons and cards */
 :root[data-style="glass"] .ui-pill {
-  border-radius: 999px;
+  border-radius: var(--r-pill);
 }
 :root[data-style="glass"] .ui-primary {
-  border-radius: 999px;
+  border-radius: var(--r-pill);
   box-shadow: 0 10px 22px var(--sh-primary);
 }
 :root[data-style="glass"] .ui-raised {
   background: var(--raised-bg);
   border-color: transparent;
   box-shadow:
-    6px 6px 14px var(--sh-dark),
-    -6px -6px 14px var(--sh-light);
+    4px 4px 10px var(--sh-dark),
+    -3px -3px 8px var(--sh-light);
 }
 :root[data-style="glass"] .ui-card {
-  border-radius: 26px;
+  border-radius: var(--r-card);
   box-shadow:
-    8px 8px 18px var(--sh-dark),
-    -8px -8px 18px var(--sh-light);
+    6px 6px 14px var(--sh-dark),
+    -4px -4px 12px var(--sh-light);
 }
 :root[data-style="glass"] .ui-inset {
   background: var(--inset-bg);
   border-color: transparent;
   box-shadow:
-    inset 3px 3px 7px var(--sh-dark),
-    inset -3px -3px 7px var(--sh-light);
+    inset 3px 3px 6px var(--sh-dark),
+    inset -2px -2px 5px var(--sh-light);
 }
 /* A button on a surface that is already raised (a panel, or an inset area) is flat: no shadow of
    its own. Only buttons sitting directly on the page, like the quick-action cards, stay raised. */
 :root[data-style="glass"] :is(.ui-panel, .ui-inset) :is(button, span).ui-raised,
-:root[data-style="glass"] :is(.ui-panel, .ui-inset) :is(button, span).ui-primary {
+:root[data-style="glass"]
+  :is(.ui-panel, .ui-inset)
+  :is(button, span).ui-primary {
   box-shadow: none;
 }
 /* Every button turns darker when hovered, in light and in dark mode. */
@@ -372,22 +432,68 @@ button:disabled {
 :root[data-style="glass"] button.bg-accent:hover {
   background: color-mix(in srgb, var(--accent) 86%, #000);
 }
+/* A selected segment is a soft, flat tab with a small drop shadow (no white ring). */
+:root[data-style="glass"] .ui-seg-on {
+  background: var(--raised-bg);
+  box-shadow: 0 2px 6px var(--sh-dark);
+}
+/* A selected choice card keeps a clear accent outline. */
+:root[data-style="glass"] button.ui-raised.ui-selected {
+  background: var(--accent-soft);
+  border-color: var(--accent-text);
+  box-shadow: 0 0 0 1px var(--accent-text);
+}
 :root[data-style="glass"] .ui-soft {
-  border-radius: 20px;
+  border-radius: var(--r-soft);
 }
 :root[data-style="glass"] .markdown .md-table {
   background: var(--inset-bg);
   border-color: transparent;
-  border-radius: 22px;
+  border-radius: var(--r-inset);
   box-shadow:
-    inset 4px 4px 10px var(--sh-dark),
-    inset -4px -4px 10px var(--sh-light);
+    inset 3px 3px 8px var(--sh-dark),
+    inset -2px -2px 6px var(--sh-light);
 }
 :root[data-style="glass"] .markdown .md-table th {
   background: transparent;
 }
 :root[data-style="glass"] .markdown .md-note {
-  border-radius: 20px;
+  border-radius: var(--r-soft);
+}
+:root[data-style="glass"] .markdown pre {
+  border-radius: var(--r-soft);
+}
+
+/* Roundness (Settings > Appearance, Glass style) */
+:root[data-round="square"] {
+  --round: 0;
+}
+:root[data-round="subtle"] {
+  --round: 0.35;
+}
+:root[data-round="soft"] {
+  --round: 0.7;
+}
+:root[data-round="extra"] {
+  --round: 1.35;
+}
+
+/* The scrolling message area fades out at its top and bottom edges instead of cutting off hard. */
+.scroll-fade {
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    transparent 0,
+    #000 1.25rem,
+    #000 calc(100% - 2rem),
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    to bottom,
+    transparent 0,
+    #000 1.25rem,
+    #000 calc(100% - 2rem),
+    transparent 100%
+  );
 }
 
 /* Assistant replies (rendered Markdown) */

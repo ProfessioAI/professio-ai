@@ -1,7 +1,12 @@
 "use client";
 
 import { MODELS, type ModelId } from "@/lib/models";
-import { ACCENTS, type Accent, type FontChoice, type StyleChoice } from "@/lib/settings";
+import {
+  ACCENTS,
+  type Accent,
+  type FontChoice,
+  type StyleChoice,
+} from "@/lib/settings";
 import { formatUsd, pricePerMillion, typicalAnswerUsd } from "@/lib/usage";
 import { ChoiceCards, ColorField } from "./controls";
 
@@ -25,7 +30,9 @@ function StyleThumb({ style }: { style: StyleChoice }) {
         style={{
           background: glass ? "rgba(255,255,255,.6)" : "#ffffff",
           borderRadius: glass ? 10 : 4,
-          border: glass ? "1px solid rgba(255,255,255,.9)" : "1px solid #e4e7ec",
+          border: glass
+            ? "1px solid rgba(255,255,255,.9)"
+            : "1px solid #e4e7ec",
         }}
       />
       <div className="flex flex-1 flex-col justify-between gap-1">
@@ -43,7 +50,9 @@ function StyleThumb({ style }: { style: StyleChoice }) {
           style={{
             height: 20,
             background: glass ? "rgba(255,255,255,.6)" : "#ffffff",
-            border: glass ? "1px solid rgba(255,255,255,.9)" : "1px solid #e4e7ec",
+            border: glass
+              ? "1px solid rgba(255,255,255,.9)"
+              : "1px solid #e4e7ec",
             borderRadius: glass ? 10 : 5,
           }}
         />
@@ -61,11 +70,23 @@ function StyleThumb({ style }: { style: StyleChoice }) {
 }
 
 const STYLE_TEXT: Record<StyleChoice, { name: string; blurb: string }> = {
-  classic: { name: "Classic", blurb: "Clean, flat panels and sharp edges. Easy to scan." },
-  glass: { name: "Glass", blurb: "Frosted, rounded panels over a soft gradient, with pill buttons." },
+  classic: {
+    name: "Classic",
+    blurb: "Clean, flat panels and sharp edges. Easy to scan.",
+  },
+  glass: {
+    name: "Glass",
+    blurb: "Frosted, rounded panels over a soft gradient, with pill buttons.",
+  },
 };
 
-export function StylePicker({ value, onChange }: { value: StyleChoice; onChange: (v: StyleChoice) => void }) {
+export function StylePicker({
+  value,
+  onChange,
+}: {
+  value: StyleChoice;
+  onChange: (v: StyleChoice) => void;
+}) {
   return (
     <ChoiceCards
       label="Style"
@@ -77,7 +98,9 @@ export function StylePicker({ value, onChange }: { value: StyleChoice; onChange:
           <>
             <StyleThumb style={s} />
             <div className="text-sm font-semibold">{STYLE_TEXT[s].name}</div>
-            <div className="mt-0.5 text-[0.8125rem] leading-snug text-muted">{STYLE_TEXT[s].blurb}</div>
+            <div className="mt-0.5 text-[0.8125rem] leading-snug text-muted">
+              {STYLE_TEXT[s].blurb}
+            </div>
           </>
         ),
       }))}
@@ -88,7 +111,10 @@ export function StylePicker({ value, onChange }: { value: StyleChoice; onChange:
 // ---------------------------------------------------------------------------
 // Accent color: presets, "auto", and a custom color wheel
 
-const SWATCH: Record<Exclude<Accent, "custom" | "auto">, { label: string; color: string }> = {
+const SWATCH: Record<
+  Exclude<Accent, "custom" | "auto">,
+  { label: string; color: string }
+> = {
   teal: { label: "Teal", color: "#0b6b5c" },
   blue: { label: "Blue", color: "#1d4ed8" },
   indigo: { label: "Indigo", color: "#4338ca" },
@@ -131,11 +157,17 @@ export function AccentPicker({
 }) {
   const ring = (selected: boolean) =>
     `relative flex size-9 items-center justify-center rounded-full ring-offset-2 ring-offset-surface ${
-      selected ? "ring-2 ring-foreground" : "ring-1 ring-border-strong hover:ring-foreground/40"
+      selected
+        ? "ring-2 ring-foreground"
+        : "ring-1 ring-border-strong hover:ring-foreground/40"
     }`;
   return (
     <div className="flex flex-col items-start gap-2.5 sm:items-end">
-      <div role="radiogroup" aria-label="Accent color" className="flex flex-wrap gap-2">
+      <div
+        role="radiogroup"
+        aria-label="Accent color"
+        className="flex flex-wrap gap-2"
+      >
         <button
           type="button"
           role="radio"
@@ -144,11 +176,15 @@ export function AccentPicker({
           title="Auto: teal for Classic, blue for Glass"
           onClick={() => onChange("auto")}
           className={ring(value === "auto")}
-          style={{ background: "linear-gradient(135deg, #0b6b5c 50%, #3b5bdb 50%)" }}
+          style={{
+            background: "linear-gradient(135deg, #0b6b5c 50%, #3b5bdb 50%)",
+          }}
         >
           {value === "auto" ? <Check /> : null}
         </button>
-        {ACCENTS.filter((a): a is keyof typeof SWATCH => a !== "auto" && a !== "custom").map((a) => (
+        {ACCENTS.filter(
+          (a): a is keyof typeof SWATCH => a !== "auto" && a !== "custom",
+        ).map((a) => (
           <button
             key={a}
             type="button"
@@ -164,12 +200,18 @@ export function AccentPicker({
           </button>
         ))}
         {/* The custom swatch is a color wheel. The real color input sits invisibly on top of it. */}
-        <span className={ring(value === "custom")} style={{ background: WHEEL }} title="Custom color">
+        <span
+          className={ring(value === "custom")}
+          style={{ background: WHEEL }}
+          title="Custom color"
+        >
           <input
             type="color"
             aria-label="Custom accent color"
             value={customHex}
-            onInput={(e) => onCustom((e.target as HTMLInputElement).value.toLowerCase())}
+            onInput={(e) =>
+              onCustom((e.target as HTMLInputElement).value.toLowerCase())
+            }
             onChange={(e) => onCustom(e.target.value.toLowerCase())}
             className="absolute inset-0 size-full cursor-pointer rounded-full opacity-0"
           />
@@ -183,7 +225,12 @@ export function AccentPicker({
         </span>
       </div>
       {value === "custom" ? (
-        <ColorField id="custom-accent" label="Custom accent" value={customHex} onChange={onCustom} />
+        <ColorField
+          id="custom-accent"
+          label="Custom accent"
+          value={customHex}
+          onChange={onCustom}
+        />
       ) : null}
     </div>
   );
@@ -192,9 +239,20 @@ export function AccentPicker({
 // ---------------------------------------------------------------------------
 // Fonts, each shown in its own typeface
 
-const FONT_STACKS: Record<FontChoice, { name: string; note: string; family: string }> = {
-  auto: { name: "Match style", note: "Inter in Classic, Manrope in Glass", family: "var(--auto-font)" },
-  inter: { name: "Inter", note: "Neutral and clear", family: "var(--font-inter), system-ui, sans-serif" },
+const FONT_STACKS: Record<
+  FontChoice,
+  { name: string; note: string; family: string }
+> = {
+  auto: {
+    name: "Match style",
+    note: "Inter in Classic, Manrope in Glass",
+    family: "var(--auto-font)",
+  },
+  inter: {
+    name: "Inter",
+    note: "Neutral and clear",
+    family: "var(--font-inter), system-ui, sans-serif",
+  },
   manrope: {
     name: "Manrope",
     note: "Rounded and modern",
@@ -203,7 +261,8 @@ const FONT_STACKS: Record<FontChoice, { name: string; note: string; family: stri
   system: {
     name: "System",
     note: "Your computer's own font",
-    family: 'ui-sans-serif, -apple-system, system-ui, "Segoe UI", Roboto, sans-serif',
+    family:
+      'ui-sans-serif, -apple-system, system-ui, "Segoe UI", Roboto, sans-serif',
   },
   serif: {
     name: "Serif",
@@ -224,7 +283,13 @@ const FONT_STACKS: Record<FontChoice, { name: string; note: string; family: stri
 
 export const FONT_CHOICES = Object.keys(FONT_STACKS) as FontChoice[];
 
-export function FontPicker({ value, onChange }: { value: FontChoice; onChange: (f: FontChoice) => void }) {
+export function FontPicker({
+  value,
+  onChange,
+}: {
+  value: FontChoice;
+  onChange: (f: FontChoice) => void;
+}) {
   return (
     <ChoiceCards
       label="Font"
@@ -236,9 +301,15 @@ export function FontPicker({ value, onChange }: { value: FontChoice; onChange: (
         content: (
           <div style={{ fontFamily: FONT_STACKS[f].family }}>
             <div className="text-2xl leading-none font-semibold">Aa</div>
-            <div className="mt-2 text-sm font-semibold">{FONT_STACKS[f].name}</div>
-            <div className="mt-0.5 text-xs leading-snug text-muted">{FONT_STACKS[f].note}</div>
-            <div className="mt-1.5 truncate text-[0.8125rem] text-text-3">Respond by Oct 31, 2026</div>
+            <div className="mt-2 text-sm font-semibold">
+              {FONT_STACKS[f].name}
+            </div>
+            <div className="mt-0.5 text-xs leading-snug text-muted">
+              {FONT_STACKS[f].note}
+            </div>
+            <div className="mt-1.5 truncate text-[0.8125rem] text-text-3">
+              Respond by Oct 31, 2026
+            </div>
           </div>
         ),
       }))}
@@ -249,7 +320,13 @@ export function FontPicker({ value, onChange }: { value: FontChoice; onChange: (
 // ---------------------------------------------------------------------------
 // LLM model
 
-export function ModelPicker({ value, onChange }: { value: ModelId; onChange: (m: ModelId) => void }) {
+export function ModelPicker({
+  value,
+  onChange,
+}: {
+  value: ModelId;
+  onChange: (m: ModelId) => void;
+}) {
   return (
     <ChoiceCards
       label="LLM model"
@@ -269,7 +346,9 @@ export function ModelPicker({ value, onChange }: { value: ModelId; onChange: (m:
                   value === m.id ? "border-accent-text" : "border-border-strong"
                 }`}
               >
-                {value === m.id ? <span className="size-2 rounded-full bg-accent-text" /> : null}
+                {value === m.id ? (
+                  <span className="size-2 rounded-full bg-accent-text" />
+                ) : null}
               </span>
               <span className="min-w-0 flex-1">
                 <span className="flex flex-wrap items-center gap-2">
@@ -280,10 +359,13 @@ export function ModelPicker({ value, onChange }: { value: ModelId; onChange: (m:
                     </span>
                   ) : null}
                 </span>
-                <span className="mt-0.5 block text-[0.8125rem] leading-snug text-muted">{m.tagline}</span>
+                <span className="mt-0.5 block text-[0.8125rem] leading-snug text-muted">
+                  {m.tagline}
+                </span>
                 <span className="mt-1.5 block text-xs text-text-3 tabular-nums">
                   ${p.input} in · ${p.output} out per million tokens · about{" "}
-                  {typical < 0.01 ? "under 1¢" : formatUsd(typical)} per typical answer
+                  {typical < 0.01 ? "under 1¢" : formatUsd(typical)} per typical
+                  answer
                 </span>
               </span>
             </div>

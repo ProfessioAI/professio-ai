@@ -30,7 +30,10 @@ const RequestSchema = z.object({
       z.object({
         role: z.enum(["user", "assistant"]),
         text: z.string().max(200_000),
-        attachments: z.array(AttachmentSchema).max(MAX_FILES_PER_MESSAGE).optional(),
+        attachments: z
+          .array(AttachmentSchema)
+          .max(MAX_FILES_PER_MESSAGE)
+          .optional(),
       }),
     )
     .min(1)
@@ -58,7 +61,10 @@ const RequestSchema = z.object({
  * the saved instructions and the earlier conversation exactly as they were, so the cached
  * part of the request still matches.
  */
-function toApiMessages(history: ChatMessage[], note: string | null): Anthropic.Beta.BetaMessageParam[] {
+function toApiMessages(
+  history: ChatMessage[],
+  note: string | null,
+): Anthropic.Beta.BetaMessageParam[] {
   const out: Anthropic.Beta.BetaMessageParam[] = [];
   for (const [index, m] of history.entries()) {
     if (m.role === "assistant") {
@@ -67,8 +73,12 @@ function toApiMessages(history: ChatMessage[], note: string | null): Anthropic.B
       continue;
     }
     const content = toDocumentBlocks(m.attachments ?? []);
-    content.push({ type: "text", text: m.text.trim() || "Please review the attached document." });
-    if (note && index === history.length - 1) content.push({ type: "text", text: note });
+    content.push({
+      type: "text",
+      text: m.text.trim() || "Please review the attached document.",
+    });
+    if (note && index === history.length - 1)
+      content.push({ type: "text", text: note });
     out.push({ role: "user", content });
   }
   return out;
@@ -79,24 +89,34 @@ export async function POST(req: Request) {
   try {
     body = await req.json();
   } catch {
-    return Response.json({ error: "Request body must be JSON." }, { status: 400 });
+    return Response.json(
+      { error: "Request body must be JSON." },
+      { status: 400 },
+    );
   }
   const parsed = RequestSchema.safeParse(body);
   if (!parsed.success) {
-    return Response.json({ error: z.prettifyError(parsed.error) }, { status: 400 });
+    return Response.json(
+      { error: z.prettifyError(parsed.error) },
+      { status: 400 },
+    );
   }
   const model = parsed.data.model ?? DEFAULT_MODEL;
   const { serverFallback } = modelInfo(model);
   const history = parsed.data.messages;
   if (history[history.length - 1].role !== "user") {
-    return Response.json({ error: "The last message must be from the user." }, { status: 400 });
+    return Response.json(
+      { error: "The last message must be from the user." },
+      { status: 400 },
+    );
   }
 
   const encoder = new TextEncoder();
 
   const stream = new ReadableStream<Uint8Array>({
     async start(controller) {
-      const send = (event: StreamEvent) => controller.enqueue(encoder.encode(JSON.stringify(event) + "\n"));
+      const send = (event: StreamEvent) =>
+        controller.enqueue(encoder.encode(JSON.stringify(event) + "\n"));
 
       // Everything this reply used, added up across tool rounds and any fallback attempts.
       let usage = emptyReport();
@@ -118,7 +138,10 @@ export async function POST(req: Request) {
               // If a safety check declines the request, let the API retry it on a suitable
               // fallback model inside the same call. (Not every model supports this.)
               ...(serverFallback
-                ? { betas: ["server-side-fallback-2026-07-01"], fallbacks: "default" as const }
+                ? {
+                    betas: ["server-side-fallback-2026-07-01"],
+                    fallbacks: "default" as const,
+                  }
                 : {}),
               // Caches the system prompt, tools, and earlier turns (including
               // uploaded documents) so follow-up questions cost less.
@@ -136,9 +159,16 @@ export async function POST(req: Request) {
               if (event.content_block.type === "thinking") {
                 send({ type: "status", status: "thinking" });
               } else if (event.content_block.type === "tool_use") {
-                send({ type: "status", status: "tool", detail: event.content_block.name });
+                send({
+                  type: "status",
+                  status: "tool",
+                  detail: event.content_block.name,
+                });
               }
-            } else if (event.type === "content_block_delta" && event.delta.type === "text_delta") {
+            } else if (
+              event.type === "content_block_delta" &&
+              event.delta.type === "text_delta"
+            ) {
               if (separatorPending) {
                 send({ type: "text", text: "\n\n" });
                 separatorPending = false;
@@ -155,7 +185,8 @@ export async function POST(req: Request) {
           if (message.stop_reason === "refusal") {
             send({
               type: "error",
-              message: "The AI declined to answer this request. Try rephrasing it.",
+              message:
+                "The AI declined to answer this request. Try rephrasing it.",
             });
             break;
           }
@@ -172,30 +203,41 @@ export async function POST(req: Request) {
 
           if (toolUses.length === 0) {
             if (message.stop_reason === "max_tokens") {
-              send({ type: "error", message: "The reply hit its length limit and was cut off." });
+              send({
+                type: "error",
+                message: "The reply hit its length limit and was cut off.",
+              });
             }
             break;
           }
 
           // A tool call cut off by the length limit may have incomplete input.
           if (message.stop_reason === "max_tokens") {
-            send({ type: "error", message: "The reply hit its length limit mid tool call." });
+            send({
+              type: "error",
+              message: "The reply hit its length limit mid tool call.",
+            });
             break;
           }
 
           messages.push({ role: "assistant", content: message.content });
           const results = await Promise.all(
-            toolUses.map(async (t): Promise<Anthropic.Beta.BetaToolResultBlockParam> => {
-              const { label, ...result } = await runTool(t.name, t.input);
-              if (label) send({ type: "tool", label });
-              return { type: "tool_result", tool_use_id: t.id, ...result };
-            }),
+            toolUses.map(
+              async (t): Promise<Anthropic.Beta.BetaToolResultBlockParam> => {
+                const { label, ...result } = await runTool(t.name, t.input);
+                if (label) send({ type: "tool", label });
+                return { type: "tool_result", tool_use_id: t.id, ...result };
+              },
+            ),
           );
           // All results go back together in a single user message.
           messages.push({ role: "user", content: results });
 
           if (round === MAX_TOOL_ROUNDS - 1) {
-            send({ type: "error", message: "Stopped after too many tool calls in one reply." });
+            send({
+              type: "error",
+              message: "Stopped after too many tool calls in one reply.",
+            });
           }
         }
 
@@ -208,7 +250,8 @@ export async function POST(req: Request) {
       } finally {
         try {
           // Replies the user stops early can't be counted: the browser has already hung up.
-          if (!req.signal.aborted && usage.costUsd > 0) send({ type: "usage", report: usage });
+          if (!req.signal.aborted && usage.costUsd > 0)
+            send({ type: "usage", report: usage });
           controller.close();
         } catch {
           // Already closed because the browser disconnected.

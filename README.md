@@ -62,7 +62,7 @@ and ask for an explanation and a response plan.
   - **Appearance:** style (Classic or Glass), theme (system, light, dark), accent color (presets,
     or any color from a color wheel), **custom colors** (ten colors each for light and dark, picked
     with color wheels or loaded and saved as JSON), font (seven choices, each shown in its own
-    typeface), text size, spacing, reading width, and reduce motion.
+    typeface), text size, spacing, reading width, reduce motion, and (in Glass) how rounded corners are.
   - **Chat:** the **LLM model** (Claude Opus 5.5, Sonnet 5.5, Haiku 5.5, or Fable 5.1, with prices),
     answer detail and tone, send key, scrolling, and what to show.
   - **Notices:** automatic reading, details panel, deadline warning, date format.

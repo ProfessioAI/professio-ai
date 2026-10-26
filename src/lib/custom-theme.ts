@@ -2,7 +2,14 @@
 // Every other color in the app (hover shades, borders, soft backgrounds, text on buttons)
 // is worked out from them, so a custom theme stays readable whatever you pick.
 
-import { bestTextOn, contrast, hoverShade, mix, normalizeHex, readableOn } from "./color";
+import {
+  bestTextOn,
+  contrast,
+  hoverShade,
+  mix,
+  normalizeHex,
+  readableOn,
+} from "./color";
 
 export const THEME_KEYS = [
   "background",
@@ -18,7 +25,11 @@ export const THEME_KEYS = [
 ] as const;
 export type ThemeKey = (typeof THEME_KEYS)[number];
 export type ThemeColors = Record<ThemeKey, string>;
-export type CustomTheme = { name: string; light: ThemeColors; dark: ThemeColors };
+export type CustomTheme = {
+  name: string;
+  light: ThemeColors;
+  dark: ThemeColors;
+};
 
 export const THEME_LABELS: Record<ThemeKey, { label: string; hint: string }> = {
   background: { label: "Page background", hint: "Behind everything" },
@@ -28,7 +39,10 @@ export const THEME_LABELS: Record<ThemeKey, { label: string; hint: string }> = {
   border: { label: "Borders", hint: "Lines and outlines" },
   accent: { label: "Accent", hint: "Buttons, links, highlights" },
   userBubble: { label: "Your messages", hint: "Background of your messages" },
-  userBubbleText: { label: "Your messages: text", hint: "Text in your messages" },
+  userBubbleText: {
+    label: "Your messages: text",
+    hint: "Text in your messages",
+  },
   warning: { label: "Warning", hint: "Deadlines and caution notes" },
   danger: { label: "Danger", hint: "Errors and overdue deadlines" },
 };
@@ -161,7 +175,10 @@ export function themeVars(theme: CustomTheme): Record<string, string> {
 }
 
 /** The accent-only variables, for a custom accent over the built-in style. */
-export function accentOnlyVars(hex: string, style: BaseStyle): Record<string, string> {
+export function accentOnlyVars(
+  hex: string,
+  style: BaseStyle,
+): Record<string, string> {
   const base = BASE_THEMES[style];
   const make = (surface: string) => ({
     "--accent": hex,
@@ -173,7 +190,8 @@ export function accentOnlyVars(hex: string, style: BaseStyle): Record<string, st
   const light = make(base.light.surface);
   const dark = make(base.dark.surface);
   const vars: Record<string, string> = {};
-  for (const key of Object.keys(light) as (keyof typeof light)[]) vars[key] = pair(light[key], dark[key]);
+  for (const key of Object.keys(light) as (keyof typeof light)[])
+    vars[key] = pair(light[key], dark[key]);
   vars["--primary"] = "var(--accent)";
   vars["--primary-hover"] = "var(--accent-hover)";
   vars["--primary-fg"] = "var(--accent-fg)";
@@ -187,25 +205,43 @@ export const THEME_FORMAT = "professioai-theme";
 
 export function themeToJson(theme: CustomTheme): string {
   const { name, light, dark } = theme;
-  return JSON.stringify({ format: THEME_FORMAT, version: 1, name, light, dark }, null, 2) + "\n";
+  return (
+    JSON.stringify(
+      { format: THEME_FORMAT, version: 1, name, light, dark },
+      null,
+      2,
+    ) + "\n"
+  );
 }
 
-export type ParseResult = { ok: true; theme: CustomTheme; filled: string[] } | { ok: false; error: string };
+export type ParseResult =
+  | { ok: true; theme: CustomTheme; filled: string[] }
+  | { ok: false; error: string };
 
 /**
  * Reads a theme from JSON text. Colors must be hex (#rgb or #rrggbb). A mode or a color that
  * is missing is filled in from `fallback`, and listed in `filled`. Anything that isn't a
  * valid color is rejected with a message saying where.
  */
-export function parseThemeJson(text: string, fallback: CustomTheme): ParseResult {
+export function parseThemeJson(
+  text: string,
+  fallback: CustomTheme,
+): ParseResult {
   let data: unknown;
   try {
     data = JSON.parse(text);
   } catch {
-    return { ok: false, error: "That isn't valid JSON. Check for a missing comma, quote, or bracket." };
+    return {
+      ok: false,
+      error:
+        "That isn't valid JSON. Check for a missing comma, quote, or bracket.",
+    };
   }
   if (!data || typeof data !== "object" || Array.isArray(data)) {
-    return { ok: false, error: 'A theme is a JSON object with a "light" and a "dark" section.' };
+    return {
+      ok: false,
+      error: 'A theme is a JSON object with a "light" and a "dark" section.',
+    };
   }
   const obj = data as Record<string, unknown>;
   if (obj.format !== undefined && obj.format !== THEME_FORMAT) {
@@ -215,7 +251,10 @@ export function parseThemeJson(text: string, fallback: CustomTheme): ParseResult
     };
   }
   if (obj.light === undefined && obj.dark === undefined) {
-    return { ok: false, error: 'The theme needs a "light" section, a "dark" section, or both.' };
+    return {
+      ok: false,
+      error: 'The theme needs a "light" section, a "dark" section, or both.',
+    };
   }
 
   const filled: string[] = [];
@@ -228,7 +267,10 @@ export function parseThemeJson(text: string, fallback: CustomTheme): ParseResult
       continue;
     }
     if (!section || typeof section !== "object" || Array.isArray(section)) {
-      return { ok: false, error: `"${mode}" should be an object of colors, like { "accent": "#0b6b5c" }.` };
+      return {
+        ok: false,
+        error: `"${mode}" should be an object of colors, like { "accent": "#0b6b5c" }.`,
+      };
     }
     const colors = {} as ThemeColors;
     const given = section as Record<string, unknown>;
@@ -265,15 +307,25 @@ export function parseThemeJson(text: string, fallback: CustomTheme): ParseResult
           .trim()
           .slice(0, 40)
       : "";
-  return { ok: true, theme: { name: name || "My theme", light: modes.light, dark: modes.dark }, filled };
+  return {
+    ok: true,
+    theme: { name: name || "My theme", light: modes.light, dark: modes.dark },
+    filled,
+  };
 }
 
 /** Checks a stored theme (from the browser's storage), repairing anything wrong from `fallback`. */
-export function sanitizeTheme(raw: unknown, fallback: CustomTheme): CustomTheme {
+export function sanitizeTheme(
+  raw: unknown,
+  fallback: CustomTheme,
+): CustomTheme {
   if (!raw || typeof raw !== "object") return cloneTheme(fallback);
   const r = raw as Record<string, unknown>;
   const mode = (value: unknown, base: ThemeColors): ThemeColors => {
-    const v = (value && typeof value === "object" ? value : {}) as Record<string, unknown>;
+    const v = (value && typeof value === "object" ? value : {}) as Record<
+      string,
+      unknown
+    >;
     const out = {} as ThemeColors;
     for (const key of THEME_KEYS) out[key] = normalizeHex(v[key]) ?? base[key];
     return out;
@@ -301,7 +353,8 @@ export function sanitizeVars(raw: unknown): Record<string, string> {
   const out: Record<string, string> = {};
   if (!raw || typeof raw !== "object") return out;
   for (const [k, v] of Object.entries(raw as Record<string, unknown>)) {
-    if (SAFE_NAME.test(k) && typeof v === "string" && SAFE_VALUE.test(v)) out[k] = v;
+    if (SAFE_NAME.test(k) && typeof v === "string" && SAFE_VALUE.test(v))
+      out[k] = v;
   }
   return out;
 }
@@ -316,14 +369,19 @@ export function themeWarnings(theme: CustomTheme): string[] {
     const c = theme[mode];
     const label = mode === "light" ? "Light" : "Dark";
     if (contrast(c.text, c.background) < 4.5)
-      out.push(`${label} mode: the text is hard to read on the page background.`);
-    if (contrast(c.text, c.surface) < 4.5) out.push(`${label} mode: the text is hard to read on panels.`);
+      out.push(
+        `${label} mode: the text is hard to read on the page background.`,
+      );
+    if (contrast(c.text, c.surface) < 4.5)
+      out.push(`${label} mode: the text is hard to read on panels.`);
     if (contrast(c.mutedText, c.surface) < 3)
       out.push(`${label} mode: secondary text is very faint on panels.`);
     if (contrast(c.userBubbleText, c.userBubble) < 4.5)
       out.push(`${label} mode: the text in your messages is hard to read.`);
     if (contrast(c.accent, c.surface) < 1.5)
-      out.push(`${label} mode: the accent is almost the same color as the panels.`);
+      out.push(
+        `${label} mode: the accent is almost the same color as the panels.`,
+      );
   }
   return out;
 }

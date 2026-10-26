@@ -16,12 +16,21 @@ export type UIMessage = ChatMessage & {
 export type Draft = { title: string; text: string };
 
 /** Replies to "draft" requests, once they've finished streaming. */
-export function collectDrafts(messages: UIMessage[], streaming: boolean): Draft[] {
+export function collectDrafts(
+  messages: UIMessage[],
+  streaming: boolean,
+): Draft[] {
   const drafts: Draft[] = [];
   messages.forEach((m, i) => {
     const reply = messages[i + 1];
     const replyDone = !(streaming && i + 1 === messages.length - 1);
-    if (m.role === "user" && m.draftTitle && reply?.role === "assistant" && reply.text.trim() && replyDone) {
+    if (
+      m.role === "user" &&
+      m.draftTitle &&
+      reply?.role === "assistant" &&
+      reply.text.trim() &&
+      replyDone
+    ) {
       drafts.push({ title: m.draftTitle, text: reply.text.trim() });
     }
   });
@@ -30,7 +39,11 @@ export function collectDrafts(messages: UIMessage[], streaming: boolean): Draft[
 
 /** Names of every document attached in the conversation, without repeats. */
 export function documentNames(messages: UIMessage[]): string[] {
-  return [...new Set(messages.flatMap((m) => m.attachments?.map((a) => a.name) ?? []))];
+  return [
+    ...new Set(
+      messages.flatMap((m) => m.attachments?.map((a) => a.name) ?? []),
+    ),
+  ];
 }
 
 export function conversationTitle(messages: UIMessage[]): string {
@@ -56,7 +69,9 @@ export async function readFiles(
     const isPdf = file.type === "application/pdf" || lower.endsWith(".pdf");
     const isTxt = file.type === "text/plain" || lower.endsWith(".txt");
     if (!isPdf && !isTxt) {
-      errors.push(`${file.name}: only PDF and .txt files are supported for now.`);
+      errors.push(
+        `${file.name}: only PDF and .txt files are supported for now.`,
+      );
       continue;
     }
     if (file.size > MAX_FILE_BYTES) {
@@ -76,7 +91,11 @@ export async function readFiles(
         data: dataUrl.split(",")[1] ?? "",
       });
     } else {
-      attachments.push({ name: file.name, mediaType: "text/plain", data: await file.text() });
+      attachments.push({
+        name: file.name,
+        mediaType: "text/plain",
+        data: await file.text(),
+      });
     }
   }
   return { attachments, errors };
@@ -94,7 +113,8 @@ export function conversationMarkdown(messages: UIMessage[]): string {
   for (const m of messages) {
     if (!m.text.trim() && !m.attachments?.length) continue;
     lines.push(m.role === "user" ? "## You" : "## ProfessioAI", "");
-    for (const a of m.attachments ?? []) lines.push(`_Attached: ${a.name}_`, "");
+    for (const a of m.attachments ?? [])
+      lines.push(`_Attached: ${a.name}_`, "");
     if (m.text.trim()) lines.push(m.text.trim(), "");
   }
   return lines.join("\n");
@@ -120,10 +140,21 @@ function plainText(markdown: string): string {
 }
 
 /** The conversation as a downloadable file, in the format chosen in settings. */
-export function conversationExport(messages: UIMessage[], format: ExportFormat) {
+export function conversationExport(
+  messages: UIMessage[],
+  format: ExportFormat,
+) {
   const markdown = conversationMarkdown(messages);
   if (format === "text") {
-    return { filename: "professioai-conversation.txt", mime: "text/plain", content: plainText(markdown) };
+    return {
+      filename: "professioai-conversation.txt",
+      mime: "text/plain",
+      content: plainText(markdown),
+    };
   }
-  return { filename: "professioai-conversation.md", mime: "text/markdown", content: markdown };
+  return {
+    filename: "professioai-conversation.md",
+    mime: "text/markdown",
+    content: markdown,
+  };
 }

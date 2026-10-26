@@ -3,7 +3,12 @@
 import { useId, useState } from "react";
 import { PILOT_NAME } from "@/lib/config";
 import { modelInfo } from "@/lib/models";
-import { DEFAULT_SETTINGS, TEXT_LIMITS, type DateFormat, type Settings } from "@/lib/settings";
+import {
+  DEFAULT_SETTINGS,
+  TEXT_LIMITS,
+  type DateFormat,
+  type Settings,
+} from "@/lib/settings";
 import { formatDate } from "@/components/chat/notice-utils";
 import { CalendarIcon } from "@/components/chat/Icons";
 import type { UsageMeter } from "@/components/chat/usage-store";
@@ -32,7 +37,9 @@ const TABS = [
 type TabId = (typeof TABS)[number]["id"];
 
 const SAMPLE_DATE = "2026-10-31";
-const dateOptions: Option<DateFormat>[] = (["us", "numeric", "eu", "iso"] as const).map((v) => ({
+const dateOptions: Option<DateFormat>[] = (
+  ["us", "numeric", "eu", "iso"] as const
+).map((v) => ({
   value: v,
   label: formatDate(SAMPLE_DATE, true, v),
 }));
@@ -46,7 +53,9 @@ function Preview() {
       aria-hidden="true"
       className="ui-inset ui-soft mb-4 rounded-xl border border-border bg-background p-4"
     >
-      <div className="mb-1 text-xs font-semibold tracking-[0.06em] text-muted uppercase">Preview</div>
+      <div className="mb-1 text-xs font-semibold tracking-[0.06em] text-muted uppercase">
+        Preview
+      </div>
       <div className="flex flex-col gap-[var(--chat-gap)]">
         <div className="flex justify-end">
           <div className="ui-bubble max-w-[85%] rounded-[14px_14px_4px_14px] bg-user-bubble px-4 py-2.5 text-user-bubble-fg">
@@ -57,13 +66,13 @@ function Preview() {
           <div role="note" className="md-note">
             <CalendarIcon size={20} className="md-note-icon" />
             <div>
-              <strong>Respond by {formatDate(SAMPLE_DATE, true)}.</strong> If there&apos;s no response, the
-              IRS may send a notice of deficiency.
+              <strong>Respond by {formatDate(SAMPLE_DATE, true)}.</strong> If
+              there&apos;s no response, the IRS may send a notice of deficiency.
             </div>
           </div>
           <p>
-            This is a <strong>CP2000</strong>: a proposal, not a bill. The total proposed is{" "}
-            <code>$4,016.00</code>.
+            This is a <strong>CP2000</strong>: a proposal, not a bill. The total
+            proposed is <code>$4,016.00</code>.
           </p>
         </div>
         <div>
@@ -89,7 +98,9 @@ function Block({
     <div className="border-b border-border py-4 last:border-b-0">
       <div className="mb-2.5 text-sm font-medium">{label}</div>
       {description ? (
-        <p className="-mt-1.5 mb-2.5 text-[0.8125rem] leading-snug text-muted">{description}</p>
+        <p className="-mt-1.5 mb-2.5 text-[0.8125rem] leading-snug text-muted">
+          {description}
+        </p>
       ) : null}
       {children}
     </div>
@@ -101,10 +112,16 @@ function Appearance({ s, set }: { s: Settings; set: Patch }) {
     <>
       <Preview />
       <Card title="Style, theme, and color">
-        <Block label="Style" description="The overall look: shapes, panels, and fonts.">
+        <Block
+          label="Style"
+          description="The overall look: shapes, panels, and fonts."
+        >
           <StylePicker value={s.style} onChange={(style) => set({ style })} />
         </Block>
-        <SettingRow label="Theme" description="System follows your computer's light or dark setting.">
+        <SettingRow
+          label="Theme"
+          description="System follows your computer's light or dark setting."
+        >
           <Segmented
             label="Theme"
             value={s.theme}
@@ -137,7 +154,10 @@ function Appearance({ s, set }: { s: Settings; set: Patch }) {
         <Block label="Font" description="Applies to the whole app.">
           <FontPicker value={s.font} onChange={(font) => set({ font })} />
         </Block>
-        <SettingRow label="Text size" description="Scales the whole app, including buttons and spacing.">
+        <SettingRow
+          label="Text size"
+          description="Scales the whole app, including buttons and spacing."
+        >
           <Segmented
             label="Text size"
             value={s.textSize}
@@ -150,7 +170,10 @@ function Appearance({ s, set }: { s: Settings; set: Patch }) {
             ]}
           />
         </SettingRow>
-        <SettingRow label="Spacing" description="Compact fits more of a long answer on screen.">
+        <SettingRow
+          label="Spacing"
+          description="Compact fits more of a long answer on screen."
+        >
           <Segmented
             label="Spacing"
             value={s.density}
@@ -161,7 +184,29 @@ function Appearance({ s, set }: { s: Settings; set: Patch }) {
             ]}
           />
         </SettingRow>
-        <SettingRow label="Reading width" description="How wide the conversation column is on large screens.">
+        {s.style === "glass" ? (
+          <SettingRow
+            label="Roundness"
+            description="How rounded corners are in Glass. Applies to panels, buttons, and cards."
+          >
+            <Segmented
+              label="Roundness"
+              value={s.roundness}
+              onChange={(roundness) => set({ roundness })}
+              options={[
+                { value: "square", label: "Square" },
+                { value: "subtle", label: "Subtle" },
+                { value: "soft", label: "Soft" },
+                { value: "round", label: "Round" },
+                { value: "extra", label: "Extra" },
+              ]}
+            />
+          </SettingRow>
+        ) : null}
+        <SettingRow
+          label="Reading width"
+          description="How wide the conversation column is on large screens."
+        >
           <Segmented
             label="Reading width"
             value={s.readingWidth}
@@ -200,13 +245,18 @@ function Chat({ s, set }: { s: Settings; set: Patch }) {
         <Block label="Model">
           <ModelPicker value={s.model} onChange={(model) => set({ model })} />
           <p className="mt-3 text-[0.8125rem] leading-snug text-muted">
-            Prices are what the model provider charges per million tokens, and the cost per answer is a guide.
-            Changing the model in the middle of a conversation re-reads any attached documents at full price
-            once. Every model writes drafts for professional review, and any of them can be wrong.
+            Prices are what the model provider charges per million tokens, and
+            the cost per answer is a guide. Changing the model in the middle of
+            a conversation re-reads any attached documents at full price once.
+            Every model writes drafts for professional review, and any of them
+            can be wrong.
           </p>
         </Block>
       </Card>
-      <Card title="Answers" description="These two are sent to the AI with each message.">
+      <Card
+        title="Answers"
+        description="These two are sent to the AI with each message."
+      >
         <SettingRow
           label="Answer detail"
           description="Brief leads with the answer and next steps. Detailed explains the reasoning."
@@ -238,7 +288,10 @@ function Chat({ s, set }: { s: Settings; set: Patch }) {
         </SettingRow>
       </Card>
       <Card title="Typing and reading">
-        <SettingRow label="Send with" description="The other key adds a new line.">
+        <SettingRow
+          label="Send with"
+          description="The other key adds a new line."
+        >
           <Segmented
             label="Send with"
             value={s.sendKey}
@@ -249,7 +302,10 @@ function Chat({ s, set }: { s: Settings; set: Patch }) {
             ]}
           />
         </SettingRow>
-        <SettingRow label="Scroll as answers are written" description="Keeps the newest text in view.">
+        <SettingRow
+          label="Scroll as answers are written"
+          description="Keeps the newest text in view."
+        >
           <Switch
             label="Scroll as answers are written"
             checked={s.autoScroll}
@@ -258,21 +314,30 @@ function Chat({ s, set }: { s: Settings; set: Patch }) {
         </SettingRow>
       </Card>
       <Card title="What to show in conversations">
-        <SettingRow label="Tool activity" description='The "Looked up CP2000 in the notice reference" line.'>
+        <SettingRow
+          label="Tool activity"
+          description='The "Looked up CP2000 in the notice reference" line.'
+        >
           <Switch
             label="Show tool activity"
             checked={s.showToolChips}
             onChange={(showToolChips) => set({ showToolChips })}
           />
         </SettingRow>
-        <SettingRow label="Follow-up suggestions" description="The buttons under the latest answer.">
+        <SettingRow
+          label="Follow-up suggestions"
+          description="The buttons under the latest answer."
+        >
           <Switch
             label="Show follow-up suggestions"
             checked={s.showFollowUps}
             onChange={(showFollowUps) => set({ showFollowUps })}
           />
         </SettingRow>
-        <SettingRow label="Cost of each answer" description="The small estimate next to Copy.">
+        <SettingRow
+          label="Cost of each answer"
+          description="The small estimate next to Copy."
+        >
           <Switch
             label="Show cost of each answer"
             checked={s.showReplyCost}
@@ -281,7 +346,8 @@ function Chat({ s, set }: { s: Settings; set: Patch }) {
         </SettingRow>
       </Card>
       <p className="px-1 text-[0.8125rem] text-muted">
-        The &ldquo;draft for professional review&rdquo; reminders under each answer are always shown.
+        The &ldquo;draft for professional review&rdquo; reminders under each
+        answer are always shown.
       </p>
     </>
   );
@@ -333,7 +399,10 @@ function Notices({ s, set }: { s: Settings; set: Patch }) {
             ]}
           />
         </SettingRow>
-        <SettingRow label="Date format" description="For dates shown in the details panel and the header.">
+        <SettingRow
+          label="Date format"
+          description="For dates shown in the details panel and the header."
+        >
           <Segmented
             label="Date format"
             value={s.dateFormat}
@@ -348,7 +417,9 @@ function Notices({ s, set }: { s: Settings; set: Patch }) {
 
 function Practice({ s, set }: { s: Settings; set: Patch }) {
   const uid = useId();
-  const field = (key: "displayName" | "credentials" | "practiceName" | "phone" | "email") => ({
+  const field = (
+    key: "displayName" | "credentials" | "practiceName" | "phone" | "email",
+  ) => ({
     id: `${uid}-${key}`,
     value: s[key],
     maxLength: TEXT_LIMITS[key],
@@ -361,7 +432,11 @@ function Practice({ s, set }: { s: Settings; set: Patch }) {
         description="Used to sign letters and emails you ask for, in place of [Your name] placeholders. Saved in this browser only."
       >
         <SettingRow label="Your name" htmlFor={`${uid}-displayName`}>
-          <TextField {...field("displayName")} placeholder="Jordan Sample" autoComplete="name" />
+          <TextField
+            {...field("displayName")}
+            placeholder="Jordan Sample"
+            autoComplete="name"
+          />
         </SettingRow>
         <SettingRow
           label="Credentials"
@@ -378,10 +453,20 @@ function Practice({ s, set }: { s: Settings; set: Patch }) {
           />
         </SettingRow>
         <SettingRow label="Phone" htmlFor={`${uid}-phone`}>
-          <TextField {...field("phone")} type="tel" placeholder="(555) 010-0100" autoComplete="tel" />
+          <TextField
+            {...field("phone")}
+            type="tel"
+            placeholder="(555) 010-0100"
+            autoComplete="tel"
+          />
         </SettingRow>
         <SettingRow label="Email" htmlFor={`${uid}-email`}>
-          <TextField {...field("email")} type="email" placeholder="you@example.com" autoComplete="email" />
+          <TextField
+            {...field("email")}
+            type="email"
+            placeholder="you@example.com"
+            autoComplete="email"
+          />
         </SettingRow>
       </Card>
       <Card title="Using your details">
@@ -397,7 +482,8 @@ function Practice({ s, set }: { s: Settings; set: Patch }) {
         </SettingRow>
       </Card>
       <p className="px-1 text-[0.8125rem] text-muted">
-        Only your own contact details belong here. Don&apos;t put client information in any setting.
+        Only your own contact details belong here. Don&apos;t put client
+        information in any setting.
       </p>
     </>
   );
@@ -464,11 +550,18 @@ function Data({
             ]}
           />
         </SettingRow>
-        <SettingRow label="Download my settings" description="A JSON file of every option on this page.">
+        <SettingRow
+          label="Download my settings"
+          description="A JSON file of every option on this page."
+        >
           <ActionButton
             label="Download"
             onClick={() =>
-              download("professioai-settings.json", JSON.stringify(s, null, 2) + "\n", "application/json")
+              download(
+                "professioai-settings.json",
+                JSON.stringify(s, null, 2) + "\n",
+                "application/json",
+              )
             }
           />
         </SettingRow>
@@ -478,10 +571,21 @@ function Data({
           label="Reset settings"
           description="Puts every option back to its default. Usage totals are kept."
         >
-          <ConfirmButton label="Reset settings" confirmLabel="Press again to reset" onConfirm={reset} />
+          <ConfirmButton
+            label="Reset settings"
+            confirmLabel="Press again to reset"
+            onConfirm={reset}
+          />
         </SettingRow>
-        <SettingRow label="Reset usage totals" description="Clears the usage meter's totals in this browser.">
-          <ConfirmButton label="Reset usage" confirmLabel="Press again to reset" onConfirm={meter.resetAll} />
+        <SettingRow
+          label="Reset usage totals"
+          description="Clears the usage meter's totals in this browser."
+        >
+          <ConfirmButton
+            label="Reset usage"
+            confirmLabel="Press again to reset"
+            onConfirm={meter.resetAll}
+          />
         </SettingRow>
         <SettingRow
           label="Clear everything stored here"
@@ -502,16 +606,24 @@ function Data({
       <Card title="What's stored, and where">
         <ul className="list-disc space-y-2 py-4 pl-5 text-[0.8125rem] leading-snug text-text-3">
           <li>
-            <strong className="font-semibold text-foreground">Settings and usage totals</strong> are saved in
-            this browser only.
+            <strong className="font-semibold text-foreground">
+              Settings and usage totals
+            </strong>{" "}
+            are saved in this browser only.
           </li>
           <li>
-            <strong className="font-semibold text-foreground">Conversations and documents</strong> aren&apos;t
-            saved anywhere. They disappear when you close or refresh the tab.
+            <strong className="font-semibold text-foreground">
+              Conversations and documents
+            </strong>{" "}
+            aren&apos;t saved anywhere. They disappear when you close or refresh
+            the tab.
           </li>
           <li>
-            <strong className="font-semibold text-foreground">Sent to the AI:</strong> your messages, the
-            documents you attach, and the answer-style options and practice details above (when switched on).
+            <strong className="font-semibold text-foreground">
+              Sent to the AI:
+            </strong>{" "}
+            your messages, the documents you attach, and the answer-style
+            options and practice details above (when switched on).
           </li>
           <li>During the pilot, use fictional or public test data only.</li>
         </ul>
@@ -520,7 +632,13 @@ function Data({
   );
 }
 
-function About({ model, onChangeModel }: { model: string; onChangeModel: () => void }) {
+function About({
+  model,
+  onChangeModel,
+}: {
+  model: string;
+  onChangeModel: () => void;
+}) {
   return (
     <>
       <Card title="ProfessioAI">
@@ -555,7 +673,10 @@ function About({ model, onChangeModel }: { model: string; onChangeModel: () => v
             ["New line", "Shift + Enter (or Enter)"],
             ["Move between choices", "← → arrow keys"],
           ].map(([k, v]) => (
-            <div key={k} className="flex justify-between gap-4 border-b border-border py-2.5 last:border-b-0">
+            <div
+              key={k}
+              className="flex justify-between gap-4 border-b border-border py-2.5 last:border-b-0"
+            >
               <dt className="text-text-3">{k}</dt>
               <dd className="text-right font-medium">{v}</dd>
             </div>
@@ -563,14 +684,21 @@ function About({ model, onChangeModel }: { model: string; onChangeModel: () => v
         </dl>
       </Card>
       <p className="px-1 text-[0.8125rem] leading-snug text-muted">
-        ProfessioAI writes drafts for review by a qualified professional. It is not tax or legal advice, and
-        it can be wrong. Check every figure and date against the original before relying on it.
+        ProfessioAI writes drafts for review by a qualified professional. It is
+        not tax or legal advice, and it can be wrong. Check every figure and
+        date against the original before relying on it.
       </p>
     </>
   );
 }
 
-export default function SettingsView({ onBack, meter }: { onBack: () => void; meter: UsageMeter }) {
+export default function SettingsView({
+  onBack,
+  meter,
+}: {
+  onBack: () => void;
+  meter: UsageMeter;
+}) {
   const { settings, update, reset } = useSettings();
   const [tab, setTab] = useState<TabId>("appearance");
   // Bumped after a reset so text fields start over from the new values.
@@ -614,9 +742,12 @@ export default function SettingsView({ onBack, meter }: { onBack: () => void; me
           Back to chat
         </button>
         <div className="min-w-0 flex-1">
-          <h1 className="text-[1.0625rem] font-semibold tracking-tight">Settings</h1>
+          <h1 className="text-[1.0625rem] font-semibold tracking-tight">
+            Settings
+          </h1>
           <p className="truncate text-xs text-muted">
-            Saved in this browser · {changed === 0 ? "all defaults" : `${changed} changed from default`}
+            Saved in this browser ·{" "}
+            {changed === 0 ? "all defaults" : `${changed} changed from default`}
           </p>
         </div>
       </header>
@@ -673,7 +804,12 @@ export default function SettingsView({ onBack, meter }: { onBack: () => void; me
                 onCleared={() => setRevision((r) => r + 1)}
               />
             )}
-            {tab === "about" && <About model={settings.model} onChangeModel={() => setTab("chat")} />}
+            {tab === "about" && (
+              <About
+                model={settings.model}
+                onChangeModel={() => setTab("chat")}
+              />
+            )}
           </div>
         </div>
       </div>

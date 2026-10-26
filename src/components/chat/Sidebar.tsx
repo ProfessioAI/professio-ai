@@ -33,7 +33,9 @@ export default function Sidebar({
     >
       <div className="flex items-center gap-2.5 px-1">
         <Logo />
-        <span className="text-[1.0625rem] font-bold tracking-tight">ProfessioAI</span>
+        <span className="text-[1.0625rem] font-bold tracking-tight">
+          ProfessioAI
+        </span>
         <span
           title={`Pilot: ${PILOT_NAME}`}
           className="ml-auto rounded-full bg-pill-bg px-2 py-0.5 text-[0.6875rem] font-semibold text-pill-fg"
@@ -63,7 +65,9 @@ export default function Sidebar({
 
       {title ? (
         <div className="flex flex-col gap-1">
-          <div className="px-2 pb-1 text-xs font-semibold tracking-[0.06em] text-muted uppercase">Today</div>
+          <div className="px-2 pb-1 text-xs font-semibold tracking-[0.06em] text-muted uppercase">
+            Today
+          </div>
           <div
             aria-current="page"
             className="ui-pill flex items-center gap-2.5 rounded-lg bg-accent-soft p-2.5 text-sm font-semibold"
@@ -78,8 +82,9 @@ export default function Sidebar({
         {settings.showUsageMeter ? meter : null}
         <div className="ui-soft rounded-[10px] border border-warn-border bg-warn-bg px-3.5 py-3 text-[0.8125rem] leading-snug text-warn-fg">
           <strong className="mb-0.5 block">Pilot mode</strong>
-          Use fictional or public test data only. Conversations aren&apos;t saved after you close the tab;
-          only the usage totals stay in this browser.
+          Use fictional or public test data only. Conversations aren&apos;t
+          saved after you close the tab; only the usage totals stay in this
+          browser.
         </div>
         <button
           type="button"
@@ -95,7 +100,9 @@ export default function Sidebar({
             {initials(settings.displayName)}
           </span>
           <span className="flex min-w-0 flex-1 flex-col leading-tight">
-            <span className={`truncate text-sm font-semibold ${settings.displayName ? "" : "text-text-3"}`}>
+            <span
+              className={`truncate text-sm font-semibold ${settings.displayName ? "" : "text-text-3"}`}
+            >
               {name}
             </span>
             <span className="truncate text-xs text-muted">{practice}</span>

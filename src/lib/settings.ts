@@ -20,12 +20,36 @@ export const SETTINGS_KEY = "professioai.settings.v1";
 export const THEMES = ["system", "light", "dark"] as const;
 export const STYLES = ["classic", "glass"] as const;
 /** "auto" follows the style (teal for Classic, blue for Glass); "custom" uses `customAccent`. */
-export const ACCENTS = ["auto", "teal", "blue", "indigo", "rose", "graphite", "custom"] as const;
+export const ACCENTS = [
+  "auto",
+  "teal",
+  "blue",
+  "indigo",
+  "rose",
+  "graphite",
+  "custom",
+] as const;
 export const TEXT_SIZES = ["small", "default", "large", "xlarge"] as const;
 export const DENSITIES = ["comfortable", "compact"] as const;
+/** How rounded Glass corners are. "round" is the design. */
+export const ROUNDNESS = [
+  "square",
+  "subtle",
+  "soft",
+  "round",
+  "extra",
+] as const;
 export const READING_WIDTHS = ["narrow", "standard", "wide"] as const;
 /** "auto" follows the style (Inter for Classic, Manrope for Glass). */
-export const FONTS = ["auto", "inter", "manrope", "system", "serif", "readable", "mono"] as const;
+export const FONTS = [
+  "auto",
+  "inter",
+  "manrope",
+  "system",
+  "serif",
+  "readable",
+  "mono",
+] as const;
 export const MOTIONS = ["system", "reduced"] as const;
 export const SEND_KEYS = ["enter", "modEnter"] as const;
 export const REPLY_DETAILS = ["brief", "standard", "detailed"] as const;
@@ -39,6 +63,7 @@ export type Theme = (typeof THEMES)[number];
 export type StyleChoice = (typeof STYLES)[number];
 export type Accent = (typeof ACCENTS)[number];
 export type TextSize = (typeof TEXT_SIZES)[number];
+export type Roundness = (typeof ROUNDNESS)[number];
 export type Density = (typeof DENSITIES)[number];
 export type ReadingWidth = (typeof READING_WIDTHS)[number];
 export type FontChoice = (typeof FONTS)[number];
@@ -69,6 +94,7 @@ export type Settings = {
   themeVars: Record<string, string>;
   textSize: TextSize;
   density: Density;
+  roundness: Roundness;
   readingWidth: ReadingWidth;
   font: FontChoice;
   motion: Motion;
@@ -113,6 +139,7 @@ export const DEFAULT_SETTINGS: Settings = {
   themeVars: {},
   textSize: "default",
   density: "comfortable",
+  roundness: "round",
   readingWidth: "standard",
   font: "auto",
   motion: "system",
@@ -162,16 +189,22 @@ export const APPEARANCE_ATTRIBUTES = {
   accent: "accent",
   text: "textSize",
   density: "density",
+  round: "roundness",
   width: "readingWidth",
   font: "font",
   motion: "motion",
 } as const satisfies Record<string, keyof Settings>;
 
-function pick<T extends string | number>(value: unknown, allowed: readonly T[], fallback: T): T {
+function pick<T extends string | number>(
+  value: unknown,
+  allowed: readonly T[],
+  fallback: T,
+): T {
   return allowed.includes(value as T) ? (value as T) : fallback;
 }
 
-const bool = (value: unknown, fallback: boolean) => (typeof value === "boolean" ? value : fallback);
+const bool = (value: unknown, fallback: boolean) =>
+  typeof value === "boolean" ? value : fallback;
 
 /** Strips control characters (including line breaks) and trims, so a value is always one clean line. */
 export function cleanLine(value: unknown, max: number): string {
@@ -185,10 +218,15 @@ export function cleanLine(value: unknown, max: number): string {
 
 /** Turns anything read from storage into valid settings, using defaults for what is missing or wrong. */
 export function sanitizeSettings(raw: unknown): Settings {
-  const r = (raw && typeof raw === "object" ? raw : {}) as Record<string, unknown>;
+  const r = (raw && typeof raw === "object" ? raw : {}) as Record<
+    string,
+    unknown
+  >;
   const d = DEFAULT_SETTINGS;
   const style = pick(r.style, STYLES, d.style);
-  const customTheme = r.customTheme ? sanitizeTheme(r.customTheme, BASE_THEMES[style]) : null;
+  const customTheme = r.customTheme
+    ? sanitizeTheme(r.customTheme, BASE_THEMES[style])
+    : null;
   const out: Settings = {
     theme: pick(r.theme, THEMES, d.theme),
     style,
@@ -199,6 +237,7 @@ export function sanitizeSettings(raw: unknown): Settings {
     themeVars: {},
     textSize: pick(r.textSize, TEXT_SIZES, d.textSize),
     density: pick(r.density, DENSITIES, d.density),
+    roundness: pick(r.roundness, ROUNDNESS, d.roundness),
     readingWidth: pick(r.readingWidth, READING_WIDTHS, d.readingWidth),
     font: pick(r.font, FONTS, d.font),
     motion: pick(r.motion, MOTIONS, d.motion),
@@ -235,10 +274,14 @@ export function sanitizeSettings(raw: unknown): Settings {
 
 /** The CSS variables a custom theme, or a custom accent, puts on the page. Empty otherwise. */
 export function computeThemeVars(
-  s: Pick<Settings, "style" | "accent" | "customAccent" | "useCustomTheme" | "customTheme">,
+  s: Pick<
+    Settings,
+    "style" | "accent" | "customAccent" | "useCustomTheme" | "customTheme"
+  >,
 ) {
   if (s.useCustomTheme && s.customTheme) return themeVars(s.customTheme);
-  if (s.accent === "custom") return accentOnlyVars(s.customAccent, s.style as BaseStyle);
+  if (s.accent === "custom")
+    return accentOnlyVars(s.customAccent, s.style as BaseStyle);
   return {};
 }
 
@@ -257,7 +300,13 @@ export function initials(name: string): string {
 export type AiPreferences = {
   replyDetail?: ReplyDetail;
   draftTone?: DraftTone;
-  signer?: { name?: string; credentials?: string; practice?: string; phone?: string; email?: string };
+  signer?: {
+    name?: string;
+    credentials?: string;
+    practice?: string;
+    phone?: string;
+    email?: string;
+  };
 };
 
 /** The part of the settings the AI should know about. Defaults are left out entirely. */
@@ -297,11 +346,15 @@ const TONE_TEXT: Record<DraftTone, string> = {
  * or null when nothing differs from the defaults. It goes on the latest message only,
  * so it never changes the saved instructions or the earlier conversation.
  */
-export function preferencesNote(prefs: AiPreferences | undefined): string | null {
+export function preferencesNote(
+  prefs: AiPreferences | undefined,
+): string | null {
   if (!prefs) return null;
   const lines: string[] = [];
-  if (prefs.replyDetail && DETAIL_TEXT[prefs.replyDetail]) lines.push(DETAIL_TEXT[prefs.replyDetail]);
-  if (prefs.draftTone && TONE_TEXT[prefs.draftTone]) lines.push(TONE_TEXT[prefs.draftTone]);
+  if (prefs.replyDetail && DETAIL_TEXT[prefs.replyDetail])
+    lines.push(DETAIL_TEXT[prefs.replyDetail]);
+  if (prefs.draftTone && TONE_TEXT[prefs.draftTone])
+    lines.push(TONE_TEXT[prefs.draftTone]);
   const s = prefs.signer;
   if (s) {
     const who = [s.name, s.credentials].filter(Boolean).join(", ");
@@ -320,11 +373,15 @@ export function preferencesNote(prefs: AiPreferences | undefined): string | null
 }
 
 /** Re-cleans preferences that arrive from the browser, so the server never trusts them as typed. */
-export function sanitizePreferences(raw: AiPreferences | undefined): AiPreferences | undefined {
+export function sanitizePreferences(
+  raw: AiPreferences | undefined,
+): AiPreferences | undefined {
   if (!raw) return undefined;
   const prefs: AiPreferences = {};
-  if (raw.replyDetail && REPLY_DETAILS.includes(raw.replyDetail)) prefs.replyDetail = raw.replyDetail;
-  if (raw.draftTone && DRAFT_TONES.includes(raw.draftTone)) prefs.draftTone = raw.draftTone;
+  if (raw.replyDetail && REPLY_DETAILS.includes(raw.replyDetail))
+    prefs.replyDetail = raw.replyDetail;
+  if (raw.draftTone && DRAFT_TONES.includes(raw.draftTone))
+    prefs.draftTone = raw.draftTone;
   if (raw.signer) {
     const signer = {
       name: cleanLine(raw.signer.name, TEXT_LIMITS.displayName),
@@ -333,7 +390,9 @@ export function sanitizePreferences(raw: AiPreferences | undefined): AiPreferenc
       phone: cleanLine(raw.signer.phone, TEXT_LIMITS.phone),
       email: cleanLine(raw.signer.email, TEXT_LIMITS.email),
     };
-    const kept = Object.fromEntries(Object.entries(signer).filter(([, v]) => v));
+    const kept = Object.fromEntries(
+      Object.entries(signer).filter(([, v]) => v),
+    );
     if (Object.keys(kept).length) prefs.signer = kept;
   }
   return Object.keys(prefs).length ? prefs : undefined;

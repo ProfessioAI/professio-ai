@@ -62,9 +62,13 @@ const NOTICES: NoticeInfo[] = [
   {
     code: "CP503",
     title: "Second reminder: unpaid balance",
-    whatItMeans: "A second reminder that a balance is still due. Collection action may follow.",
+    whatItMeans:
+      "A second reminder that a balance is still due. Collection action may follow.",
     responseWindow: "Pay or contact the IRS by the date on the notice.",
-    commonNextSteps: ["Verify the balance.", "Pay or arrange a payment plan promptly."],
+    commonNextSteps: [
+      "Verify the balance.",
+      "Pay or arrange a payment plan promptly.",
+    ],
   },
   {
     code: "CP504",
@@ -93,7 +97,8 @@ const NOTICES: NoticeInfo[] = [
   },
   {
     code: "1058",
-    title: "Letter 1058: Final notice of intent to levy and notice of right to a hearing",
+    title:
+      "Letter 1058: Final notice of intent to levy and notice of right to a hearing",
     whatItMeans:
       "Same purpose as LT11: final notice before levy, with the right to a Collection Due Process (CDP) hearing.",
     responseWindow:
@@ -172,7 +177,8 @@ const NOTICES: NoticeInfo[] = [
   },
 ];
 
-const SOURCE_URL = "https://www.irs.gov/individuals/understanding-your-irs-notice-or-letter";
+const SOURCE_URL =
+  "https://www.irs.gov/individuals/understanding-your-irs-notice-or-letter";
 
 /** "Letter 525", "ltr525", "cp 2000" -> "525", "525", "CP2000". */
 function normalizeCode(raw: string): string {
@@ -197,7 +203,8 @@ export const irsNoticeLookup = defineTool(
       properties: {
         notice_code: {
           type: "string",
-          description: "The notice or letter code as printed, e.g. 'CP2000' or 'Letter 525'.",
+          description:
+            "The notice or letter code as printed, e.g. 'CP2000' or 'Letter 525'.",
         },
       },
       required: ["notice_code"],
@@ -231,7 +238,9 @@ export const irsNoticeLookup = defineTool(
     });
   },
   ({ notice_code }) => {
-    const match = NOTICES.find((n) => normalizeCode(n.code) === normalizeCode(notice_code));
+    const match = NOTICES.find(
+      (n) => normalizeCode(n.code) === normalizeCode(notice_code),
+    );
     return match
       ? `Looked up ${match.code} in the notice reference`
       : `Checked the notice reference for ${notice_code}`;

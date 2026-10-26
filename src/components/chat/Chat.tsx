@@ -54,17 +54,24 @@ export default function Chat() {
   const title = empty ? null : conversationTitle(messages);
   const docs = documentCount(messages);
   const drafts = collectDrafts(messages, busy);
-  const noticeInfo = details.status === "ready" && details.data.isIrsNotice ? details.data : null;
+  const noticeInfo =
+    details.status === "ready" && details.data.isIrsNotice
+      ? details.data
+      : null;
   const deadline = noticeInfo?.respondBy
     ? countdown(noticeInfo.respondBy, noticeInfo.noticeDate, settings.warnDays)
     : null;
   const reduceMotion =
     settings.motion === "reduced" ||
-    (typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+    (typeof window !== "undefined" &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches);
 
   useEffect(() => {
     if (!settings.autoScroll) return;
-    bottomRef.current?.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "end" });
+    bottomRef.current?.scrollIntoView({
+      behavior: reduceMotion ? "auto" : "smooth",
+      block: "end",
+    });
   }, [messages, status, settings.autoScroll, reduceMotion]);
 
   async function addFiles(list: FileList | File[]) {
@@ -138,13 +145,21 @@ export default function Chat() {
             updateLastAssistant((m) => ({ ...m, text: m.text + event.text }));
           } else if (event.type === "status") {
             setStatus(
-              event.status === "tool" ? (TOOL_STATUS[event.detail ?? ""] ?? "Using a tool…") : "Thinking…",
+              event.status === "tool"
+                ? (TOOL_STATUS[event.detail ?? ""] ?? "Using a tool…")
+                : "Thinking…",
             );
           } else if (event.type === "tool") {
-            updateLastAssistant((m) => ({ ...m, tools: [...(m.tools ?? []), event.label] }));
+            updateLastAssistant((m) => ({
+              ...m,
+              tools: [...(m.tools ?? []), event.label],
+            }));
           } else if (event.type === "usage") {
             meter.record(event.report);
-            updateLastAssistant((m) => ({ ...m, costUsd: event.report.costUsd }));
+            updateLastAssistant((m) => ({
+              ...m,
+              costUsd: event.report.costUsd,
+            }));
           } else if (event.type === "error") {
             setNotice(event.message);
           }
@@ -168,7 +183,11 @@ export default function Chat() {
     extractAbortRef.current = controller;
     lastExtractFilesRef.current = attachments;
     // Keep showing the current notice while a new document is read.
-    setDetails((prev) => (prev.status === "ready" && prev.data.isIrsNotice ? prev : { status: "loading" }));
+    setDetails((prev) =>
+      prev.status === "ready" && prev.data.isIrsNotice
+        ? prev
+        : { status: "loading" },
+    );
     try {
       const res = await fetch("/api/extract", {
         method: "POST",
@@ -179,7 +198,8 @@ export default function Chat() {
       const body = await res.json().catch(() => null);
       // Reading the document costs a little too, even when it fails.
       if (body?.usage) meter.record(body.usage);
-      if (!res.ok || !body) throw new Error(body?.error ?? "Couldn't read the notice details.");
+      if (!res.ok || !body)
+        throw new Error(body?.error ?? "Couldn't read the notice details.");
       const { usage: _usage, ...data } = body as ExtractResponse;
       void _usage;
       // A non-notice upload doesn't replace a notice already shown.
@@ -195,7 +215,10 @@ export default function Chat() {
           ? prev
           : {
               status: "error",
-              message: err instanceof Error ? err.message : "Couldn't read the notice details.",
+              message:
+                err instanceof Error
+                  ? err.message
+                  : "Couldn't read the notice details.",
             },
       );
     }
@@ -221,7 +244,10 @@ export default function Chat() {
 
   function regenerate() {
     if (busy) return;
-    const history = messages[messages.length - 1]?.role === "assistant" ? messages.slice(0, -1) : messages;
+    const history =
+      messages[messages.length - 1]?.role === "assistant"
+        ? messages.slice(0, -1)
+        : messages;
     if (history.length) run(history);
   }
 
@@ -277,7 +303,9 @@ export default function Chat() {
       onStop={stop}
       notice={notice}
       placeholder={
-        empty ? "Or ask a tax or accounting question…" : "Ask a follow-up, or attach another notice…"
+        empty
+          ? "Or ask a tax or accounting question…"
+          : "Ask a follow-up, or attach another notice…"
       }
       autoFocusKey={focusKey}
     />
@@ -353,11 +381,24 @@ export default function Chat() {
                     "Pilot · test data only"
                   ) : (
                     <>
-                      {docs ? `${docs} document${docs === 1 ? "" : "s"} · ` : ""}
+                      {docs
+                        ? `${docs} document${docs === 1 ? "" : "s"} · `
+                        : ""}
                       {deadline && noticeInfo?.respondBy ? (
-                        <span className={deadline.tone === "ok" ? "" : "font-medium text-warn-strong"}>
-                          Respond by {formatDate(noticeInfo.respondBy, false, settings.dateFormat)} ·{" "}
-                          {deadline.label}
+                        <span
+                          className={
+                            deadline.tone === "ok"
+                              ? ""
+                              : "font-medium text-warn-strong"
+                          }
+                        >
+                          Respond by{" "}
+                          {formatDate(
+                            noticeInfo.respondBy,
+                            false,
+                            settings.dateFormat,
+                          )}{" "}
+                          · {deadline.label}
                         </span>
                       ) : (
                         "Started today"
@@ -409,8 +450,8 @@ export default function Chat() {
               />
             ) : (
               <>
-                <div className="flex-1 overflow-y-auto px-4 pt-6 sm:px-8 sm:pt-8">
-                  <div className="mx-auto flex w-full max-w-[var(--chat-width)] flex-col gap-[var(--chat-gap)] pb-4">
+                <div className="scroll-fade flex-1 overflow-y-auto px-4 pt-6 sm:px-8 sm:pt-8">
+                  <div className="mx-auto flex w-full max-w-[var(--chat-width)] flex-col gap-[var(--chat-gap)] pb-10">
                     {messages.map((m, i) =>
                       m.role === "user" ? (
                         <UserMessage key={i} message={m} />
@@ -430,7 +471,9 @@ export default function Chat() {
                   </div>
                 </div>
                 <div className="px-3 pt-3 pb-4 sm:px-8 sm:pt-4 sm:pb-6">
-                  <div className="mx-auto max-w-[var(--chat-width)]">{composer}</div>
+                  <div className="mx-auto max-w-[var(--chat-width)]">
+                    {composer}
+                  </div>
                 </div>
               </>
             )}
@@ -443,7 +486,9 @@ export default function Chat() {
           details={details}
           documents={documentNames(messages)}
           drafts={drafts}
-          onRetry={() => lastExtractFilesRef.current && extract(lastExtractFilesRef.current)}
+          onRetry={() =>
+            lastExtractFilesRef.current && extract(lastExtractFilesRef.current)
+          }
           className="hidden xl:flex"
         />
       ) : null}
@@ -460,7 +505,10 @@ export default function Chat() {
             details={details}
             documents={documentNames(messages)}
             drafts={drafts}
-            onRetry={() => lastExtractFilesRef.current && extract(lastExtractFilesRef.current)}
+            onRetry={() =>
+              lastExtractFilesRef.current &&
+              extract(lastExtractFilesRef.current)
+            }
             onClose={() => setPanelOpen(false)}
             className="relative flex h-full max-w-[90vw]"
           />

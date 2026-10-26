@@ -2,7 +2,8 @@
 
 export type RGB = { r: number; g: number; b: number };
 
-const clamp = (n: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, n));
+const clamp = (n: number, lo: number, hi: number) =>
+  Math.min(hi, Math.max(lo, n));
 
 /** "#abc", "#aabbcc" (any case, # optional) -> "#aabbcc"; anything else -> null. */
 export function normalizeHex(input: unknown): string | null {
@@ -15,11 +16,16 @@ export function normalizeHex(input: unknown): string | null {
 
 export function hexToRgb(hex: string): RGB {
   const h = normalizeHex(hex) ?? "#000000";
-  return { r: parseInt(h.slice(1, 3), 16), g: parseInt(h.slice(3, 5), 16), b: parseInt(h.slice(5, 7), 16) };
+  return {
+    r: parseInt(h.slice(1, 3), 16),
+    g: parseInt(h.slice(3, 5), 16),
+    b: parseInt(h.slice(5, 7), 16),
+  };
 }
 
 export function rgbToHex({ r, g, b }: RGB): string {
-  const part = (n: number) => clamp(Math.round(n), 0, 255).toString(16).padStart(2, "0");
+  const part = (n: number) =>
+    clamp(Math.round(n), 0, 255).toString(16).padStart(2, "0");
   return `#${part(r)}${part(g)}${part(b)}`;
 }
 
@@ -28,7 +34,11 @@ export function mix(a: string, b: string, amount: number): string {
   const x = hexToRgb(a);
   const y = hexToRgb(b);
   const t = clamp(amount, 0, 1);
-  return rgbToHex({ r: x.r + (y.r - x.r) * t, g: x.g + (y.g - x.g) * t, b: x.b + (y.b - x.b) * t });
+  return rgbToHex({
+    r: x.r + (y.r - x.r) * t,
+    g: x.g + (y.g - x.g) * t,
+    b: x.b + (y.b - x.b) * t,
+  });
 }
 
 /** Relative luminance, 0 (black) to 1 (white), as defined by WCAG. */
@@ -55,14 +65,20 @@ export const isDark = (hex: string) => luminance(hex) < 0.18;
  * because one of the two always reaches 4.5 contrast on any color; near-black can fall short.
  */
 export function bestTextOn(background: string): string {
-  return contrast("#ffffff", background) >= contrast("#000000", background) ? "#ffffff" : "#000000";
+  return contrast("#ffffff", background) >= contrast("#000000", background)
+    ? "#ffffff"
+    : "#000000";
 }
 
 /**
  * `color`, moved toward black (on a light background) or white (on a dark one) just far
  * enough to reach `min` contrast against `background`. Unchanged if it already does.
  */
-export function readableOn(color: string, background: string, min = 4.5): string {
+export function readableOn(
+  color: string,
+  background: string,
+  min = 4.5,
+): string {
   if (contrast(color, background) >= min) return normalizeHex(color) ?? color;
   const target = isDark(background) ? "#ffffff" : "#000000";
   for (let step = 1; step <= 20; step++) {
@@ -74,5 +90,7 @@ export function readableOn(color: string, background: string, min = 4.5): string
 
 /** A hover shade: a little darker on light colors, a little lighter on dark ones. */
 export function hoverShade(color: string): string {
-  return isDark(color) ? mix(color, "#ffffff", 0.16) : mix(color, "#000000", 0.16);
+  return isDark(color)
+    ? mix(color, "#ffffff", 0.16)
+    : mix(color, "#000000", 0.16);
 }

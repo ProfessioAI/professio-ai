@@ -25,7 +25,11 @@ function today(): Date {
  * us "Oct 31, 2026", numeric "10/31/2026", eu "31 Oct 2026", iso "2026-10-31".
  * Without the year: "Oct 31", "10/31", "31 Oct", "10-31".
  */
-export function formatDate(iso: string, withYear = true, style: DateFormat = "us"): string {
+export function formatDate(
+  iso: string,
+  withYear = true,
+  style: DateFormat = "us",
+): string {
   const d = parseLocalDate(iso);
   const month = d.toLocaleDateString("en-US", { month: "short" });
   const monthNum = String(d.getMonth() + 1);
@@ -60,14 +64,25 @@ export type Countdown = {
 };
 
 /** `warnDays`: how many days out a deadline turns amber (the "Deadline warning" setting). */
-export function countdown(respondBy: string, noticeDate: string | null, warnDays = 7): Countdown {
+export function countdown(
+  respondBy: string,
+  noticeDate: string | null,
+  warnDays = 7,
+): Countdown {
   const due = parseLocalDate(respondBy);
   const daysLeft = Math.round((due.getTime() - today().getTime()) / DAY_MS);
   const totalDays = noticeDate
-    ? Math.max(1, Math.round((due.getTime() - parseLocalDate(noticeDate).getTime()) / DAY_MS))
+    ? Math.max(
+        1,
+        Math.round(
+          (due.getTime() - parseLocalDate(noticeDate).getTime()) / DAY_MS,
+        ),
+      )
     : null;
   const usedFraction =
-    totalDays !== null ? Math.min(1, Math.max(0, (totalDays - daysLeft) / totalDays)) : null;
+    totalDays !== null
+      ? Math.min(1, Math.max(0, (totalDays - daysLeft) / totalDays))
+      : null;
 
   let label: string;
   if (daysLeft > 1) label = `${daysLeft} days left`;

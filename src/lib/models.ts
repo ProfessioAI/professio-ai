@@ -43,13 +43,15 @@ export const MODELS: readonly ModelInfo[] = [
   {
     id: "claude-haiku-5-5",
     name: "Claude Haiku 5.5",
-    tagline: "Fastest and lowest cost. Best for simple questions; check its answers more closely.",
+    tagline:
+      "Fastest and lowest cost. Best for simple questions; check its answers more closely.",
     serverFallback: false,
   },
   {
     id: "claude-fable-5-1",
     name: "Claude Fable 5.1",
-    tagline: "Anthropic's most capable model, at the highest price. For the hardest cases.",
+    tagline:
+      "Anthropic's most capable model, at the highest price. For the hardest cases.",
     serverFallback: true,
   },
 ];

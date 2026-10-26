@@ -57,7 +57,10 @@ export default function Composer({
       }}
     >
       {notice ? (
-        <p role="alert" className="rounded-lg bg-error-bg px-3 py-2 text-sm text-error-fg">
+        <p
+          role="alert"
+          className="rounded-lg bg-error-bg px-3 py-2 text-sm text-error-fg"
+        >
           {notice}
         </p>
       ) : null}

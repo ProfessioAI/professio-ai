@@ -10,7 +10,9 @@ export const AttachmentSchema = z.object({
 });
 
 /** Turns uploaded files into document blocks Claude can read. */
-export function toDocumentBlocks(attachments: Attachment[]): Anthropic.Beta.BetaContentBlockParam[] {
+export function toDocumentBlocks(
+  attachments: Attachment[],
+): Anthropic.Beta.BetaContentBlockParam[] {
   return attachments.map((a) => ({
     type: "document",
     title: a.name,

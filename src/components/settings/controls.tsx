@@ -22,11 +22,17 @@ export function SettingRow({
   return (
     <div className="flex flex-col gap-2.5 border-b border-border py-4 last:border-b-0 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
       <div className="min-w-0 sm:max-w-[26rem]">
-        <label id={labelId} htmlFor={htmlFor} className="block text-sm font-medium">
+        <label
+          id={labelId}
+          htmlFor={htmlFor}
+          className="block text-sm font-medium"
+        >
           {label}
         </label>
         {description ? (
-          <p className="mt-0.5 text-[0.8125rem] leading-snug text-muted">{description}</p>
+          <p className="mt-0.5 text-[0.8125rem] leading-snug text-muted">
+            {description}
+          </p>
         ) : null}
       </div>
       <div className="shrink-0">{children}</div>
@@ -47,14 +53,20 @@ export function Card({
     <section className="ui-panel rounded-xl border border-border bg-surface px-5 py-1">
       <header className="pt-4 pb-1">
         <h2 className="text-[0.9375rem] font-semibold">{title}</h2>
-        {description ? <p className="mt-0.5 text-[0.8125rem] text-muted">{description}</p> : null}
+        {description ? (
+          <p className="mt-0.5 text-[0.8125rem] text-muted">{description}</p>
+        ) : null}
       </header>
       {children}
     </section>
   );
 }
 
-export type Option<T extends string | number> = { value: T; label: string; hint?: string };
+export type Option<T extends string | number> = {
+  value: T;
+  label: string;
+  hint?: string;
+};
 
 /** A row of choices where exactly one is selected. Arrow keys move between them. */
 export function Segmented<T extends string | number>({
@@ -107,7 +119,7 @@ export function Segmented<T extends string | number>({
             onKeyDown={(e) => onKeyDown(e, i)}
             className={`min-h-9 rounded-lg px-3 text-[0.8125rem] font-medium whitespace-nowrap transition-colors ${
               selected
-                ? "bg-surface text-foreground shadow-sm ring-1 ring-border-strong"
+                ? "ui-seg-on bg-surface text-foreground shadow-sm ring-1 ring-border-strong"
                 : "text-text-3 hover:text-foreground"
             }`}
           >
@@ -266,7 +278,13 @@ export function ConfirmButton({
   );
 }
 
-export function ActionButton({ label, onClick }: { label: string; onClick: () => void }) {
+export function ActionButton({
+  label,
+  onClick,
+}: {
+  label: string;
+  onClick: () => void;
+}) {
   return (
     <button
       type="button"
@@ -309,7 +327,11 @@ export function ChoiceCards<T extends string>({
   }
 
   return (
-    <div role="radiogroup" aria-label={label} className={`grid gap-2.5 ${className}`}>
+    <div
+      role="radiogroup"
+      aria-label={label}
+      className={`grid gap-2.5 ${className}`}
+    >
       {options.map((o, i) => {
         const selected = o.value === value;
         return (
@@ -326,7 +348,7 @@ export function ChoiceCards<T extends string>({
             onKeyDown={(e) => onKeyDown(e, i)}
             className={`ui-raised ui-soft rounded-xl border p-3.5 text-left transition-colors ${
               selected
-                ? "border-accent-text bg-accent-soft ring-1 ring-accent-text"
+                ? "ui-selected border-accent-text bg-accent-soft ring-1 ring-accent-text"
                 : "border-border bg-surface hover:border-border-strong hover:bg-hover"
             }`}
           >

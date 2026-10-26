@@ -111,7 +111,12 @@ export const SendIcon = (p: IconProps) => (
   </Svg>
 );
 export const StopIcon = (p: IconProps) => (
-  <svg width={p.size ?? 14} height={p.size ?? 14} viewBox="0 0 24 24" aria-hidden="true">
+  <svg
+    width={p.size ?? 14}
+    height={p.size ?? 14}
+    viewBox="0 0 24 24"
+    aria-hidden="true"
+  >
     <rect x="5" y="5" width="14" height="14" rx="2" fill="currentColor" />
   </svg>
 );

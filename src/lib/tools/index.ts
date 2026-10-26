@@ -7,7 +7,10 @@ const TOOLS: AppTool[] = [irsNoticeLookup];
 
 export const toolDefinitions = TOOLS.map((t) => t.definition);
 
-export async function runTool(name: string, input: unknown): Promise<ToolResult> {
+export async function runTool(
+  name: string,
+  input: unknown,
+): Promise<ToolResult> {
   const tool = TOOLS.find((t) => t.definition.name === name);
   if (!tool) return { content: `Unknown tool: ${name}`, is_error: true };
   return tool.run(input);

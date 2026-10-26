@@ -1,6 +1,13 @@
 "use client";
 
-import { createContext, useCallback, useContext, useEffect, useMemo, useSyncExternalStore } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useSyncExternalStore,
+} from "react";
 import { sanitizeVars } from "@/lib/custom-theme";
 import {
   APPEARANCE_ATTRIBUTES,
@@ -55,8 +62,10 @@ function applyAppearance(settings: Settings) {
     root.setAttribute(`data-${attribute}`, String(settings[key]));
   }
   const vars = sanitizeVars(settings.themeVars);
-  for (const name of appliedVars) if (!(name in vars)) root.style.removeProperty(name);
-  for (const [name, value] of Object.entries(vars)) root.style.setProperty(name, value);
+  for (const name of appliedVars)
+    if (!(name in vars)) root.style.removeProperty(name);
+  for (const [name, value] of Object.entries(vars))
+    root.style.setProperty(name, value);
   appliedVars = Object.keys(vars);
 }
 
@@ -74,12 +83,18 @@ let memoryOnly: Settings | null = null;
 export function SettingsProvider({ children }: { children: React.ReactNode }) {
   // On the server nothing is stored, so the first render matches the server's.
   const raw = useSyncExternalStore(subscribe, readRaw, () => null);
-  const settings = useMemo(() => (raw === null && memoryOnly ? memoryOnly : parseSettings(raw)), [raw]);
+  const settings = useMemo(
+    () => (raw === null && memoryOnly ? memoryOnly : parseSettings(raw)),
+    [raw],
+  );
 
   useEffect(() => applyAppearance(settings), [settings]);
 
   const update = useCallback((patch: Partial<Settings>) => {
-    const next = sanitizeSettings({ ...(memoryOnly ?? parseSettings(readRaw())), ...patch });
+    const next = sanitizeSettings({
+      ...(memoryOnly ?? parseSettings(readRaw())),
+      ...patch,
+    });
     try {
       localStorage.setItem(SETTINGS_KEY, JSON.stringify(next));
       memoryOnly = null;
@@ -99,12 +114,18 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
     notify();
   }, []);
 
-  const api = useMemo(() => ({ settings, update, reset }), [settings, update, reset]);
-  return <SettingsContext.Provider value={api}>{children}</SettingsContext.Provider>;
+  const api = useMemo(
+    () => ({ settings, update, reset }),
+    [settings, update, reset],
+  );
+  return (
+    <SettingsContext.Provider value={api}>{children}</SettingsContext.Provider>
+  );
 }
 
 export function useSettings(): SettingsApi {
   const api = useContext(SettingsContext);
-  if (!api) throw new Error("useSettings must be used inside <SettingsProvider>");
+  if (!api)
+    throw new Error("useSettings must be used inside <SettingsProvider>");
   return api;
 }

@@ -45,8 +45,17 @@ function parse(raw: string | null): Stored | null {
   if (!raw) return null;
   try {
     const s = JSON.parse(raw) as Stored;
-    if (typeof s?.since !== "string" || typeof s?.total?.costUsd !== "number" || !s.total.tokens) return null;
-    return { since: s.since, total: s.total, byDay: s.byDay && typeof s.byDay === "object" ? s.byDay : {} };
+    if (
+      typeof s?.since !== "string" ||
+      typeof s?.total?.costUsd !== "number" ||
+      !s.total.tokens
+    )
+      return null;
+    return {
+      since: s.since,
+      total: s.total,
+      byDay: s.byDay && typeof s.byDay === "object" ? s.byDay : {},
+    };
   } catch {
     return null;
   }
@@ -76,25 +85,49 @@ export function useUsageMeter(): UsageMeter {
   const stored = useMemo(() => parse(raw), [raw]);
 
   const record = useCallback((report: UsageReport) => {
-    if (report.costUsd <= 0 && report.tokens.output <= 0 && report.tokens.input <= 0) return;
+    if (
+      report.costUsd <= 0 &&
+      report.tokens.output <= 0 &&
+      report.tokens.input <= 0
+    )
+      return;
     setConversation((prev) => addReports(prev, report));
 
     // Read the latest from storage, not from state, so two tabs don't overwrite each other.
-    const current = parse(readRaw()) ?? { since: new Date().toISOString(), total: emptyReport(), byDay: {} };
+    const current = parse(readRaw()) ?? {
+      since: new Date().toISOString(),
+      total: emptyReport(),
+      byDay: {},
+    };
     const today = dayKey();
-    const byDay = { ...current.byDay, [today]: Math.round(((current.byDay[today] ?? 0) + report.costUsd) * 1e6) / 1e6 };
+    const byDay = {
+      ...current.byDay,
+      [today]:
+        Math.round(((current.byDay[today] ?? 0) + report.costUsd) * 1e6) / 1e6,
+    };
     const days = Object.keys(byDay).sort();
-    for (const d of days.slice(0, Math.max(0, days.length - KEEP_DAYS))) delete byDay[d];
+    for (const d of days.slice(0, Math.max(0, days.length - KEEP_DAYS)))
+      delete byDay[d];
 
     try {
-      localStorage.setItem(KEY, JSON.stringify({ since: current.since, total: addReports(current.total, report), byDay }));
+      localStorage.setItem(
+        KEY,
+        JSON.stringify({
+          since: current.since,
+          total: addReports(current.total, report),
+          byDay,
+        }),
+      );
     } catch {
       // Storage full or blocked: this conversation's numbers still show.
     }
     notify();
   }, []);
 
-  const startConversation = useCallback(() => setConversation(emptyReport()), []);
+  const startConversation = useCallback(
+    () => setConversation(emptyReport()),
+    [],
+  );
 
   const resetAll = useCallback(() => {
     try {

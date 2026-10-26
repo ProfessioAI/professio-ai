@@ -13,7 +13,15 @@ import {
   type ThemeKey,
 } from "@/lib/custom-theme";
 import type { Settings } from "@/lib/settings";
-import { ActionButton, Card, ColorField, ConfirmButton, SettingRow, Switch, TextField } from "./controls";
+import {
+  ActionButton,
+  Card,
+  ColorField,
+  ConfirmButton,
+  SettingRow,
+  Switch,
+  TextField,
+} from "./controls";
 
 type Patch = (p: Partial<Settings>) => void;
 
@@ -36,7 +44,10 @@ function ThemeJson({
     setSyncedFrom(current);
     setText(current);
   }
-  const [message, setMessage] = useState<{ kind: "ok" | "error"; text: string } | null>(null);
+  const [message, setMessage] = useState<{
+    kind: "ok" | "error";
+    text: string;
+  } | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   const id = useId();
 
@@ -61,12 +72,17 @@ function ThemeJson({
       await navigator.clipboard.writeText(current);
       setMessage({ kind: "ok", text: "Copied to the clipboard." });
     } catch {
-      setMessage({ kind: "error", text: "Couldn't copy. Select the text and copy it yourself." });
+      setMessage({
+        kind: "error",
+        text: "Couldn't copy. Select the text and copy it yourself.",
+      });
     }
   }
 
   function download() {
-    const url = URL.createObjectURL(new Blob([current], { type: "application/json" }));
+    const url = URL.createObjectURL(
+      new Blob([current], { type: "application/json" }),
+    );
     const a = document.createElement("a");
     a.href = url;
     a.download = `${
@@ -82,7 +98,10 @@ function ThemeJson({
   async function upload(file: File | undefined) {
     if (!file) return;
     if (file.size > 100_000) {
-      setMessage({ kind: "error", text: "That file is too large to be a theme." });
+      setMessage({
+        kind: "error",
+        text: "That file is too large to be a theme.",
+      });
       return;
     }
     const source = await file.text();
@@ -97,8 +116,8 @@ function ThemeJson({
         Theme as JSON
       </label>
       <p className="mt-0.5 mb-2.5 text-[0.8125rem] leading-snug text-muted">
-        Save your colors as text or a file, share them, or paste someone else&apos;s here. Colors are hex
-        codes, like #1d4ed8.
+        Save your colors as text or a file, share them, or paste someone
+        else&apos;s here. Colors are hex codes, like #1d4ed8.
       </p>
       <textarea
         id={id}
@@ -122,7 +141,10 @@ function ThemeJson({
         </button>
         <ActionButton label="Copy" onClick={copy} />
         <ActionButton label="Download .json" onClick={download} />
-        <ActionButton label="Upload .json" onClick={() => fileRef.current?.click()} />
+        <ActionButton
+          label="Upload .json"
+          onClick={() => fileRef.current?.click()}
+        />
         <input
           ref={fileRef}
           type="file"
@@ -135,7 +157,9 @@ function ThemeJson({
         <p
           role={message.kind === "error" ? "alert" : "status"}
           className={`mt-2.5 rounded-lg px-3 py-2 text-[0.8125rem] ${
-            message.kind === "error" ? "bg-error-bg text-error-fg" : "bg-accent-soft text-accent-text"
+            message.kind === "error"
+              ? "bg-error-bg text-error-fg"
+              : "bg-accent-soft text-accent-text"
           }`}
         >
           {message.text}
@@ -157,7 +181,9 @@ function ModeColors({
   const uid = useId();
   return (
     <div className="min-w-0">
-      <h3 className="mb-1 text-sm font-semibold">{mode === "light" ? "Light mode" : "Dark mode"}</h3>
+      <h3 className="mb-1 text-sm font-semibold">
+        {mode === "light" ? "Light mode" : "Dark mode"}
+      </h3>
       <ul className="flex flex-col">
         {THEME_KEYS.map((key) => (
           <li
@@ -165,7 +191,9 @@ function ModeColors({
             className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1.5 border-b border-border py-2.5 last:border-b-0"
           >
             <div className="min-w-0">
-              <div className="text-[0.8125rem] font-medium">{THEME_LABELS[key].label}</div>
+              <div className="text-[0.8125rem] font-medium">
+                {THEME_LABELS[key].label}
+              </div>
               <div className="text-xs text-muted">{THEME_LABELS[key].hint}</div>
             </div>
             <ColorField
@@ -217,18 +245,27 @@ export default function CustomColors({ s, set }: { s: Settings; set: Patch }) {
               value={theme.name}
               maxLength={40}
               placeholder="My theme"
-              onCommit={(name) => set({ customTheme: { ...theme, name: name || "My theme" } })}
+              onCommit={(name) =>
+                set({ customTheme: { ...theme, name: name || "My theme" } })
+              }
             />
           </SettingRow>
-          <SettingRow label="Start over from" description="Replaces your colors with a built-in set.">
+          <SettingRow
+            label="Start over from"
+            description="Replaces your colors with a built-in set."
+          >
             <div className="flex flex-wrap gap-2">
               <ActionButton
                 label="Classic colors"
-                onClick={() => set({ customTheme: cloneTheme(BASE_THEMES.classic) })}
+                onClick={() =>
+                  set({ customTheme: cloneTheme(BASE_THEMES.classic) })
+                }
               />
               <ActionButton
                 label="Glass colors"
-                onClick={() => set({ customTheme: cloneTheme(BASE_THEMES.glass) })}
+                onClick={() =>
+                  set({ customTheme: cloneTheme(BASE_THEMES.glass) })
+                }
               />
             </div>
           </SettingRow>
@@ -237,7 +274,8 @@ export default function CustomColors({ s, set }: { s: Settings; set: Patch }) {
             <ModeColors mode="dark" theme={theme} onChange={setColor} />
           </div>
           <p className="border-b border-border py-3 text-[0.8125rem] text-muted">
-            The mode you see depends on the Theme setting above (System, Light, or Dark).
+            The mode you see depends on the Theme setting above (System, Light,
+            or Dark).
             {s.style === "glass"
               ? " In Glass, panels use your color as a solid, so the frosted see-through look is lost."
               : ""}

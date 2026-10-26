@@ -25,7 +25,11 @@ export type UsageReport = {
 
 type Rates = { input: number; output: number; cacheRead: number };
 
-const rates = (input: number, output: number, cacheRead = input * 0.1): Rates => ({
+const rates = (
+  input: number,
+  output: number,
+  cacheRead = input * 0.1,
+): Rates => ({
   input,
   output,
   cacheRead,
@@ -68,7 +72,11 @@ function ratesFor(model: string): { rates: Rates; known: boolean } {
 }
 
 /** Dollars per million tokens for a model's input and output, for showing in Settings. */
-export function pricePerMillion(model: string): { input: number; output: number; known: boolean } {
+export function pricePerMillion(model: string): {
+  input: number;
+  output: number;
+  known: boolean;
+} {
   const { rates: r, known } = ratesFor(model);
   return { input: r.input, output: r.output, known };
 }
@@ -141,7 +149,10 @@ export function reportFromMessage(message: MessageLike): UsageReport {
     const output = e.output_tokens ?? 0;
     const cacheRead = e.cache_read_input_tokens ?? 0;
     const written = e.cache_creation_input_tokens ?? 0;
-    const written1h = Math.min(written, e.cache_creation?.ephemeral_1h_input_tokens ?? 0);
+    const written1h = Math.min(
+      written,
+      e.cache_creation?.ephemeral_1h_input_tokens ?? 0,
+    );
     const written5m = written - written1h;
 
     const costUsd =
@@ -176,8 +187,10 @@ export function formatUsd(amount: number): string {
 /** 950 -> "950", 12,400 -> "12.4K", 1,250,000 -> "1.25M". */
 export function formatTokens(n: number): string {
   if (n < 1000) return String(Math.round(n));
-  if (n < 1_000_000) return `${(n / 1000).toFixed(n < 10_000 ? 2 : 1).replace(/\.?0+$/, "")}K`;
+  if (n < 1_000_000)
+    return `${(n / 1000).toFixed(n < 10_000 ? 2 : 1).replace(/\.?0+$/, "")}K`;
   return `${(n / 1_000_000).toFixed(2).replace(/\.?0+$/, "")}M`;
 }
 
-export const totalTokens = (t: TokenUsage) => t.input + t.cacheRead + t.cacheWrite + t.output;
+export const totalTokens = (t: TokenUsage) =>
+  t.input + t.cacheRead + t.cacheWrite + t.output;
