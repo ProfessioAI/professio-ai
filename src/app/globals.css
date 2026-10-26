@@ -1,72 +1,141 @@
 @import "tailwindcss";
 
 /* Colors from the ProfessioAI Chat UI design ("Classic" light and dark).
-   Dark mode follows the computer's light/dark setting. */
+
+   Every color is one light-dark(light, dark) pair. Which half is used comes from
+   `color-scheme`: both by default (so it follows the computer's light/dark setting),
+   or just one when the Theme setting forces it (html[data-theme]).
+
+   The other settings (accent color, text size, density, reading width, font, motion)
+   are html[data-...] attributes set from src/lib/settings.ts. */
 :root {
-  --background: #f5f6f8;
-  --surface: #ffffff;
-  --surface-2: #f9fafb;
-  --foreground: #0f172a;
-  --text-2: #344054;
-  --text-3: #475467;
-  --muted: #667085;
-  --border: #e4e7ec;
-  --border-strong: #d0d5dd;
-  --border-row: #f0f2f5;
-  --dashed-border: #b8c0cc;
-  --hover: #f2f4f7;
-  --accent: #0b6b5c;
-  --accent-hover: #08493f;
-  --accent-text: #0b6b5c;
-  --accent-soft: #e7f3f0;
-  --icon-bg: #eef2f6;
-  --user-bubble: #0f172a;
-  --user-bubble-fg: #f8fafc;
-  --pill-bg: #fef4e6;
-  --pill-fg: #8a4b00;
-  --warn-bg: #fffaf2;
-  --warn-border: #f5d9ae;
-  --warn-fg: #6b3a00;
-  --warn-strong: #8a4b00;
-  --error-bg: #fdecec;
-  --error-fg: #8a1c1c;
-  --bar-warn: #d97706;
-  --bar-danger: #d92d20;
-  color-scheme: light;
+  color-scheme: light dark;
+
+  --background: light-dark(#f5f6f8, #0f1115);
+  --surface: light-dark(#ffffff, #171a21);
+  --surface-2: light-dark(#f9fafb, #1d2129);
+  --foreground: light-dark(#0f172a, #e6e8ee);
+  --text-2: light-dark(#344054, #c9ced8);
+  --text-3: light-dark(#475467, #a6aebd);
+  --muted: light-dark(#667085, #8f98a8);
+  --border: light-dark(#e4e7ec, #272c36);
+  --border-strong: light-dark(#d0d5dd, #343a46);
+  --border-row: light-dark(#f0f2f5, #22262f);
+  --dashed-border: light-dark(#b8c0cc, #3a4150);
+  --hover: light-dark(#f2f4f7, #1f232c);
+  --icon-bg: light-dark(#eef2f6, #232833);
+  --user-bubble: light-dark(#0f172a, #e6e8ee);
+  --user-bubble-fg: light-dark(#f8fafc, #12151c);
+  --pill-bg: light-dark(#fef4e6, #2e2414);
+  --pill-fg: light-dark(#8a4b00, #f2c98a);
+  --warn-bg: light-dark(#fffaf2, #221b12);
+  --warn-border: light-dark(#f5d9ae, #4a3920);
+  --warn-fg: light-dark(#6b3a00, #ebcb98);
+  --warn-strong: light-dark(#8a4b00, #f6c177);
+  --error-bg: light-dark(#fdecec, #3a1717);
+  --error-fg: light-dark(#8a1c1c, #f4b4b4);
+  --bar-warn: light-dark(#d97706, #e5a04a);
+  --bar-danger: light-dark(#d92d20, #f97066);
+
+  /* Accent (default: teal) */
+  --accent: light-dark(#0b6b5c, #0e7c6b);
+  --accent-hover: light-dark(#08493f, #11927e);
+  --accent-text: light-dark(#0b6b5c, #5cc8b2);
+  --accent-soft: light-dark(#e7f3f0, #15302b);
+
+  /* Layout and type, changed by the density, width, and font settings */
+  --chat-width: 760px;
+  --chat-gap: 1.75rem;
+  --md-gap: 0.85rem;
+  --leading: 1.55;
+  --app-font: var(--font-inter), system-ui, sans-serif;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0f1115;
-    --surface: #171a21;
-    --surface-2: #1d2129;
-    --foreground: #e6e8ee;
-    --text-2: #c9ced8;
-    --text-3: #a6aebd;
-    --muted: #8f98a8;
-    --border: #272c36;
-    --border-strong: #343a46;
-    --border-row: #22262f;
-    --dashed-border: #3a4150;
-    --hover: #1f232c;
-    --accent: #0e7c6b;
-    --accent-hover: #11927e;
-    --accent-text: #5cc8b2;
-    --accent-soft: #15302b;
-    --icon-bg: #232833;
-    --user-bubble: #e6e8ee;
-    --user-bubble-fg: #12151c;
-    --pill-bg: #2e2414;
-    --pill-fg: #f2c98a;
-    --warn-bg: #221b12;
-    --warn-border: #4a3920;
-    --warn-fg: #ebcb98;
-    --warn-strong: #f6c177;
-    --error-bg: #3a1717;
-    --error-fg: #f4b4b4;
-    --bar-warn: #e5a04a;
-    --bar-danger: #f97066;
-    color-scheme: dark;
+/* Theme */
+:root[data-theme="light"] {
+  color-scheme: light;
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+}
+
+/* Accent color */
+:root[data-accent="blue"] {
+  --accent: light-dark(#1d4ed8, #2f64d8);
+  --accent-hover: light-dark(#1e40af, #4a7ae6);
+  --accent-text: light-dark(#1d4ed8, #8fb0ff);
+  --accent-soft: light-dark(#e8eefc, #172445);
+}
+:root[data-accent="indigo"] {
+  --accent: light-dark(#4338ca, #5b50d6);
+  --accent-hover: light-dark(#3730a3, #6d63e0);
+  --accent-text: light-dark(#4338ca, #aaa4ff);
+  --accent-soft: light-dark(#ecebfb, #1f1d45);
+}
+:root[data-accent="rose"] {
+  --accent: light-dark(#be123c, #cf2354);
+  --accent-hover: light-dark(#9f1239, #e03a68);
+  --accent-text: light-dark(#be123c, #ff8aa8);
+  --accent-soft: light-dark(#fdecef, #3a1520);
+}
+:root[data-accent="graphite"] {
+  --accent: light-dark(#1f2937, #4b5563);
+  --accent-hover: light-dark(#111827, #6b7280);
+  --accent-text: light-dark(#1f2937, #d1d5db);
+  --accent-soft: light-dark(#eef0f3, #262a31);
+}
+
+/* Text size: everything is sized in rem, so this scales the whole interface */
+:root[data-text="small"] {
+  font-size: 90%;
+}
+:root[data-text="large"] {
+  font-size: 112.5%;
+}
+:root[data-text="xlarge"] {
+  font-size: 125%;
+}
+
+/* Density */
+:root[data-density="compact"] {
+  --chat-gap: 1.1rem;
+  --md-gap: 0.55rem;
+  --leading: 1.42;
+}
+
+/* Reading width of the conversation */
+:root[data-width="narrow"] {
+  --chat-width: 640px;
+}
+:root[data-width="wide"] {
+  --chat-width: 960px;
+}
+
+/* Font */
+:root[data-font="system"] {
+  --app-font: ui-sans-serif, -apple-system, system-ui, "Segoe UI", Roboto, sans-serif;
+}
+:root[data-font="serif"] .markdown {
+  font-family: Georgia, "Times New Roman", serif;
+}
+
+/* Reduce motion: when asked for in settings, or by the computer's own setting */
+:root[data-motion="reduced"] *,
+:root[data-motion="reduced"] *::before,
+:root[data-motion="reduced"] *::after {
+  animation-duration: 0.001ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.001ms !important;
+  scroll-behavior: auto !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
   }
 }
 
@@ -107,9 +176,9 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-sans);
-  font-size: 15px;
-  line-height: 1.55;
+  font-family: var(--app-font);
+  font-size: 0.9375rem;
+  line-height: var(--leading);
 }
 
 button {
@@ -123,7 +192,7 @@ button:disabled {
 .markdown {
   display: flex;
   flex-direction: column;
-  gap: 0.85rem;
+  gap: var(--md-gap);
   min-width: 0;
 }
 .markdown > * {
@@ -133,13 +202,13 @@ button:disabled {
 .markdown h2,
 .markdown h3,
 .markdown h4 {
-  font-size: 15px;
+  font-size: 0.9375rem;
   font-weight: 600;
   line-height: 1.35;
   margin-top: 0.35rem;
 }
 .markdown h1 {
-  font-size: 17px;
+  font-size: 1.0625rem;
 }
 .markdown strong {
   font-weight: 600;
@@ -198,12 +267,12 @@ button:disabled {
 .markdown .md-table table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 14px;
+  font-size: 0.875rem;
   font-variant-numeric: tabular-nums;
 }
 .markdown .md-table th {
   text-align: left;
-  font-size: 12px;
+  font-size: 0.75rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -237,7 +306,7 @@ button:disabled {
   border-radius: 10px;
   padding: 12px 14px;
   color: var(--warn-fg);
-  font-size: 14px;
+  font-size: 0.875rem;
   line-height: 1.5;
 }
 .markdown .md-note-icon {

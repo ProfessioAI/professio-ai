@@ -1,13 +1,30 @@
-import { CloseIcon, DocIcon, Logo, PlusIcon } from "./Icons";
+import { initials } from "@/lib/settings";
+import { useSettings } from "@/components/settings/settings-store";
+import { CloseIcon, DocIcon, GearIcon, Logo, PlusIcon } from "./Icons";
 
 type Props = {
   title: string | null;
   onNewChat: () => void;
   onClose?: () => void;
+  /** The usage meter, shown above the pilot note. */
+  meter?: React.ReactNode;
+  onOpenSettings: () => void;
+  settingsOpen: boolean;
   className?: string;
 };
 
-export default function Sidebar({ title, onNewChat, onClose, className = "" }: Props) {
+export default function Sidebar({
+  title,
+  onNewChat,
+  onClose,
+  meter,
+  onOpenSettings,
+  settingsOpen,
+  className = "",
+}: Props) {
+  const { settings } = useSettings();
+  const name = settings.displayName || "Your name";
+  const practice = settings.practiceName || "Set up your practice";
   return (
     <nav
       aria-label="Conversations"
@@ -15,8 +32,8 @@ export default function Sidebar({ title, onNewChat, onClose, className = "" }: P
     >
       <div className="flex items-center gap-2.5 px-1">
         <Logo />
-        <span className="text-[17px] font-bold tracking-tight">ProfessioAI</span>
-        <span className="ml-auto rounded-full bg-pill-bg px-2 py-0.5 text-[11px] font-semibold text-pill-fg">
+        <span className="text-[1.0625rem] font-bold tracking-tight">ProfessioAI</span>
+        <span className="ml-auto rounded-full bg-pill-bg px-2 py-0.5 text-[0.6875rem] font-semibold text-pill-fg">
           Pilot
         </span>
         {onClose ? (
@@ -42,9 +59,7 @@ export default function Sidebar({ title, onNewChat, onClose, className = "" }: P
 
       {title ? (
         <div className="flex flex-col gap-1">
-          <div className="px-2 pb-1 text-xs font-semibold tracking-[0.06em] text-muted uppercase">
-            Today
-          </div>
+          <div className="px-2 pb-1 text-xs font-semibold tracking-[0.06em] text-muted uppercase">Today</div>
           <div
             aria-current="page"
             className="flex items-center gap-2.5 rounded-lg bg-accent-soft p-2.5 text-sm font-semibold"
@@ -55,9 +70,34 @@ export default function Sidebar({ title, onNewChat, onClose, className = "" }: P
         </div>
       ) : null}
 
-      <div className="mt-auto rounded-[10px] border border-warn-border bg-warn-bg px-3.5 py-3 text-[13px] leading-snug text-warn-fg">
-        <strong className="mb-0.5 block">Pilot mode</strong>
-        Use fictional or public test data only. Nothing is stored after you close the tab.
+      <div className="mt-auto flex flex-col gap-3 overflow-y-auto">
+        {settings.showUsageMeter ? meter : null}
+        <div className="rounded-[10px] border border-warn-border bg-warn-bg px-3.5 py-3 text-[0.8125rem] leading-snug text-warn-fg">
+          <strong className="mb-0.5 block">Pilot mode</strong>
+          Use fictional or public test data only. Conversations aren&apos;t saved after you close the tab;
+          only the usage totals stay in this browser.
+        </div>
+        <button
+          type="button"
+          onClick={onOpenSettings}
+          aria-label="Open settings"
+          aria-current={settingsOpen ? "page" : undefined}
+          className={`flex items-center gap-2.5 rounded-[10px] p-2 text-left hover:bg-hover ${settingsOpen ? "bg-accent-soft" : ""}`}
+        >
+          <span
+            aria-hidden="true"
+            className="flex size-[2.125rem] shrink-0 items-center justify-center rounded-full bg-icon-bg text-[0.8125rem] font-semibold text-text-2"
+          >
+            {initials(settings.displayName)}
+          </span>
+          <span className="flex min-w-0 flex-1 flex-col leading-tight">
+            <span className={`truncate text-sm font-semibold ${settings.displayName ? "" : "text-text-3"}`}>
+              {name}
+            </span>
+            <span className="truncate text-xs text-muted">{practice}</span>
+          </span>
+          <GearIcon size={18} className="shrink-0 text-text-3" />
+        </button>
       </div>
     </nav>
   );

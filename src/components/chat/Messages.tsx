@@ -1,6 +1,8 @@
 import { useState } from "react";
 import ReactMarkdown, { type Components } from "react-markdown";
 import remarkGfm from "remark-gfm";
+import { formatUsd } from "@/lib/usage";
+import { useSettings } from "@/components/settings/settings-store";
 import { CalendarIcon, CheckIcon, CopyIcon, DocLinesIcon, Logo, PenIcon, RegenerateIcon } from "./Icons";
 import type { UIMessage } from "./types";
 
@@ -63,14 +65,8 @@ type AssistantProps = {
   onRegenerate: () => void;
 };
 
-export function AssistantMessage({
-  message,
-  isLast,
-  busy,
-  status,
-  onPrompt,
-  onRegenerate,
-}: AssistantProps) {
+export function AssistantMessage({ message, isLast, busy, status, onPrompt, onRegenerate }: AssistantProps) {
+  const { settings } = useSettings();
   const [copied, setCopied] = useState(false);
   const streaming = isLast && busy;
   const finished = !streaming && message.text.trim().length > 0;
@@ -90,13 +86,13 @@ export function AssistantMessage({
       <article aria-label="ProfessioAI response" className="flex flex-col gap-3 sm:flex-row sm:gap-3.5">
         <div className="flex items-center gap-2">
           <Logo />
-          <span className="text-[13px] font-semibold sm:hidden">ProfessioAI</span>
+          <span className="text-[0.8125rem] font-semibold sm:hidden">ProfessioAI</span>
         </div>
         <div className="flex min-w-0 flex-1 flex-col gap-4">
-          {message.tools?.map((label, i) => (
+          {(settings.showToolChips ? message.tools : undefined)?.map((label, i) => (
             <div
               key={`${label}-${i}`}
-              className="inline-flex items-center gap-2 self-start rounded-full border border-border bg-surface py-1 pr-3 pl-2 text-[13px] text-text-3"
+              className="inline-flex items-center gap-2 self-start rounded-full border border-border bg-surface py-1 pr-3 pl-2 text-[0.8125rem] text-text-3"
             >
               <CheckIcon size={16} className="text-accent-text" />
               {label}
@@ -147,6 +143,11 @@ export function AssistantMessage({
                   </>
                 ) : null}
                 <span className="flex-1" />
+                {settings.showReplyCost && message.costUsd !== undefined ? (
+                  <span className="text-xs text-muted tabular-nums" title="Estimated cost of this reply">
+                    ≈ {formatUsd(message.costUsd)}
+                  </span>
+                ) : null}
                 <button
                   type="button"
                   onClick={copy}
@@ -168,23 +169,23 @@ export function AssistantMessage({
                   </button>
                 ) : null}
               </div>
-              <p className="text-[13px] text-muted">
-                Draft for professional review. Check every figure against the original notice
-                before sending anything to the IRS or a client.
+              <p className="text-[0.8125rem] text-muted">
+                Draft for professional review. Check every figure against the original notice before sending
+                anything to the IRS or a client.
               </p>
             </>
           ) : null}
         </div>
       </article>
 
-      {finished && isLast ? (
+      {finished && isLast && settings.showFollowUps ? (
         <div className="flex flex-wrap gap-2 sm:pl-11">
           {FOLLOW_UPS.map((f) => (
             <button
               key={f}
               type="button"
               onClick={() => onPrompt(f)}
-              className="min-h-9 rounded-full border border-border-strong bg-surface px-3.5 py-1.5 text-[13px] text-text-2 hover:bg-hover"
+              className="min-h-9 rounded-full border border-border-strong bg-surface px-3.5 py-1.5 text-[0.8125rem] text-text-2 hover:bg-hover"
             >
               {f}
             </button>

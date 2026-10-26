@@ -3,11 +3,19 @@ import { z } from "zod";
 import type { ChatMessage, StreamEvent } from "@/lib/chat-types";
 import { MAX_FILES_PER_MESSAGE } from "@/lib/chat-types";
 import { friendlyError } from "@/lib/api-errors";
+import { addReports, emptyReport, reportFromMessage } from "@/lib/usage";
 import { AttachmentSchema, toDocumentBlocks } from "@/lib/documents";
 import { SYSTEM_PROMPT } from "@/lib/system-prompt";
 import { runTool, toolDefinitions } from "@/lib/tools";
+import { AI_MODEL as MODEL } from "@/lib/config";
+import {
+  DRAFT_TONES,
+  REPLY_DETAILS,
+  TEXT_LIMITS,
+  preferencesNote,
+  sanitizePreferences,
+} from "@/lib/settings";
 
-const MODEL = "claude-opus-5-5";
 // Effort controls how much the model thinks. "medium" is this model's default;
 // raise it for harder research and drafting once you can measure the gain.
 const EFFORT = "medium";
@@ -25,11 +33,32 @@ const RequestSchema = z.object({
     )
     .min(1)
     .max(200),
+  // The user's answer-style choices and signing details from Settings. Optional.
+  preferences: z
+    .object({
+      replyDetail: z.enum(REPLY_DETAILS).optional(),
+      draftTone: z.enum(DRAFT_TONES).optional(),
+      signer: z
+        .object({
+          name: z.string().max(TEXT_LIMITS.displayName).optional(),
+          credentials: z.string().max(TEXT_LIMITS.credentials).optional(),
+          practice: z.string().max(TEXT_LIMITS.practiceName).optional(),
+          phone: z.string().max(TEXT_LIMITS.phone).optional(),
+          email: z.string().max(TEXT_LIMITS.email).optional(),
+        })
+        .optional(),
+    })
+    .optional(),
 });
 
-function toApiMessages(history: ChatMessage[]): Anthropic.Beta.BetaMessageParam[] {
+/**
+ * `note` (the user's saved preferences) is added to the latest user message only. That keeps
+ * the saved instructions and the earlier conversation exactly as they were, so the cached
+ * part of the request still matches.
+ */
+function toApiMessages(history: ChatMessage[], note: string | null): Anthropic.Beta.BetaMessageParam[] {
   const out: Anthropic.Beta.BetaMessageParam[] = [];
-  for (const m of history) {
+  for (const [index, m] of history.entries()) {
     if (m.role === "assistant") {
       // Skip empty replies (for example one that failed); the API rejects them.
       if (m.text.trim()) out.push({ role: "assistant", content: m.text });
@@ -37,6 +66,7 @@ function toApiMessages(history: ChatMessage[]): Anthropic.Beta.BetaMessageParam[
     }
     const content = toDocumentBlocks(m.attachments ?? []);
     content.push({ type: "text", text: m.text.trim() || "Please review the attached document." });
+    if (note && index === history.length - 1) content.push({ type: "text", text: note });
     out.push({ role: "user", content });
   }
   return out;
@@ -62,12 +92,17 @@ export async function POST(req: Request) {
 
   const stream = new ReadableStream<Uint8Array>({
     async start(controller) {
-      const send = (event: StreamEvent) =>
-        controller.enqueue(encoder.encode(JSON.stringify(event) + "\n"));
+      const send = (event: StreamEvent) => controller.enqueue(encoder.encode(JSON.stringify(event) + "\n"));
+
+      // Everything this reply used, added up across tool rounds and any fallback attempts.
+      let usage = emptyReport();
 
       try {
         const client = new Anthropic();
-        const messages = toApiMessages(history);
+        const messages = toApiMessages(
+          history,
+          preferencesNote(sanitizePreferences(parsed.data.preferences)),
+        );
         let wroteText = false;
 
         for (let round = 0; round < MAX_TOOL_ROUNDS; round++) {
@@ -109,6 +144,8 @@ export async function POST(req: Request) {
           }
 
           const message = await response.finalMessage();
+          // Count the tokens first: a declined or cut-off reply is billed too.
+          usage = addReports(usage, reportFromMessage(message));
 
           if (message.stop_reason === "refusal") {
             send({
@@ -165,6 +202,8 @@ export async function POST(req: Request) {
         }
       } finally {
         try {
+          // Replies the user stops early can't be counted: the browser has already hung up.
+          if (!req.signal.aborted && usage.costUsd > 0) send({ type: "usage", report: usage });
           controller.close();
         } catch {
           // Already closed because the browser disconnected.

@@ -1,5 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { IBM_Plex_Mono, Inter } from "next/font/google";
+import { SettingsProvider } from "@/components/settings/settings-store";
+import { SETTINGS_BOOTSTRAP } from "@/lib/settings-bootstrap";
 import "./globals.css";
 
 const inter = Inter({
@@ -27,8 +29,19 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className={`${inter.variable} ${plexMono.variable} h-full antialiased`}>
-      <body className="min-h-full">{children}</body>
+    // suppressHydrationWarning: the script below sets data-... attributes on <html>
+    // (saved theme, text size, and so on) before React starts.
+    <html
+      lang="en"
+      className={`${inter.variable} ${plexMono.variable} h-full antialiased`}
+      suppressHydrationWarning
+    >
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: SETTINGS_BOOTSTRAP }} />
+      </head>
+      <body className="min-h-full">
+        <SettingsProvider>{children}</SettingsProvider>
+      </body>
     </html>
   );
 }

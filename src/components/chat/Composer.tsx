@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import type { Attachment } from "@/lib/chat-types";
+import { useSettings } from "@/components/settings/settings-store";
 import { MAX_FILES_PER_MESSAGE } from "@/lib/chat-types";
 import { CloseIcon, DocIcon, PaperclipIcon, SendIcon, StopIcon } from "./Icons";
 
@@ -30,6 +31,8 @@ export default function Composer({
   placeholder,
   autoFocusKey,
 }: Props) {
+  const { settings } = useSettings();
+  const modEnter = settings.sendKey === "modEnter";
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const canSend = !busy && (value.trim().length > 0 || files.length > 0);
 
@@ -64,7 +67,7 @@ export default function Composer({
             {files.map((f, i) => (
               <span
                 key={`${f.name}-${i}`}
-                className="flex items-center gap-2 rounded-lg border border-border bg-surface-2 py-1 pr-1 pl-2 text-[13px]"
+                className="flex items-center gap-2 rounded-lg border border-border bg-surface-2 py-1 pr-1 pl-2 text-[0.8125rem]"
               >
                 <DocIcon size={14} className="text-text-3" />
                 <span className="max-w-48 truncate">{f.name}</span>
@@ -90,13 +93,16 @@ export default function Composer({
           value={value}
           onChange={(e) => onChange(e.target.value)}
           onKeyDown={(e) => {
-            if (e.key === "Enter" && !e.shiftKey && !e.nativeEvent.isComposing) {
+            if (e.key !== "Enter" || e.nativeEvent.isComposing) return;
+            // Enter sends (Shift+Enter adds a line), or with the other setting Cmd/Ctrl+Enter sends.
+            const sends = modEnter ? e.metaKey || e.ctrlKey : !e.shiftKey;
+            if (sends) {
               e.preventDefault();
               if (canSend) onSubmit();
             }
           }}
           placeholder={placeholder}
-          className="resize-none bg-transparent py-1 text-[15px] outline-none placeholder:text-muted"
+          className="resize-none bg-transparent py-1 text-[0.9375rem] outline-none placeholder:text-muted"
         />
         <div className="flex items-center gap-1.5">
           <button
@@ -108,7 +114,9 @@ export default function Composer({
           >
             <PaperclipIcon />
           </button>
-          <span className="text-xs text-muted">PDF or .txt</span>
+          <span className="text-xs text-muted">
+            {modEnter ? "PDF or .txt · ⌘/Ctrl+Enter to send" : "PDF or .txt"}
+          </span>
           {busy ? (
             <button
               type="button"

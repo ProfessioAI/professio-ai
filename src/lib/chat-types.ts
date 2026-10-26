@@ -1,5 +1,7 @@
 // Shapes shared by the chat page (browser) and the chat API route (server).
 
+import type { UsageReport } from "./usage";
+
 export type AttachmentMediaType = "application/pdf" | "text/plain";
 
 export type Attachment = {
@@ -21,6 +23,8 @@ export type StreamEvent =
   | { type: "status"; status: "thinking" | "tool"; detail?: string }
   /** A tool finished; `label` is a short description for the chat, e.g. "Looked up CP2000". */
   | { type: "tool"; label: string }
+  /** What the whole reply used, sent once at the end. */
+  | { type: "usage"; report: UsageReport }
   | { type: "error"; message: string }
   | { type: "done" };
 

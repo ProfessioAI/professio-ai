@@ -1,11 +1,17 @@
 import type { Attachment, ChatMessage } from "@/lib/chat-types";
 import { MAX_FILE_BYTES } from "@/lib/chat-types";
+import type { ExportFormat } from "@/lib/settings";
 
 /**
  * A chat message plus what only the page needs: tool activity, and for a
  * user message that asked for a letter or checklist, the draft's title.
  */
-export type UIMessage = ChatMessage & { tools?: string[]; draftTitle?: string };
+export type UIMessage = ChatMessage & {
+  tools?: string[];
+  draftTitle?: string;
+  /** Estimated cost of this reply in dollars (assistant messages). */
+  costUsd?: number;
+};
 
 export type Draft = { title: string; text: string };
 
@@ -92,4 +98,32 @@ export function conversationMarkdown(messages: UIMessage[]): string {
     if (m.text.trim()) lines.push(m.text.trim(), "");
   }
   return lines.join("\n");
+}
+
+/** Markdown turned into readable plain text: no symbols for bold, headings, quotes, or tables. */
+function plainText(markdown: string): string {
+  return markdown
+    .replace(/^\s*\|?[\s:|-]+\|[\s:|-]*$/gm, "") // table divider rows
+    .replace(/^#{1,6}\s+/gm, "")
+    .replace(/\*\*(.+?)\*\*/g, "$1")
+    .replace(/(^|[^*])\*(?!\s)([^*\n]+?)\*(?!\*)/g, "$1$2")
+    .replace(/`([^`]+)`/g, "$1")
+    .replace(/^>\s?/gm, "")
+    .replace(/^\s*[-*]\s+/gm, "• ")
+    .replace(/^\s*\|(.*)\|\s*$/gm, (_, row: string) =>
+      row
+        .split("|")
+        .map((c) => c.trim())
+        .join("  |  "),
+    )
+    .replace(/\n{3,}/g, "\n\n");
+}
+
+/** The conversation as a downloadable file, in the format chosen in settings. */
+export function conversationExport(messages: UIMessage[], format: ExportFormat) {
+  const markdown = conversationMarkdown(messages);
+  if (format === "text") {
+    return { filename: "professioai-conversation.txt", mime: "text/plain", content: plainText(markdown) };
+  }
+  return { filename: "professioai-conversation.md", mime: "text/markdown", content: markdown };
 }

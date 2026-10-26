@@ -1,4 +1,9 @@
+import type { UsageReport } from "./usage";
+
 // Notice details pulled from an uploaded document, shown in the case panel.
+
+/** What /api/extract returns: the details, plus what reading the document used. */
+export type ExtractResponse = NoticeDetails & { usage?: UsageReport };
 
 export type NoticeDetails = {
   isIrsNotice: boolean;

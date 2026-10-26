@@ -20,6 +20,7 @@ Core pieces:
 - [x] GitHub repo set up (`ProfessioAI/professio-ai`)
 - [x] README and .gitignore
 - [x] Phase 1: Working chat app
+- [x] Phase 2: Test data
 
 ## Phases
 
@@ -41,13 +42,21 @@ of every size, clearly structured, and easy to create fictional versions of.
 
 ### Phase 2: Test data
 Use **only fictional or public data** until Phase 5 is complete.
-- [ ] 10–20 test documents
+- [x] 10–20 test documents: 14 fictional IRS notices in `samples/irs-notices/`, including
+      traps (a missing date, totals that don't add up, hidden instructions, an unknown
+      notice code, and a document that isn't a notice)
   - Fictional documents generated with an AI model (fake names, entities, numbers)
-  - Public sources: U.S. Tax Court opinions, SEC EDGAR filings,
+  - Public sources, not used yet: U.S. Tax Court opinions, SEC EDGAR filings,
     IRS VITA training workbooks (Pub 4491 and related), IRS e-file test scenarios
-- [ ] Fake SSNs only from ranges that can never be real (starting `000`, `666`, or `9xx`)
-- [ ] A grading checklist per document (e.g. "cites the right code section",
-      "flags the response deadline", "doesn't make up numbers")
+- [x] Fake SSNs only from ranges that can never be real (starting `000`, `666`, or `9xx`),
+      enforced by `npm run check:samples`
+- [x] A grading checklist per document (e.g. "cites the right code section",
+      "flags the response deadline", "doesn't make up numbers"), in
+      `samples/irs-notices/cases.json`
+
+**Baseline finding:** on an unfamiliar notice code, the assistant doesn't suggest
+confirming the notice is genuine, and tells the user to call the number printed on it.
+Phase 3 should measure a fix for this.
 
 ### Phase 3: Automated grading
 - [ ] One command runs every test document through the app and scores the answers
@@ -57,7 +66,14 @@ Use **only fictional or public data** until Phase 5 is complete.
 ### Phase 4: Accounts and storage
 - [ ] Sign-in
 - [ ] Saved chats and documents (Supabase)
-- [ ] Per-user usage tracking (needed for seat licensing and cost control)
+- [x] In-app usage meter: estimated cost per reply, per conversation, per day, and all
+      time, kept in the browser (`src/lib/usage.ts`, prices last checked 2026-10-06)
+- [x] User settings: theme, accent color, text size, spacing, width, font, motion; send key,
+      scrolling, what to show in chats, answer detail and tone; notice reading, details panel,
+      deadline warning, date format; practice details for signing drafts; usage and export
+      options. Saved in the browser (`src/lib/settings.ts`)
+- [ ] Move settings to the user's account, so they follow the user between devices
+- [ ] Per-user usage tracking on the server (needed for seat licensing and cost control)
 
 ### Phase 5: Legal and privacy review (before any real client data)
 - [ ] **IRC §7216**: rules on how tax preparers may use or share client tax
@@ -70,8 +86,13 @@ Use **only fictional or public data** until Phase 5 is complete.
 - [ ] Consult an attorney familiar with tax practice
 
 ### Phase 6: Pricing, billing, and pilot
-- [ ] Choose a pricing model (seat-based is the current direction)
+- [ ] Choose a pricing model (seat-based is the current direction; seats plus usage
+      credits is a possible hybrid)
 - [ ] Billing (e.g. Stripe)
+- [ ] Credit balance per user, shown in the app next to the usage meter
+- [ ] In-app top-up with Stripe Checkout (test mode first), crediting the balance when the
+      payment completes
+- [ ] Low-balance warning, and a stop (with a prompt to top up) when credits run out
 - [ ] Pilot with a few friendly users, using test data only until Phase 5 is done
 
 ### Phase 7: Data scrubbing and privacy

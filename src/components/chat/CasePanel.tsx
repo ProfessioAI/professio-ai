@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { CheckIcon, CloseIcon, CopyIcon, DocIcon, DownloadIcon } from "./Icons";
+import { useSettings } from "@/components/settings/settings-store";
+import type { DateFormat, WarnDays } from "@/lib/settings";
 import { countdown, formatDate, formatMoney, type DetailsState } from "./notice-utils";
 import type { Draft } from "./types";
 
@@ -14,18 +16,44 @@ type Props = {
 
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
-    <div className="mb-2.5 text-xs font-semibold tracking-[0.06em] text-muted uppercase">
-      {children}
-    </div>
+    <div className="mb-2.5 text-xs font-semibold tracking-[0.06em] text-muted uppercase">{children}</div>
   );
 }
 
 const BAR_TONE = { ok: "bg-accent", warn: "bg-bar-warn", danger: "bg-bar-danger" } as const;
 const TEXT_TONE = { ok: "text-foreground", warn: "text-warn-strong", danger: "text-bar-danger" } as const;
 
-function NoticeSection({ details, onRetry }: { details: DetailsState; onRetry: () => void }) {
+function NoticeSection({
+  details,
+  onRetry,
+  autoRead,
+  hasDocuments,
+  dateFormat,
+}: {
+  details: DetailsState;
+  onRetry: () => void;
+  autoRead: boolean;
+  hasDocuments: boolean;
+  dateFormat: DateFormat;
+}) {
   if (details.status === "idle") {
-    return <p className="text-[13px] text-muted">Attach a notice to see its key details here.</p>;
+    // Reading is switched off in settings: let the user read this notice on demand.
+    if (!autoRead && hasDocuments) {
+      return (
+        <div className="flex flex-col items-start gap-2 text-[0.8125rem] text-muted">
+          <p>Reading notice details is switched off in Settings.</p>
+          <button
+            type="button"
+            onClick={onRetry}
+            className="h-9 rounded-lg border border-border-strong px-3 text-[0.8125rem] font-medium text-text-2 hover:bg-hover"
+          >
+            Read details now
+          </button>
+          <p className="text-xs">Costs a small amount for each document.</p>
+        </div>
+      );
+    }
+    return <p className="text-[0.8125rem] text-muted">Attach a notice to see its key details here.</p>;
   }
   if (details.status === "loading") {
     return (
@@ -42,12 +70,12 @@ function NoticeSection({ details, onRetry }: { details: DetailsState; onRetry: (
   }
   if (details.status === "error") {
     return (
-      <div className="flex flex-col items-start gap-2 text-[13px] text-muted">
+      <div className="flex flex-col items-start gap-2 text-[0.8125rem] text-muted">
         <p>{details.message}</p>
         <button
           type="button"
           onClick={onRetry}
-          className="h-9 rounded-lg border border-border-strong px-3 text-[13px] font-medium text-text-2 hover:bg-hover"
+          className="h-9 rounded-lg border border-border-strong px-3 text-[0.8125rem] font-medium text-text-2 hover:bg-hover"
         >
           Try again
         </button>
@@ -58,7 +86,7 @@ function NoticeSection({ details, onRetry }: { details: DetailsState; onRetry: (
   const d = details.data;
   if (!d.isIrsNotice) {
     return (
-      <p className="text-[13px] text-muted">
+      <p className="text-[0.8125rem] text-muted">
         This document doesn&apos;t look like an IRS notice, so there are no notice details to show.
       </p>
     );
@@ -66,9 +94,13 @@ function NoticeSection({ details, onRetry }: { details: DetailsState; onRetry: (
 
   const rows: { label: string; value: string; className?: string }[] = [];
   if (d.taxYear) rows.push({ label: "Tax year", value: d.taxYear });
-  if (d.noticeDate) rows.push({ label: "Notice date", value: formatDate(d.noticeDate) });
+  if (d.noticeDate) rows.push({ label: "Notice date", value: formatDate(d.noticeDate, true, dateFormat) });
   if (d.respondBy)
-    rows.push({ label: "Respond by", value: formatDate(d.respondBy), className: "font-semibold text-warn-strong" });
+    rows.push({
+      label: "Respond by",
+      value: formatDate(d.respondBy, true, dateFormat),
+      className: "font-semibold text-warn-strong",
+    });
   if (d.amount !== null)
     rows.push({
       label: d.amountLabel ?? "Amount",
@@ -79,11 +111,11 @@ function NoticeSection({ details, onRetry }: { details: DetailsState; onRetry: (
   return (
     <div>
       <div className="flex flex-wrap items-baseline gap-x-2.5 gap-y-1">
-        <span className="font-mono text-[22px] font-medium">{d.code ?? "IRS notice"}</span>
-        {d.name ? <span className="text-[13px] text-text-3">{d.name}</span> : null}
+        <span className="font-mono text-[1.375rem] font-medium">{d.code ?? "IRS notice"}</span>
+        {d.name ? <span className="text-[0.8125rem] text-text-3">{d.name}</span> : null}
       </div>
       {rows.length ? (
-        <dl className="mt-4 grid grid-cols-2 gap-x-3 gap-y-3.5 text-[13px]">
+        <dl className="mt-4 grid grid-cols-2 gap-x-3 gap-y-3.5 text-[0.8125rem]">
           {rows.map((r) => (
             <div key={r.label}>
               <dt className="text-muted">{r.label}</dt>
@@ -96,12 +128,20 @@ function NoticeSection({ details, onRetry }: { details: DetailsState; onRetry: (
   );
 }
 
-function DeadlineSection({ respondBy, noticeDate }: { respondBy: string; noticeDate: string | null }) {
-  const c = countdown(respondBy, noticeDate);
+function DeadlineSection({
+  respondBy,
+  noticeDate,
+  warnDays,
+}: {
+  respondBy: string;
+  noticeDate: string | null;
+  warnDays: WarnDays;
+}) {
+  const c = countdown(respondBy, noticeDate, warnDays);
   return (
     <section className="border-t border-border pt-5">
       <SectionLabel>Deadline</SectionLabel>
-      <div className="mb-2 flex justify-between text-[13px]">
+      <div className="mb-2 flex justify-between text-[0.8125rem]">
         <span className={`font-semibold ${TEXT_TONE[c.tone]}`}>{c.label}</span>
         {c.totalDays !== null ? <span className="text-muted">of {c.totalDays}</span> : null}
       </div>
@@ -174,8 +214,8 @@ function DraftItem({ draft }: { draft: Draft }) {
 }
 
 export default function CasePanel({ details, documents, drafts, onRetry, onClose, className = "" }: Props) {
-  const respondBy =
-    details.status === "ready" && details.data.isIrsNotice ? details.data.respondBy : null;
+  const { settings } = useSettings();
+  const respondBy = details.status === "ready" && details.data.isIrsNotice ? details.data.respondBy : null;
   const noticeDate = details.status === "ready" ? details.data.noticeDate : null;
 
   return (
@@ -197,10 +237,18 @@ export default function CasePanel({ details, documents, drafts, onRetry, onClose
             </button>
           ) : null}
         </div>
-        <NoticeSection details={details} onRetry={onRetry} />
+        <NoticeSection
+          details={details}
+          onRetry={onRetry}
+          autoRead={settings.autoReadNotice}
+          hasDocuments={documents.length > 0}
+          dateFormat={settings.dateFormat}
+        />
       </section>
 
-      {respondBy ? <DeadlineSection respondBy={respondBy} noticeDate={noticeDate} /> : null}
+      {respondBy ? (
+        <DeadlineSection respondBy={respondBy} noticeDate={noticeDate} warnDays={settings.warnDays} />
+      ) : null}
 
       <section className="border-t border-border pt-5">
         <SectionLabel>Documents</SectionLabel>
@@ -214,7 +262,7 @@ export default function CasePanel({ details, documents, drafts, onRetry, onClose
             ))}
           </ul>
         ) : (
-          <p className="text-[13px] text-muted">No documents attached yet.</p>
+          <p className="text-[0.8125rem] text-muted">No documents attached yet.</p>
         )}
       </section>
 
@@ -227,7 +275,7 @@ export default function CasePanel({ details, documents, drafts, onRetry, onClose
             ))}
           </div>
         ) : (
-          <div className="rounded-[10px] border border-dashed border-border-strong p-4 text-center text-[13px] text-muted">
+          <div className="rounded-[10px] border border-dashed border-border-strong p-4 text-center text-[0.8125rem] text-muted">
             Letters and checklists you draft will appear here.
           </div>
         )}

@@ -4,12 +4,13 @@ import { z } from "zod";
 import { friendlyError } from "@/lib/api-errors";
 import { MAX_FILES_PER_MESSAGE } from "@/lib/chat-types";
 import { AttachmentSchema, toDocumentBlocks } from "@/lib/documents";
-import type { NoticeDetails } from "@/lib/notice-types";
+import type { ExtractResponse, NoticeDetails } from "@/lib/notice-types";
+import { reportFromMessage } from "@/lib/usage";
 
 // Reads the key facts off an uploaded notice for the case panel.
 // This is a simple, well-defined task, so it runs at low effort.
 
-const MODEL = "claude-opus-5-5";
+import { AI_MODEL as MODEL } from "@/lib/config";
 
 const RequestSchema = z.object({
   attachments: z.array(AttachmentSchema).min(1).max(MAX_FILES_PER_MESSAGE),
@@ -88,7 +89,10 @@ export async function POST(req: Request) {
 
     const out = response.parsed_output;
     if (response.stop_reason === "refusal" || !out) {
-      return Response.json({ error: "Couldn't read details from this document." }, { status: 422 });
+      return Response.json(
+        { error: "Couldn't read details from this document.", usage: reportFromMessage(response) },
+        { status: 422 },
+      );
     }
 
     const details: NoticeDetails = {
@@ -101,7 +105,8 @@ export async function POST(req: Request) {
       amount: typeof out.amount === "number" && Number.isFinite(out.amount) ? out.amount : null,
       amountLabel: out.amount_label?.trim() || null,
     };
-    return Response.json(details);
+    const body: ExtractResponse = { ...details, usage: reportFromMessage(response) };
+    return Response.json(body);
   } catch (err) {
     if (req.signal.aborted) return new Response(null, { status: 499 });
     console.error("[api/extract]", err);

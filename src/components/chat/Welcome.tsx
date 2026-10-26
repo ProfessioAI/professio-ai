@@ -38,7 +38,7 @@ export default function Welcome({ onFiles, onChooseFile, onQuickAction, composer
       <div className="flex w-full max-w-[720px] flex-col gap-8">
         <div className="flex flex-col items-center gap-2 text-center">
           <Logo size={44} />
-          <h1 className="mt-3 text-[26px] font-semibold tracking-tight sm:text-[30px]">
+          <h1 className="mt-3 text-[1.625rem] font-semibold tracking-tight sm:text-[1.875rem]">
             What are we working on?
           </h1>
           <p className="max-w-[520px] text-text-3">
@@ -66,7 +66,7 @@ export default function Welcome({ onFiles, onChooseFile, onQuickAction, composer
             <UploadIcon size={22} />
           </span>
           <div className="font-semibold">Drop an IRS notice here</div>
-          <div className="text-[13px] text-muted">
+          <div className="text-[0.8125rem] text-muted">
             PDF or .txt · fictional or public test data during the pilot
           </div>
           <button
@@ -88,7 +88,7 @@ export default function Welcome({ onFiles, onChooseFile, onQuickAction, composer
             >
               <Icon className="text-accent-text" />
               <span className="text-sm font-semibold">{title}</span>
-              <span className="text-[13px] leading-snug text-muted">{detail}</span>
+              <span className="text-[0.8125rem] leading-snug text-muted">{detail}</span>
             </button>
           ))}
         </div>

@@ -1,18 +1,23 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import SettingsView from "@/components/settings/SettingsView";
+import { useSettings } from "@/components/settings/settings-store";
+import { aiPreferences } from "@/lib/settings";
 import type { Attachment, StreamEvent } from "@/lib/chat-types";
 import { MAX_FILES_PER_MESSAGE } from "@/lib/chat-types";
-import type { NoticeDetails } from "@/lib/notice-types";
+import type { ExtractResponse } from "@/lib/notice-types";
 import CasePanel from "./CasePanel";
 import Composer from "./Composer";
 import { DownloadIcon, MenuIcon, PanelIcon, PenIcon } from "./Icons";
 import { AssistantMessage, UserMessage } from "./Messages";
 import { countdown, formatDate, type DetailsState } from "./notice-utils";
 import Sidebar from "./Sidebar";
+import UsageMeter from "./UsageMeter";
+import { useUsageMeter } from "./usage-store";
 import {
   collectDrafts,
-  conversationMarkdown,
+  conversationExport,
   conversationTitle,
   documentCount,
   documentNames,
@@ -36,6 +41,9 @@ export default function Chat() {
   const [focusKey, setFocusKey] = useState(0);
   const [details, setDetails] = useState<DetailsState>({ status: "idle" });
   const [panelOpen, setPanelOpen] = useState(false);
+  const meter = useUsageMeter();
+  const { settings } = useSettings();
+  const [view, setView] = useState<"chat" | "settings">("chat");
   const abortRef = useRef<AbortController | null>(null);
   const extractAbortRef = useRef<AbortController | null>(null);
   const lastExtractFilesRef = useRef<Attachment[] | null>(null);
@@ -46,13 +54,18 @@ export default function Chat() {
   const title = empty ? null : conversationTitle(messages);
   const docs = documentCount(messages);
   const drafts = collectDrafts(messages, busy);
-  const noticeInfo =
-    details.status === "ready" && details.data.isIrsNotice ? details.data : null;
-  const deadline = noticeInfo?.respondBy ? countdown(noticeInfo.respondBy, noticeInfo.noticeDate) : null;
+  const noticeInfo = details.status === "ready" && details.data.isIrsNotice ? details.data : null;
+  const deadline = noticeInfo?.respondBy
+    ? countdown(noticeInfo.respondBy, noticeInfo.noticeDate, settings.warnDays)
+    : null;
+  const reduceMotion =
+    settings.motion === "reduced" ||
+    (typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
-  }, [messages, status]);
+    if (!settings.autoScroll) return;
+    bottomRef.current?.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "end" });
+  }, [messages, status, settings.autoScroll, reduceMotion]);
 
   async function addFiles(list: FileList | File[]) {
     setNotice(null);
@@ -97,6 +110,8 @@ export default function Chat() {
             text,
             ...(attachments?.length ? { attachments } : {}),
           })),
+          // Answer style and signing details from Settings (left out when all defaults).
+          preferences: aiPreferences(settings),
         }),
         signal: controller.signal,
       });
@@ -122,12 +137,13 @@ export default function Chat() {
             updateLastAssistant((m) => ({ ...m, text: m.text + event.text }));
           } else if (event.type === "status") {
             setStatus(
-              event.status === "tool"
-                ? (TOOL_STATUS[event.detail ?? ""] ?? "Using a tool…")
-                : "Thinking…",
+              event.status === "tool" ? (TOOL_STATUS[event.detail ?? ""] ?? "Using a tool…") : "Thinking…",
             );
           } else if (event.type === "tool") {
             updateLastAssistant((m) => ({ ...m, tools: [...(m.tools ?? []), event.label] }));
+          } else if (event.type === "usage") {
+            meter.record(event.report);
+            updateLastAssistant((m) => ({ ...m, costUsd: event.report.costUsd }));
           } else if (event.type === "error") {
             setNotice(event.message);
           }
@@ -160,8 +176,11 @@ export default function Chat() {
         signal: controller.signal,
       });
       const body = await res.json().catch(() => null);
+      // Reading the document costs a little too, even when it fails.
+      if (body?.usage) meter.record(body.usage);
       if (!res.ok || !body) throw new Error(body?.error ?? "Couldn't read the notice details.");
-      const data = body as NoticeDetails;
+      const { usage: _usage, ...data } = body as ExtractResponse;
+      void _usage;
       // A non-notice upload doesn't replace a notice already shown.
       setDetails((prev) =>
         data.isIrsNotice || !(prev.status === "ready" && prev.data.isIrsNotice)
@@ -173,7 +192,10 @@ export default function Chat() {
       setDetails((prev) =>
         prev.status === "ready" && prev.data.isIrsNotice
           ? prev
-          : { status: "error", message: err instanceof Error ? err.message : "Couldn't read the notice details." },
+          : {
+              status: "error",
+              message: err instanceof Error ? err.message : "Couldn't read the notice details.",
+            },
       );
     }
   }
@@ -187,7 +209,10 @@ export default function Chat() {
       ...(files.length ? { attachments: files } : {}),
       ...(draftTitle ? { draftTitle } : {}),
     };
-    if (files.length) extract(files);
+    if (files.length) {
+      if (settings.autoReadNotice) extract(files);
+      else lastExtractFilesRef.current = files; // so "Read details now" still works
+    }
     setInput("");
     setFiles([]);
     run([...messages, userMessage]);
@@ -215,6 +240,8 @@ export default function Chat() {
 
   function newChat() {
     stop();
+    setView("chat");
+    meter.startConversation();
     extractAbortRef.current?.abort();
     lastExtractFilesRef.current = null;
     setDetails({ status: "idle" });
@@ -227,11 +254,12 @@ export default function Chat() {
   }
 
   function exportChat() {
-    const blob = new Blob([conversationMarkdown(messages)], { type: "text/markdown" });
+    const file = conversationExport(messages, settings.exportFormat);
+    const blob = new Blob([file.content], { type: file.mime });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = "professioai-conversation.md";
+    a.download = file.filename;
     a.click();
     URL.revokeObjectURL(url);
   }
@@ -247,7 +275,9 @@ export default function Chat() {
       busy={busy}
       onStop={stop}
       notice={notice}
-      placeholder={empty ? "Or ask a tax or accounting question…" : "Ask a follow-up, or attach another notice…"}
+      placeholder={
+        empty ? "Or ask a tax or accounting question…" : "Ask a follow-up, or attach another notice…"
+      }
       autoFocusKey={focusKey}
     />
   );
@@ -263,7 +293,14 @@ export default function Chat() {
         onChange={(e) => e.target.files && addFiles(e.target.files)}
       />
 
-      <Sidebar title={title} onNewChat={newChat} className="hidden lg:flex" />
+      <Sidebar
+        title={title}
+        onNewChat={newChat}
+        meter={<UsageMeter meter={meter} />}
+        onOpenSettings={() => setView("settings")}
+        settingsOpen={view === "settings"}
+        className="hidden lg:flex"
+      />
 
       {drawerOpen ? (
         <div className="fixed inset-0 z-40 flex lg:hidden">
@@ -276,6 +313,12 @@ export default function Chat() {
           <Sidebar
             title={title}
             onNewChat={newChat}
+            meter={<UsageMeter meter={meter} />}
+            onOpenSettings={() => {
+              setView("settings");
+              setDrawerOpen(false);
+            }}
+            settingsOpen={view === "settings"}
             onClose={() => setDrawerOpen(false)}
             className="relative flex h-full max-w-[85vw]"
           />
@@ -283,109 +326,118 @@ export default function Chat() {
       ) : null}
 
       <main className="flex min-w-0 flex-1 flex-col">
-        <header
-          className={`flex items-center gap-1 border-b border-border bg-surface px-2 py-3 sm:gap-3 lg:px-8 lg:py-4 ${
-            empty ? "lg:hidden" : ""
-          }`}
-        >
-          <button
-            type="button"
-            onClick={() => setDrawerOpen(true)}
-            aria-label="Open menu"
-            className="flex size-11 items-center justify-center rounded-lg text-text-2 hover:bg-hover lg:hidden"
-          >
-            <MenuIcon size={20} />
-          </button>
-          <div className="flex min-w-0 flex-1 flex-col leading-tight">
-            <h1 className="truncate text-[15px] font-semibold tracking-tight lg:text-[17px]">
-              {title ?? "ProfessioAI"}
-            </h1>
-            <span className="truncate text-xs text-muted lg:text-[13px]">
-              {empty ? (
-                "Pilot · test data only"
-              ) : (
-                <>
-                  {docs ? `${docs} document${docs === 1 ? "" : "s"} · ` : ""}
-                  {deadline && noticeInfo?.respondBy ? (
-                    <span className={deadline.tone === "ok" ? "" : "font-medium text-warn-strong"}>
-                      Respond by {formatDate(noticeInfo.respondBy, false)} · {deadline.label}
-                    </span>
-                  ) : (
-                    "Started today"
-                  )}
-                </>
-              )}
-            </span>
-          </div>
-          {!empty ? (
-            <button
-              type="button"
-              onClick={exportChat}
-              disabled={busy}
-              aria-label="Export conversation"
-              className="flex h-10 items-center gap-2 rounded-lg border border-border-strong bg-surface px-3 text-sm font-medium text-text-2 hover:bg-hover disabled:opacity-50 sm:px-3.5"
-            >
-              <DownloadIcon size={16} />
-              <span className="hidden sm:inline">Export</span>
-            </button>
-          ) : null}
-          {!empty ? (
-            <button
-              type="button"
-              onClick={() => setPanelOpen(true)}
-              aria-label="Show notice details"
-              className="flex size-11 items-center justify-center rounded-lg text-text-2 hover:bg-hover xl:hidden"
-            >
-              <PanelIcon size={20} />
-            </button>
-          ) : null}
-          <button
-            type="button"
-            onClick={newChat}
-            aria-label="New conversation"
-            className="flex size-11 items-center justify-center rounded-lg text-text-2 hover:bg-hover lg:hidden"
-          >
-            <PenIcon size={20} />
-          </button>
-        </header>
-
-        {empty ? (
-          <Welcome
-            onFiles={addFiles}
-            onChooseFile={() => fileInputRef.current?.click()}
-            onQuickAction={quickAction}
-            composer={composer}
-          />
+        {view === "settings" ? (
+          <SettingsView onBack={() => setView("chat")} meter={meter} />
         ) : (
           <>
-            <div className="flex-1 overflow-y-auto px-4 pt-6 sm:px-8 sm:pt-8">
-              <div className="mx-auto flex w-full max-w-[760px] flex-col gap-7 pb-4">
-                {messages.map((m, i) =>
-                  m.role === "user" ? (
-                    <UserMessage key={i} message={m} />
+            <header
+              className={`flex items-center gap-1 border-b border-border bg-surface px-2 py-3 sm:gap-3 lg:px-8 lg:py-4 ${
+                empty ? "lg:hidden" : ""
+              }`}
+            >
+              <button
+                type="button"
+                onClick={() => setDrawerOpen(true)}
+                aria-label="Open menu"
+                className="flex size-11 items-center justify-center rounded-lg text-text-2 hover:bg-hover lg:hidden"
+              >
+                <MenuIcon size={20} />
+              </button>
+              <div className="flex min-w-0 flex-1 flex-col leading-tight">
+                <h1 className="truncate text-[0.9375rem] font-semibold tracking-tight lg:text-[1.0625rem]">
+                  {title ?? "ProfessioAI"}
+                </h1>
+                <span className="truncate text-xs text-muted lg:text-[0.8125rem]">
+                  {empty ? (
+                    "Pilot · test data only"
                   ) : (
-                    <AssistantMessage
-                      key={i}
-                      message={m}
-                      isLast={i === messages.length - 1}
-                      busy={busy}
-                      status={status}
-                      onPrompt={send}
-                      onRegenerate={regenerate}
-                    />
-                  ),
-                )}
-                <div ref={bottomRef} />
+                    <>
+                      {docs ? `${docs} document${docs === 1 ? "" : "s"} · ` : ""}
+                      {deadline && noticeInfo?.respondBy ? (
+                        <span className={deadline.tone === "ok" ? "" : "font-medium text-warn-strong"}>
+                          Respond by {formatDate(noticeInfo.respondBy, false, settings.dateFormat)} ·{" "}
+                          {deadline.label}
+                        </span>
+                      ) : (
+                        "Started today"
+                      )}
+                    </>
+                  )}
+                </span>
               </div>
-            </div>
-            <div className="px-3 pt-3 pb-4 sm:px-8 sm:pt-4 sm:pb-6">
-              <div className="mx-auto max-w-[760px]">{composer}</div>
-            </div>
+              {!empty ? (
+                <button
+                  type="button"
+                  onClick={exportChat}
+                  disabled={busy}
+                  aria-label="Export conversation"
+                  className="flex h-10 items-center gap-2 rounded-lg border border-border-strong bg-surface px-3 text-sm font-medium text-text-2 hover:bg-hover disabled:opacity-50 sm:px-3.5"
+                >
+                  <DownloadIcon size={16} />
+                  <span className="hidden sm:inline">Export</span>
+                </button>
+              ) : null}
+              {!empty ? (
+                <button
+                  type="button"
+                  onClick={() => setPanelOpen(true)}
+                  aria-label="Show notice details"
+                  className={`flex size-11 items-center justify-center rounded-lg text-text-2 hover:bg-hover ${
+                    settings.casePanel === "show" ? "xl:hidden" : ""
+                  }`}
+                >
+                  <PanelIcon size={20} />
+                </button>
+              ) : null}
+              <button
+                type="button"
+                onClick={newChat}
+                aria-label="New conversation"
+                className="flex size-11 items-center justify-center rounded-lg text-text-2 hover:bg-hover lg:hidden"
+              >
+                <PenIcon size={20} />
+              </button>
+            </header>
+
+            {empty ? (
+              <Welcome
+                onFiles={addFiles}
+                onChooseFile={() => fileInputRef.current?.click()}
+                onQuickAction={quickAction}
+                composer={composer}
+              />
+            ) : (
+              <>
+                <div className="flex-1 overflow-y-auto px-4 pt-6 sm:px-8 sm:pt-8">
+                  <div className="mx-auto flex w-full max-w-[var(--chat-width)] flex-col gap-[var(--chat-gap)] pb-4">
+                    {messages.map((m, i) =>
+                      m.role === "user" ? (
+                        <UserMessage key={i} message={m} />
+                      ) : (
+                        <AssistantMessage
+                          key={i}
+                          message={m}
+                          isLast={i === messages.length - 1}
+                          busy={busy}
+                          status={status}
+                          onPrompt={send}
+                          onRegenerate={regenerate}
+                        />
+                      ),
+                    )}
+                    <div ref={bottomRef} />
+                  </div>
+                </div>
+                <div className="px-3 pt-3 pb-4 sm:px-8 sm:pt-4 sm:pb-6">
+                  <div className="mx-auto max-w-[var(--chat-width)]">{composer}</div>
+                </div>
+              </>
+            )}
           </>
         )}
       </main>
 
-      {!empty ? (
+      {!empty && view === "chat" && settings.casePanel === "show" ? (
         <CasePanel
           details={details}
           documents={documentNames(messages)}
@@ -395,7 +447,7 @@ export default function Chat() {
         />
       ) : null}
 
-      {!empty && panelOpen ? (
+      {!empty && view === "chat" && panelOpen ? (
         <div className="fixed inset-0 z-40 flex justify-end xl:hidden">
           <button
             type="button"

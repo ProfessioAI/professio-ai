@@ -50,9 +50,22 @@ and ask for an explanation and a response plan.
 | Chat API (talks to Claude, streams replies, runs tools) | `src/app/api/chat/route.ts` |
 | ProfessioAI's role and ground rules | `src/lib/system-prompt.ts` |
 | Tools ("API links") | `src/lib/tools/` |
-| Test documents | `samples/` |
+| Test documents and answer key | `samples/` (see [samples/README.md](samples/README.md)) |
 
 - **Model:** Claude Opus 5.5 through the Anthropic API.
+- **Usage meter:** each reply, and each document read for the case panel, is priced from the
+  tokens it used. The sidebar shows the running cost for this conversation, today, and all
+  time, and each reply shows its own cost. Totals are kept in the browser's local storage and
+  are estimates. Prices are in `src/lib/usage.ts`; re-check them against Anthropic's pricing
+  page before charging customers from them. Replies stopped early aren't counted.
+- **Settings:** the profile row at the bottom of the sidebar opens Settings, with six tabs:
+  Appearance (theme, accent color, text size, spacing, reading width, font, reduce motion),
+  Chat (send key, scrolling, what to show, answer detail and tone), Notices (automatic
+  reading, details panel, deadline warning, date format), Practice (your name and details,
+  used to sign drafts), Data & privacy (usage meter, export format, resets), and About.
+  Everything is saved in the browser. Code: `src/components/settings/` and `src/lib/settings.ts`.
+  Answer detail, tone, and practice details are sent to the AI with each message, on the latest
+  message only, so the saved instructions and the cache aren't affected.
 - **Documents:** PDF and .txt files are sent to Claude with the question. Nothing is stored;
   the conversation lives in the browser tab and is gone when you refresh.
 - **API links:** the assistant can call tools. The example tool,
@@ -66,6 +79,21 @@ and ask for an explanation and a response plan.
 2. Add it to the `TOOLS` list in `src/lib/tools/index.ts`.
 
 Keep API keys for outside services in `.env.local`, never in code.
+
+## Checking the test documents
+
+```bash
+npm run check:samples
+```
+
+Checks that every test document is fictional and follows the rules in
+[samples/README.md](samples/README.md) (for example, Social Security numbers only from
+ranges that can't be real), and that every document has an entry in the answer key.
+
+## Troubleshooting
+
+**Style changes don't show up.** The development server can hold on to an old stylesheet. Stop
+it (Ctrl + C), delete the hidden `.next` folder in the project, and run `npm run dev` again.
 
 ## Roadmap
 
