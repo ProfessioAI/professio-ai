@@ -43,9 +43,13 @@ Run `npm run check:samples` to check these rules automatically.
 **By hand:** open the app, attach a document, and ask the question listed for it in
 `cases.json`. Then read the answer against that case's checks.
 
-**Automatically (Phase 3):** a command will send every document and question through the
-app, read the case panel's details against `expected`, and have an AI grader mark each
-check true or false.
+**Automatically:** start the app (`npm run dev`), then run `npm run grade`. It sends every
+document and question through the app, compares the case panel's details with `expected`,
+and has an AI grader mark each check true or false. It prints what failed and saves the full
+results in `grading-results/` (not committed). Options: `-- --only <case-id>`,
+`-- --model <model-id>` (which model answers), `-- --grader <model-id>`. A full run costs
+about $1 with the default model. The AI grader is imperfect, so read a failure's reason
+before trusting it.
 
 ## The answer key
 

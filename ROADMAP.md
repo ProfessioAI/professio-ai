@@ -21,6 +21,7 @@ Core pieces:
 - [x] README and .gitignore
 - [x] Phase 1: Working chat app
 - [x] Phase 2: Test data
+- [ ] Phase 3: Automated grading (runner built, thresholds and CI still to do)
 
 ## Phases
 
@@ -54,14 +55,15 @@ Use **only fictional or public data** until Phase 5 is complete.
       "flags the response deadline", "doesn't make up numbers"), in
       `samples/irs-notices/cases.json`
 
-**Baseline finding:** on an unfamiliar notice code, the assistant doesn't suggest
-confirming the notice is genuine, and tells the user to call the number printed on it.
-Phase 3 should measure a fix for this.
+**Baseline finding (fixed in Phase 3):** on an unfamiliar notice code, the assistant didn't
+suggest confirming the notice is genuine. The system prompt now asks for that, and the case passes.
 
 ### Phase 3: Automated grading
-- [ ] One command runs every test document through the app and scores the answers
-      against its checklist
-- [ ] Run it after every prompt or code change to catch regressions
+- [x] One command (`npm run grade`) runs every test document through the app and scores the
+      answers against its checklist (first full run: 96.7% of checks, was 88.4% before the
+      prompt fixes)
+- [ ] Run it after every prompt or code change to catch regressions (manual for now; a
+      pass-rate threshold and CI run are still to do)
 
 ### Phase 4: Accounts and storage
 - [ ] Sign-in

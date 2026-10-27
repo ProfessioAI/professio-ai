@@ -361,6 +361,29 @@ export function ChoiceCards<T extends string>({
 }
 
 /**
+ * The browser's color picker is a popup the page can't close directly. Blurring its input
+ * closes it, so do that when the page scrolls or the input goes away (tab change, leaving
+ * Settings, or switching a setting that hides it).
+ */
+export function useCloseColorPicker(
+  ref: React.RefObject<HTMLInputElement | null>,
+) {
+  useEffect(() => {
+    const el = ref.current;
+    const close = () => {
+      if (document.activeElement === el) el?.blur();
+    };
+    window.addEventListener("scroll", close, { capture: true, passive: true });
+    window.addEventListener("wheel", close, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", close, true);
+      window.removeEventListener("wheel", close);
+      close();
+    };
+  }, [ref]);
+}
+
+/**
  * A color: the browser's own color picker (a wheel or spectrum) plus a hex box.
  * Typing is only applied once it's a complete color, so half-typed values never break anything.
  */
@@ -375,6 +398,8 @@ export function ColorField({
   label: string;
   id: string;
 }) {
+  const pickerRef = useRef<HTMLInputElement>(null);
+  useCloseColorPicker(pickerRef);
   const [typed, setTyped] = useState<string | null>(null);
   const shown = typed ?? value;
   const valid = typed === null || normalizeHex(typed) !== null;
@@ -382,6 +407,7 @@ export function ColorField({
   return (
     <div className="flex items-center gap-2">
       <input
+        ref={pickerRef}
         type="color"
         aria-label={`${label}: pick a color`}
         value={value}

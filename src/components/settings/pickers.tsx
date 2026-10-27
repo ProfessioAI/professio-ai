@@ -8,7 +8,8 @@ import {
   type StyleChoice,
 } from "@/lib/settings";
 import { formatUsd, pricePerMillion, typicalAnswerUsd } from "@/lib/usage";
-import { ChoiceCards, ColorField } from "./controls";
+import { useRef } from "react";
+import { ChoiceCards, ColorField, useCloseColorPicker } from "./controls";
 
 // ---------------------------------------------------------------------------
 // Style: Classic or Glass
@@ -155,6 +156,8 @@ export function AccentPicker({
   onChange: (a: Exclude<Accent, "custom">) => void;
   onCustom: (hex: string) => void;
 }) {
+  const wheelRef = useRef<HTMLInputElement>(null);
+  useCloseColorPicker(wheelRef);
   const ring = (selected: boolean) =>
     `relative flex size-9 items-center justify-center rounded-full ring-offset-2 ring-offset-surface ${
       selected
@@ -206,6 +209,7 @@ export function AccentPicker({
           title="Custom color"
         >
           <input
+            ref={wheelRef}
             type="color"
             aria-label="Custom accent color"
             value={customHex}
