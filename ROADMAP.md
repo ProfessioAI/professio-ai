@@ -71,7 +71,7 @@ suggest confirming the notice is genuine. The system prompt now asks for that, a
 - [x] `npm run grade:if-needed` runs the grader only when the prompt, tools, API routes, models, or
       test notices changed since the baseline. It is a rule for the assistant in `AGENTS.md`
 - [x] Client-email weakness found by the grader fixed in the system prompt
-- [x] Quality tab in Settings: latest pass rate, a chart of past runs, and each test notice with what it
+- [x] Quality page, switched to from the top of the sidebar: latest pass rate, a chart of past runs, and each test notice with what it
       missed (reads the saved results, so it shows on the computer where the grader was run)
 - Not done on purpose: running it automatically on GitHub. A run costs about $1 and needs the API
   key stored as a GitHub secret, so that is a choice to make with the pilot's budget

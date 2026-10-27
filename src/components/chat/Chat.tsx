@@ -8,6 +8,7 @@ import {
   useItem,
 } from "@/lib/library";
 import SettingsView from "@/components/settings/SettingsView";
+import QualityView from "./QualityView";
 import { useSettings } from "@/components/settings/settings-store";
 import { aiPreferences } from "@/lib/settings";
 import type { Attachment, StreamEvent } from "@/lib/chat-types";
@@ -49,7 +50,7 @@ export default function Chat() {
   const [panelOpen, setPanelOpen] = useState(false);
   const meter = useUsageMeter();
   const { settings } = useSettings();
-  const [view, setView] = useState<"chat" | "settings">("chat");
+  const [view, setView] = useState<"chat" | "quality" | "settings">("chat");
   const abortRef = useRef<AbortController | null>(null);
   const extractAbortRef = useRef<AbortController | null>(null);
   const lastExtractFilesRef = useRef<Attachment[] | null>(null);
@@ -417,6 +418,8 @@ export default function Chat() {
         meter={<UsageMeter meter={meter} />}
         onOpenSettings={() => setView("settings")}
         settingsOpen={view === "settings"}
+        page={view}
+        onSelectPage={(p) => setView(p)}
         className="hidden lg:flex"
       />
 
@@ -439,6 +442,11 @@ export default function Chat() {
               setDrawerOpen(false);
             }}
             settingsOpen={view === "settings"}
+            page={view}
+            onSelectPage={(p) => {
+              setView(p);
+              setDrawerOpen(false);
+            }}
             onClose={() => setDrawerOpen(false)}
             className="relative flex h-full max-w-[85vw]"
           />
@@ -448,6 +456,8 @@ export default function Chat() {
       <main className="ui-main flex min-w-0 flex-1 flex-col">
         {view === "settings" ? (
           <SettingsView onBack={() => setView("chat")} meter={meter} />
+        ) : view === "quality" ? (
+          <QualityView onBack={() => setView("chat")} />
         ) : (
           <>
             <header

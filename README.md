@@ -79,7 +79,7 @@ and ask for an explanation and a response plan.
   borders, soft backgrounds, and text on buttons are worked out from them, so a custom theme stays
   readable. The JSON format is `{"format": "professioai-theme", "version": 1, "name": "...",
 "light": {...}, "dark": {...}}`; missing colors are filled in from Classic or Glass.
-- **Quality:** Settings > Quality shows how well the assistant answers the fictional test notices
+- **Quality:** the Quality page (switch at the top of the sidebar) shows how well the assistant answers the fictional test notices
   (the latest `npm run grade` score, past runs, and misses). It reads `grading-results/` on the
   computer running the app.
 - **Documents:** PDF and .txt files are sent to Claude with the question.

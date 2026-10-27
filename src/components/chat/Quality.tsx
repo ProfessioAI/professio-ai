@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import type { GradingRun, GradingSummary } from "@/lib/grading-types";
 import { modelInfo } from "@/lib/models";
-import { Card } from "./controls";
+import { Card } from "@/components/settings/controls";
 
 const KIND_LABEL = {
   check: "Missed",

@@ -24,7 +24,6 @@ import {
 } from "./controls";
 import { clearLibrary } from "@/lib/library";
 import CustomColors from "./CustomColors";
-import Quality from "./Quality";
 import { AccentPicker, FontPicker, ModelPicker, StylePicker } from "./pickers";
 import { useSettings } from "./settings-store";
 
@@ -34,7 +33,6 @@ const TABS = [
   { id: "notices", label: "Notices" },
   { id: "practice", label: "Practice" },
   { id: "data", label: "Data & privacy" },
-  { id: "quality", label: "Quality" },
   { id: "about", label: "About" },
 ] as const;
 type TabId = (typeof TABS)[number]["id"];
@@ -836,7 +834,6 @@ export default function SettingsView({
                 onCleared={() => setRevision((r) => r + 1)}
               />
             )}
-            {tab === "quality" && <Quality />}
             {tab === "about" && (
               <About
                 model={settings.model}

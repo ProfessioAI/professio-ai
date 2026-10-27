@@ -15,6 +15,9 @@ type Props = {
   meter?: React.ReactNode;
   onOpenSettings: () => void;
   settingsOpen: boolean;
+  /** Which page is showing, for the Chat / Quality switch at the top. */
+  page: "chat" | "quality" | "settings";
+  onSelectPage: (page: "chat" | "quality") => void;
   className?: string;
 };
 
@@ -27,6 +30,8 @@ export default function Sidebar({
   meter,
   onOpenSettings,
   settingsOpen,
+  page,
+  onSelectPage,
   className = "",
 }: Props) {
   const { settings } = useSettings();
@@ -58,6 +63,34 @@ export default function Sidebar({
             <CloseIcon />
           </button>
         ) : null}
+      </div>
+
+      <div
+        role="tablist"
+        aria-label="Site sections"
+        className="ui-inset ui-pill flex gap-1 rounded-lg bg-background p-1"
+      >
+        {(
+          [
+            ["chat", "Chat"],
+            ["quality", "Quality"],
+          ] as const
+        ).map(([id, label]) => (
+          <button
+            key={id}
+            type="button"
+            role="tab"
+            aria-selected={page === id}
+            onClick={() => onSelectPage(id)}
+            className={`h-9 flex-1 rounded-lg text-sm font-medium ${
+              page === id
+                ? "ui-seg-on bg-surface text-foreground shadow-sm"
+                : "text-text-3 hover:text-foreground"
+            }`}
+          >
+            {label}
+          </button>
+        ))}
       </div>
 
       <button
