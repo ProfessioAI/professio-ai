@@ -64,10 +64,15 @@ function Trend({ runs, threshold }: { runs: GradingRun[]; threshold: number }) {
           <div
             key={r.at}
             title={`${when(r.at)} · ${r.rate.toFixed(1)}%`}
-            className={`min-w-1.5 flex-1 rounded-t ${
+            className={`anim-grow-up min-w-1.5 flex-1 rounded-t ${
               r.rate >= threshold ? "bg-accent-text" : "bg-warn-strong"
             } ${i === runs.length - 1 ? "" : "opacity-60"}`}
-            style={{ height: `${Math.max(pos(r.rate), 0.03) * 100}%` }}
+            style={
+              {
+                height: `${Math.max(pos(r.rate), 0.03) * 100}%`,
+                "--d": `${i * 60}ms`,
+              } as React.CSSProperties
+            }
           >
             <span className="block pt-1 text-center text-[0.6875rem] font-semibold text-primary-fg tabular-nums">
               {r.rate.toFixed(0)}

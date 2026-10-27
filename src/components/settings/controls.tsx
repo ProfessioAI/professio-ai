@@ -50,7 +50,7 @@ export function Card({
   children: React.ReactNode;
 }) {
   return (
-    <section className="ui-panel rounded-xl border border-border bg-surface px-5 py-1">
+    <section className="anim-rise ui-panel rounded-xl border border-border bg-surface px-5 py-1">
       <header className="pt-4 pb-1">
         <h2 className="text-[0.9375rem] font-semibold">{title}</h2>
         {description ? (

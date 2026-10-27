@@ -31,6 +31,9 @@ export const ACCENTS = [
 ] as const;
 export const TEXT_SIZES = ["small", "default", "large", "xlarge"] as const;
 export const DENSITIES = ["comfortable", "compact"] as const;
+/** The moving orange highlight on the outline of the main Glass panels. */
+export const SHINES = ["on", "off"] as const;
+export type Shine = (typeof SHINES)[number];
 /** How rounded Glass corners are. "round" is the design. */
 export const ROUNDNESS = [
   "square",
@@ -95,6 +98,7 @@ export type Settings = {
   textSize: TextSize;
   density: Density;
   roundness: Roundness;
+  shine: Shine;
   readingWidth: ReadingWidth;
   font: FontChoice;
   motion: Motion;
@@ -149,6 +153,7 @@ export const DEFAULT_SETTINGS: Settings = {
   textSize: "default",
   density: "comfortable",
   roundness: "round",
+  shine: "on",
   readingWidth: "standard",
   font: "auto",
   motion: "system",
@@ -204,6 +209,7 @@ export const APPEARANCE_ATTRIBUTES = {
   text: "textSize",
   density: "density",
   round: "roundness",
+  shine: "shine",
   width: "readingWidth",
   font: "font",
   motion: "motion",
@@ -252,6 +258,7 @@ export function sanitizeSettings(raw: unknown): Settings {
     textSize: pick(r.textSize, TEXT_SIZES, d.textSize),
     density: pick(r.density, DENSITIES, d.density),
     roundness: pick(r.roundness, ROUNDNESS, d.roundness),
+    shine: pick(r.shine, SHINES, d.shine),
     readingWidth: pick(r.readingWidth, READING_WIDTHS, d.readingWidth),
     font: pick(r.font, FONTS, d.font),
     motion: pick(r.motion, MOTIONS, d.motion),

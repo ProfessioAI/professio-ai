@@ -204,6 +204,22 @@ function Appearance({ s, set }: { s: Settings; set: Patch }) {
             />
           </SettingRow>
         ) : null}
+        {s.style === "glass" ? (
+          <SettingRow
+            label="Orange shine"
+            description="A soft orange highlight on the outline of the main panels that moves as you scroll."
+          >
+            <Segmented
+              label="Orange shine"
+              value={s.shine}
+              onChange={(shine) => set({ shine })}
+              options={[
+                { value: "on", label: "On" },
+                { value: "off", label: "Off" },
+              ]}
+            />
+          </SettingRow>
+        ) : null}
         <SettingRow
           label="Reading width"
           description="How wide the conversation column is on large screens."
@@ -796,7 +812,7 @@ export default function SettingsView({
   }
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col">
+    <div className="anim-fade flex min-h-0 flex-1 flex-col">
       <header className="ui-panel ui-header flex items-center gap-3 border-b border-border bg-surface px-3 py-3 sm:px-8 sm:py-4">
         <button
           type="button"

@@ -49,7 +49,7 @@ export default function Welcome({
   return (
     <div className="scroll-fade flex flex-1 items-start justify-center overflow-y-auto px-4 py-10 sm:items-center sm:px-8 sm:py-16">
       <div className="flex w-full max-w-[720px] flex-col gap-8">
-        <div className="flex flex-col items-center gap-2 text-center">
+        <div className="anim-rise flex flex-col items-center gap-2 text-center">
           <Logo size={44} />
           <h1 className="mt-3 text-[1.625rem] font-semibold tracking-tight sm:text-[1.875rem]">
             What are we working on?
@@ -71,7 +71,8 @@ export default function Welcome({
             setDragging(false);
             if (e.dataTransfer.files.length) onFiles(e.dataTransfer.files);
           }}
-          className={`ui-panel ui-big flex flex-col items-center gap-2.5 rounded-2xl border-[1.5px] border-dashed bg-surface p-7 text-center transition-colors ${
+          style={{ "--d": "80ms" } as React.CSSProperties}
+          className={`anim-rise ui-panel ui-big flex flex-col items-center gap-2.5 rounded-2xl border-[1.5px] border-dashed bg-surface p-7 text-center transition-colors ${
             dragging
               ? "border-accent-text bg-accent-soft"
               : "border-dashed-border"
@@ -94,20 +95,23 @@ export default function Welcome({
         </div>
 
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-          {QUICK_ACTIONS.map(({ title, detail, prompt, draftTitle, Icon }) => (
-            <button
-              key={title}
-              type="button"
-              onClick={() => onQuickAction(prompt, draftTitle)}
-              className="ui-raised ui-card flex flex-col gap-1.5 rounded-xl border border-border bg-surface p-4 text-left hover:border-border-strong hover:bg-hover"
-            >
-              <Icon className="text-accent-text" />
-              <span className="text-sm font-semibold">{title}</span>
-              <span className="text-[0.8125rem] leading-snug text-muted">
-                {detail}
-              </span>
-            </button>
-          ))}
+          {QUICK_ACTIONS.map(
+            ({ title, detail, prompt, draftTitle, Icon }, i) => (
+              <button
+                key={title}
+                style={{ "--d": `${160 + i * 70}ms` } as React.CSSProperties}
+                type="button"
+                onClick={() => onQuickAction(prompt, draftTitle)}
+                className="anim-rise ui-raised ui-card flex flex-col gap-1.5 rounded-xl border border-border bg-surface p-4 text-left hover:border-border-strong hover:bg-hover"
+              >
+                <Icon className="text-accent-text" />
+                <span className="text-sm font-semibold">{title}</span>
+                <span className="text-[0.8125rem] leading-snug text-muted">
+                  {detail}
+                </span>
+              </button>
+            ),
+          )}
         </div>
 
         {composer}

@@ -246,7 +246,9 @@ export const BookIcon = (p: IconProps) => (
   </Svg>
 );
 export const SparkIcon = (p: IconProps) => (
-  <Svg {...p}>
-    <path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5 18 18M18 6l-2.5 2.5M8.5 15.5 6 18" />
+  <Svg {...p} strokeWidth={1.8}>
+    {/* a large four-point sparkle with a small one beside it */}
+    <path d="M10.5 3c.7 5.2 2.1 6.6 7.3 7.3-5.2.7-6.6 2.1-7.3 7.3-.7-5.2-2.1-6.6-7.3-7.3C8.4 9.6 9.8 8.2 10.5 3z" />
+    <path d="M18.5 15.5c.3 2.1.9 2.7 3 3-2.1.3-2.7.9-3 3-.3-2.1-.9-2.7-3-3 2.1-.3 2.7-.9 3-3z" />
   </Svg>
 );

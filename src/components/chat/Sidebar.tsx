@@ -40,7 +40,7 @@ export default function Sidebar({
   return (
     <nav
       aria-label="Conversations"
-      className={`ui-panel w-[264px] shrink-0 flex-col gap-5 border-r border-border bg-surface px-4 py-5 ${className}`}
+      className={`ui-panel ui-shine w-[264px] shrink-0 flex-col gap-5 border-r border-border bg-surface px-4 py-5 ${className}`}
     >
       <div className="flex items-center gap-2.5 px-1">
         <Logo />

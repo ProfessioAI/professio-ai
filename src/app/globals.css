@@ -628,3 +628,156 @@ button:disabled {
 .markdown .md-note > div > * + * {
   margin-top: 0.4rem;
 }
+
+/* ---------- The orange shine on the outline of the main Glass panels ---------- */
+/* --shine is the angle of the bright spot. ScrollShine turns it as the page scrolls. */
+@property --shine {
+  syntax: "<angle>";
+  inherits: true;
+  initial-value: 40deg;
+}
+:root[data-style="glass"]:not([data-shine="off"]) .ui-shine {
+  position: relative;
+}
+:root[data-style="glass"]:not([data-shine="off"]) .ui-shine::after {
+  content: "";
+  position: absolute;
+  inset: -1.5px;
+  padding: 2px;
+  border-radius: inherit;
+  pointer-events: none;
+  /* A short bright arc with a soft tail, fading to nothing round the rest of the outline. */
+  background: conic-gradient(
+    from var(--shine),
+    transparent 0deg 170deg,
+    rgba(255, 138, 31, 0.2) 215deg,
+    rgba(255, 138, 31, 0.85) 290deg,
+    #ffc58a 330deg,
+    transparent 354deg
+  );
+  /* Show only the ring: the whole box minus its inside. */
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#000 0 0) content-box exclude,
+    linear-gradient(#000 0 0);
+  filter: drop-shadow(0 0 4px rgba(255, 138, 31, 0.45));
+  transition: opacity 0.4s;
+}
+
+/* ---------- Animations ---------- */
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes pop {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes grow-up {
+  from {
+    transform: scaleY(0);
+  }
+  to {
+    transform: scaleY(1);
+  }
+}
+@keyframes grow-right {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+/* Add --d (a delay) in a style attribute to stagger a row of them. */
+.anim-rise {
+  animation: rise 0.38s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  animation-delay: var(--d, 0ms);
+}
+.anim-pop {
+  animation: pop 0.26s cubic-bezier(0.2, 0.8, 0.3, 1.1) both;
+  animation-delay: var(--d, 0ms);
+}
+.anim-fade {
+  animation: fade 0.3s ease-out both;
+  animation-delay: var(--d, 0ms);
+}
+.anim-grow-up {
+  transform-origin: bottom;
+  animation: grow-up 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  animation-delay: var(--d, 0ms);
+}
+.anim-grow-right {
+  transform-origin: left;
+  animation: grow-right 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  animation-delay: var(--d, 0ms);
+}
+
+/* Buttons lift a little on hover and press in on click. */
+.ui-raised,
+.ui-primary {
+  transition:
+    transform 0.16s cubic-bezier(0.2, 0.8, 0.3, 1),
+    background-color 0.18s,
+    box-shadow 0.22s,
+    border-color 0.18s,
+    color 0.18s;
+}
+button.ui-raised:not(:disabled):hover,
+button.ui-primary:not(:disabled):hover {
+  transform: translateY(-1px);
+}
+button.ui-raised:not(:disabled):active,
+button.ui-primary:not(:disabled):active {
+  transform: translateY(0) scale(0.96);
+  transition-duration: 0.06s;
+}
+
+/* The children of a .stagger container rise in one after another. */
+.stagger > * {
+  animation: rise 0.42s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+.stagger > :nth-child(1) {
+  animation-delay: 0ms;
+}
+.stagger > :nth-child(2) {
+  animation-delay: 60ms;
+}
+.stagger > :nth-child(3) {
+  animation-delay: 120ms;
+}
+.stagger > :nth-child(4) {
+  animation-delay: 180ms;
+}
+.stagger > :nth-child(5) {
+  animation-delay: 240ms;
+}
+.stagger > :nth-child(6) {
+  animation-delay: 300ms;
+}
+.stagger > :nth-child(n + 7) {
+  animation-delay: 360ms;
+}

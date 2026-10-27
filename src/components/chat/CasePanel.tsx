@@ -278,74 +278,76 @@ export default function CasePanel({
   return (
     <aside
       aria-label="Notice details"
-      className={`ui-panel w-[300px] shrink-0 flex-col gap-6 overflow-y-auto border-l border-border bg-surface px-5 pt-6 pb-10 ${className}`}
+      className={`ui-panel ui-shine w-[300px] shrink-0 flex-col border-l border-border bg-surface ${className}`}
     >
-      <section>
-        <div className="flex items-start justify-between">
-          <SectionLabel>Notice</SectionLabel>
-          {onClose ? (
-            <button
-              type="button"
-              onClick={onClose}
-              aria-label="Close details"
-              className="-mt-2.5 -mr-2 flex size-10 items-center justify-center rounded-lg text-text-3 hover:bg-hover"
-            >
-              <CloseIcon />
-            </button>
-          ) : null}
-        </div>
-        <NoticeSection
-          details={details}
-          onRetry={onRetry}
-          autoRead={settings.autoReadNotice}
-          hasDocuments={documents.length > 0}
-          dateFormat={settings.dateFormat}
-        />
-      </section>
-
-      {respondBy ? (
-        <DeadlineSection
-          respondBy={respondBy}
-          noticeDate={noticeDate}
-          warnDays={settings.warnDays}
-        />
-      ) : null}
-
-      <section className="border-t border-border pt-5">
-        <SectionLabel>Documents</SectionLabel>
-        {documents.length ? (
-          <ul className="flex flex-col gap-2.5">
-            {documents.map((name) => (
-              <li key={name} className="flex items-center gap-2.5 text-sm">
-                <DocIcon size={18} className="shrink-0 text-text-3" />
-                <span className="truncate">{name}</span>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p className="text-[0.8125rem] text-muted">
-            No documents attached yet.
-          </p>
-        )}
-      </section>
-
-      <section className="border-t border-border pt-5">
-        <SectionLabel>Drafts</SectionLabel>
-        {drafts.length ? (
-          <div className="flex flex-col gap-2">
-            {drafts.map((d, i) => (
-              <DraftItem key={`${d.title}-${i}`} draft={d} />
-            ))}
+      <div className="stagger scroll-fade flex min-h-0 flex-1 flex-col gap-6 overflow-y-auto rounded-[inherit] px-5 pt-6 pb-10">
+        <section>
+          <div className="flex items-start justify-between">
+            <SectionLabel>Notice</SectionLabel>
+            {onClose ? (
+              <button
+                type="button"
+                onClick={onClose}
+                aria-label="Close details"
+                className="-mt-2.5 -mr-2 flex size-10 items-center justify-center rounded-lg text-text-3 hover:bg-hover"
+              >
+                <CloseIcon />
+              </button>
+            ) : null}
           </div>
-        ) : (
-          <div className="rounded-[10px] border border-dashed border-border-strong p-4 text-center text-[0.8125rem] text-muted">
-            Letters and checklists you draft will appear here.
-          </div>
-        )}
-      </section>
+          <NoticeSection
+            details={details}
+            onRetry={onRetry}
+            autoRead={settings.autoReadNotice}
+            hasDocuments={documents.length > 0}
+            dateFormat={settings.dateFormat}
+          />
+        </section>
 
-      <ScrubberSection vault={vault} />
-      <QualitySection onOpen={onOpenQuality} />
+        {respondBy ? (
+          <DeadlineSection
+            respondBy={respondBy}
+            noticeDate={noticeDate}
+            warnDays={settings.warnDays}
+          />
+        ) : null}
+
+        <section className="border-t border-border pt-5">
+          <SectionLabel>Documents</SectionLabel>
+          {documents.length ? (
+            <ul className="flex flex-col gap-2.5">
+              {documents.map((name) => (
+                <li key={name} className="flex items-center gap-2.5 text-sm">
+                  <DocIcon size={18} className="shrink-0 text-text-3" />
+                  <span className="truncate">{name}</span>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="text-[0.8125rem] text-muted">
+              No documents attached yet.
+            </p>
+          )}
+        </section>
+
+        <section className="border-t border-border pt-5">
+          <SectionLabel>Drafts</SectionLabel>
+          {drafts.length ? (
+            <div className="flex flex-col gap-2">
+              {drafts.map((d, i) => (
+                <DraftItem key={`${d.title}-${i}`} draft={d} />
+              ))}
+            </div>
+          ) : (
+            <div className="rounded-[10px] border border-dashed border-border-strong p-4 text-center text-[0.8125rem] text-muted">
+              Letters and checklists you draft will appear here.
+            </div>
+          )}
+        </section>
+
+        <ScrubberSection vault={vault} />
+        <QualitySection onOpen={onOpenQuality} />
+      </div>
     </aside>
   );
 }

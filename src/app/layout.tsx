@@ -5,6 +5,7 @@ import {
   Inter,
   Manrope,
 } from "next/font/google";
+import ScrollShine from "@/components/ScrollShine";
 import { SettingsProvider } from "@/components/settings/settings-store";
 import { SETTINGS_BOOTSTRAP } from "@/lib/settings-bootstrap";
 import "./globals.css";
@@ -60,7 +61,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <script dangerouslySetInnerHTML={{ __html: SETTINGS_BOOTSTRAP }} />
       </head>
       <body className="min-h-full">
-        <SettingsProvider>{children}</SettingsProvider>
+        <SettingsProvider>
+          <ScrollShine />
+          {children}
+        </SettingsProvider>
       </body>
     </html>
   );

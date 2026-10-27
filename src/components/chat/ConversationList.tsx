@@ -70,14 +70,14 @@ function DetailsDialog({
       <button
         type="button"
         aria-label="Close"
-        className="absolute inset-0 bg-black/45"
+        className="anim-fade absolute inset-0 bg-black/45"
         onClick={onClose}
       />
       <div
         role="dialog"
         aria-modal="true"
         aria-labelledby={`${uid}-h`}
-        className="ui-panel relative flex max-h-full w-full max-w-md flex-col gap-4 overflow-y-auto rounded-2xl border border-border bg-surface p-5 shadow-xl"
+        className="anim-pop ui-panel relative flex max-h-full w-full max-w-md flex-col gap-4 overflow-y-auto rounded-2xl border border-border bg-surface p-5 shadow-xl"
       >
         <h2 id={`${uid}-h`} className="text-base font-semibold">
           Conversation details
@@ -224,7 +224,7 @@ function Row({
   const { Icon } = CONVERSATION_ICONS[item.icon];
   return (
     <div
-      className={`group ui-pill flex items-center gap-1 rounded-lg ${
+      className={`anim-fade group ui-pill flex items-center gap-1 rounded-lg ${
         current ? "bg-accent-soft" : "hover:bg-hover"
       }`}
     >

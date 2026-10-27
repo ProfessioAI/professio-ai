@@ -602,7 +602,7 @@ export default function Chat() {
         ) : (
           <>
             <header
-              className={`ui-panel ui-header flex items-center gap-1 border-b border-border bg-surface px-2 py-3 sm:gap-3 lg:px-8 lg:py-4 ${
+              className={`ui-panel ui-header ui-shine flex items-center gap-1 border-b border-border bg-surface px-2 py-3 sm:gap-3 lg:px-8 lg:py-4 ${
                 empty ? "lg:hidden" : ""
               }`}
             >

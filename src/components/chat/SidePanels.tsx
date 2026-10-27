@@ -57,7 +57,7 @@ export function ScrubberSection({ vault }: { vault: VaultEntry[] }) {
 
   return (
     <section className="border-t border-border pt-5">
-      <SectionLabel>Privacy scrubber</SectionLabel>
+      <SectionLabel>Scrubber</SectionLabel>
       {!settings.scrubUploads ? (
         <p className="rounded-[10px] bg-warn-bg px-3 py-2.5 text-[0.8125rem] text-warn-fg">
           Off. Messages and files are sent to the AI as written. Turn it on in
@@ -134,7 +134,7 @@ export function QualitySection({ onOpen }: { onOpen: () => void }) {
 
   return (
     <section className="border-t border-border pt-5">
-      <SectionLabel>Answer quality</SectionLabel>
+      <SectionLabel>Quality</SectionLabel>
       <div className="flex flex-col gap-3">
         {data.suites.map((s) => {
           const latest = s.runs[s.runs.length - 1];
@@ -154,7 +154,7 @@ export function QualitySection({ onOpen }: { onOpen: () => void }) {
                 aria-hidden="true"
               >
                 <div
-                  className={`h-full ${ok ? "bg-accent" : "bg-bar-warn"}`}
+                  className={`anim-grow-right h-full ${ok ? "bg-accent" : "bg-bar-warn"}`}
                   style={{ width: `${Math.min(100, latest.rate)}%` }}
                 />
               </div>

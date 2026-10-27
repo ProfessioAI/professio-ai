@@ -5,7 +5,7 @@ import Quality from "./Quality";
 /** The Quality page: how well the assistant answers the fictional test notices. */
 export default function QualityView({ onBack }: { onBack: () => void }) {
   return (
-    <div className="flex min-h-0 flex-1 flex-col">
+    <div className="anim-fade flex min-h-0 flex-1 flex-col">
       <header className="ui-panel ui-header flex items-center gap-3 border-b border-border bg-surface px-3 py-3 sm:px-8 sm:py-4">
         <button
           type="button"

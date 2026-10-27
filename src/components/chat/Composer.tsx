@@ -95,12 +95,12 @@ export default function Composer({
       {notice ? (
         <p
           role="alert"
-          className="rounded-lg bg-error-bg px-3 py-2 text-sm text-error-fg"
+          className="anim-rise rounded-lg bg-error-bg px-3 py-2 text-sm text-error-fg"
         >
           {notice}
         </p>
       ) : null}
-      <div className="ui-panel flex flex-col gap-2 rounded-[14px] border border-border-strong bg-surface py-2.5 pr-3 pl-4 shadow-[0_1px_2px_rgba(16,24,40,0.05),0_4px_12px_rgba(16,24,40,0.04)] focus-within:border-accent-text">
+      <div className="ui-panel ui-shine flex flex-col gap-2 rounded-[14px] border border-border-strong bg-surface py-2.5 pr-3 pl-4 shadow-[0_1px_2px_rgba(16,24,40,0.05),0_4px_12px_rgba(16,24,40,0.04)] focus-within:border-accent-text">
         {files.length ? (
           <div className="flex flex-wrap gap-2 pt-1">
             {files.map((f, i) => (
@@ -162,15 +162,15 @@ export default function Composer({
               aria-haspopup="menu"
               aria-expanded={menuOpen}
               title="Skills"
-              className="ui-raised ui-pill flex size-10 items-center justify-center rounded-lg text-text-3 hover:bg-hover disabled:opacity-40"
+              className="ui-raised ui-pill flex size-10 items-center justify-center rounded-lg text-accent-text hover:bg-hover disabled:opacity-40"
             >
-              <SparkIcon />
+              <SparkIcon size={21} />
             </button>
             {menuOpen ? (
               <div
                 role="menu"
                 aria-label="Skills"
-                className="absolute bottom-12 left-0 z-20 flex w-72 flex-col gap-0.5 rounded-xl border border-border-strong bg-background p-1.5 shadow-xl"
+                className="anim-pop absolute bottom-12 left-0 z-20 flex w-72 flex-col gap-0.5 rounded-xl border border-border-strong bg-background p-1.5 shadow-xl"
               >
                 <div className="px-2.5 pt-1.5 pb-1 text-xs text-muted">
                   The assistant picks skills on its own. Choose one to make sure
@@ -214,7 +214,7 @@ export default function Composer({
             ) : null}
           </div>
           {skill && PickedIcon ? (
-            <span className="flex items-center gap-1.5 rounded-full bg-accent-soft py-1 pr-1 pl-2.5 text-[0.8125rem] font-medium text-accent-text">
+            <span className="anim-pop flex items-center gap-1.5 rounded-full bg-accent-soft py-1 pr-1 pl-2.5 text-[0.8125rem] font-medium text-accent-text">
               <PickedIcon size={14} />
               {SKILLS.find((s) => s.id === skill)?.name}
               <button

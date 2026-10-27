@@ -52,7 +52,8 @@ function SkillsRow({ uses }: { uses: SkillUse[] }) {
           return (
             <li
               key={`${u.id}-${i}`}
-              className="ui-inset ui-pill flex max-w-full flex-col gap-1 rounded-[10px] border border-border bg-surface py-1.5 pr-3 pl-2.5 text-[0.8125rem] text-text-2"
+              style={{ "--d": `${i * 80}ms` } as React.CSSProperties}
+              className="anim-pop ui-inset ui-pill flex max-w-full flex-col gap-1 rounded-[10px] border border-border bg-surface py-1.5 pr-3 pl-2.5 text-[0.8125rem] text-text-2"
             >
               <span className="flex items-center gap-2">
                 <Icon size={15} className="shrink-0 text-accent-text" />
@@ -85,7 +86,7 @@ function SkillsRow({ uses }: { uses: SkillUse[] }) {
 
 export function UserMessage({ message }: { message: UIMessage }) {
   return (
-    <div className="flex flex-col items-end gap-2">
+    <div className="anim-rise flex flex-col items-end gap-2">
       {message.attachments?.map((a, i) => (
         <div
           key={`${a.name}-${i}`}
@@ -169,7 +170,7 @@ export function AssistantMessage({
     <>
       <article
         aria-label="ProfessioAI response"
-        className="ui-panel ui-reply flex flex-col gap-3 sm:flex-row sm:gap-3.5"
+        className="anim-rise ui-panel ui-reply flex flex-col gap-3 sm:flex-row sm:gap-3.5"
       >
         <span className="text-[0.8125rem] font-semibold sm:hidden">
           ProfessioAI
