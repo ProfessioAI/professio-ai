@@ -1,6 +1,6 @@
 {
   "name": "professio-ai",
-  "version": "0.1.0",
+  "version": "0.6.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint",
     "check:samples": "node scripts/check-samples.mjs",
-    "grade": "node scripts/grade.mjs"
+    "grade": "node scripts/grade.mjs",
+    "release": "node scripts/release.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^1.3.0",

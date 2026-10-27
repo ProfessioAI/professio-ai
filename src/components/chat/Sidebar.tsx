@@ -1,4 +1,4 @@
-import { PILOT_NAME } from "@/lib/config";
+import { APP_VERSION, PILOT_NAME } from "@/lib/config";
 import { initials } from "@/lib/settings";
 import { useSettings } from "@/components/settings/settings-store";
 import ConversationList from "./ConversationList";
@@ -43,10 +43,10 @@ export default function Sidebar({
           ProfessioAI
         </span>
         <span
-          title={`Pilot: ${PILOT_NAME}`}
+          title={`Pilot: ${PILOT_NAME} · version ${APP_VERSION}`}
           className="ml-auto rounded-full bg-pill-bg px-2 py-0.5 text-[0.6875rem] font-semibold text-pill-fg"
         >
-          Pilot
+          Pilot v{APP_VERSION}
         </span>
         {onClose ? (
           <button

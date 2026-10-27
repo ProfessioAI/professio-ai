@@ -1,7 +1,7 @@
 "use client";
 
 import { useId, useState } from "react";
-import { PILOT_NAME } from "@/lib/config";
+import { APP_VERSION, PILOT_NAME } from "@/lib/config";
 import { modelInfo } from "@/lib/models";
 import {
   DEFAULT_SETTINGS,
@@ -672,6 +672,10 @@ function About({
           <div className="flex justify-between gap-4 border-b border-border py-2.5">
             <dt className="text-text-3">Pilot</dt>
             <dd className="font-medium">{PILOT_NAME}</dd>
+          </div>
+          <div className="flex justify-between gap-4 border-b border-border py-2.5">
+            <dt className="text-text-3">Version</dt>
+            <dd className="font-medium tabular-nums">{APP_VERSION}</dd>
           </div>
           <div className="flex items-center justify-between gap-4 border-b border-border py-2.5">
             <dt className="text-text-3">LLM model</dt>
