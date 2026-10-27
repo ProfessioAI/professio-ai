@@ -94,6 +94,10 @@ suggest confirming the notice is genuine. The system prompt now asks for that, a
       security plan (see IRS Pub 4557); the app must fit into customers' plans
 - [ ] Data retention: confirm current AI provider terms, consider zero data
       retention, and review our own database, logs, and file storage
+- [ ] **TaxWise access**: check the Wolters Kluwer license and terms for automated access, and ask
+      what import/export or partner integration they offer (we know of no public API)
+- [ ] **Sending return data to an AI vendor**: confirm whether §7216 needs client consent or an
+      exception covers it, and what a consent form should say
 - [ ] Final disclaimer wording
 - [ ] Consult an attorney familiar with tax practice
 
@@ -114,6 +118,10 @@ Needed before any real client file reaches the AI model or storage.
 
 - [ ] Detection for SSN/ITIN, EIN, names, addresses, DOB, phone, email, and
       bank/routing numbers
+- [ ] Run Presidio (open source) on our own servers, with custom detectors for tax IDs, EINs,
+      and notice and account numbers
+- [ ] Tokenization: replace each identifier with a token (`[SSN_1]`) before the AI sees a file, keep
+      the real values in a protected local vault, and swap them back in only at data entry
 - [ ] Scrub runs on every upload and email attachment before anything reaches the AI
       model or storage
 - [ ] Fail closed: low-confidence or unreadable files are held for human review instead
@@ -124,7 +132,26 @@ Needed before any real client file reaches the AI model or storage.
 - [ ] Per-file scrub report and audit trail
 - [ ] Re-run scrub checks after every change to the detection rules
 
-### Phase 8: Email linking
+### Phase 8: Prior-year rebuild
+For when another preparer filed last year and the records are scattered or incomplete. Read-only
+first: it needs no TaxWise link. Fictional returns only until Phases 5 and 7 are done.
+- [ ] Fictional 2024 returns with deliberately missing or conflicting pieces, and a grading
+      checklist for each (same approach as the notice test set)
+- [ ] Read a filed return (PDF) into a structured profile, with the page and line behind every value
+- [ ] IRS transcript support: Return, Account, and Wage & Income transcripts, with the
+      authorization steps (Forms 8821 and 2848) laid out for the preparer
+- [ ] Carryover schedule: capital losses, depreciation and basis, passive and net operating
+      loss carryforwards, nondeductible IRA basis, charitable carryovers, overpayment applied,
+      state carryovers
+- [ ] Gap and conflict report: documents missing against the return and the transcripts, and
+      where they disagree
+- [ ] Draft client email requesting the missing items
+- [ ] Unknowns stay marked `[CONFIRM]` for the preparer; nothing is guessed
+- [ ] Flag a prior return that looks wrong, so the preparer can decide about amending
+- [ ] Extraction accuracy added to the automated grading from Phase 3
+- [ ] Export a worksheet or import file the preparer loads into TaxWise (before any agent entry)
+
+### Phase 9: Email linking
 
 - [ ] Connect a mailbox through secure sign-in (OAuth)
 - [ ] Agent checks the inbox and pulls in attachments, scrubbed on arrival
@@ -134,7 +161,7 @@ Needed before any real client file reaches the AI model or storage.
 - [ ] Sender allow-list and client matching
 - [ ] Audit log of every email read, sent, and attached
 
-### Phase 9: TaxWise data entry agent
+### Phase 10: TaxWise data entry agent
 
 - [ ] Sandboxed computer environment where the agent controls keyboard and mouse in
       TaxWise
@@ -147,7 +174,7 @@ Needed before any real client file reaches the AI model or storage.
 - [ ] Emergency stop and permission limits
 - [ ] Accuracy scoring added to the automated grading from Phase 3
 
-### Phase 10: Skill trees and client-approved datasets
+### Phase 11: Skill trees and client-approved datasets
 
 - [ ] Documented skill tree format (skills, sub-skills, examples, grading checklists)
 - [ ] Skill trees for IRS notices and the other first document types
@@ -165,11 +192,12 @@ Phases are numbered by topic, not strictly by order. Suggested order:
 
 1. Phases 2 and 3 (test data and grading): cheap, and they make every later change measurable.
 2. Phase 5 (legal and privacy review): start the attorney conversation early, in
-   parallel with building, because it can take weeks and shapes Phases 8 to 10.
+   parallel with building, because it can take weeks and shapes Phases 8 to 11.
 3. Phase 4 (accounts and storage).
 4. Phase 7 (data scrubbing), **before any pilot that touches real client files**.
 5. Phase 6 (pricing, billing, and pilot).
-6. Phases 8, 9, and 10, each gated on Phases 5 and 7.
+6. Phase 8 (prior-year rebuild) can start read-only on fictional returns as soon as Phase 3 is
+   solid. Phases 9, 10, and 11 are each gated on Phases 5 and 7.
 
 ## Deferred for now
 
