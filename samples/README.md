@@ -21,22 +21,22 @@ Run `npm run check:samples` to check these rules automatically.
 [irs-notices/](irs-notices) holds 14 documents. The answer key is
 [irs-notices/cases.json](irs-notices/cases.json).
 
-| Document | Notice | What it tests |
-|---|---|---|
-| `cp2000-fictional.txt` | CP2000 | Baseline underreported income; deadline on a Saturday |
-| `cp2000-stock-basis.txt` | CP2000 | Missing cost basis on a stock sale |
-| `cp2501-no-response-date.txt` | CP2501 | No response date printed; must not invent one |
-| `cp14-balance-due.txt` | CP14 | Plain balance due, asked for as a client email |
-| `cp14-embedded-instructions.txt` | CP14 | Text aimed at an AI; must not be obeyed |
-| `cp503-totals-mismatch.txt` | CP503 | Amounts don't add up ($10.00 off) |
-| `cp504-intent-to-levy.pdf` | CP504 | PDF reading; urgent collection notice |
-| `lt11-full-fake-ssn.txt` | LT11 | Hearing deadline; full SSN must not be repeated |
-| `cp11-math-error-balance-due.txt` | CP11 | Two different dates on one notice |
-| `cp12-refund-reduced.txt` | CP12 | Reduced refund, not a bill |
-| `letter525-exam-proposal.txt` | Letter 525 | Audit proposal with three paths |
-| `cp3219a-notice-of-deficiency.txt` | CP3219A | Tax Court deadline that can't be extended |
-| `cp9999-unknown-code.txt` | CP9999 (invented) | Unknown code; no reference entry |
-| `not-a-notice-client-email.txt` | none | Not an IRS notice at all |
+| Document                           | Notice            | What it tests                                         |
+| ---------------------------------- | ----------------- | ----------------------------------------------------- |
+| `cp2000-fictional.txt`             | CP2000            | Baseline underreported income; deadline on a Saturday |
+| `cp2000-stock-basis.txt`           | CP2000            | Missing cost basis on a stock sale                    |
+| `cp2501-no-response-date.txt`      | CP2501            | No response date printed; must not invent one         |
+| `cp14-balance-due.txt`             | CP14              | Plain balance due, asked for as a client email        |
+| `cp14-embedded-instructions.txt`   | CP14              | Text aimed at an AI; must not be obeyed               |
+| `cp503-totals-mismatch.txt`        | CP503             | Amounts don't add up ($10.00 off)                     |
+| `cp504-intent-to-levy.pdf`         | CP504             | PDF reading; urgent collection notice                 |
+| `lt11-full-fake-ssn.txt`           | LT11              | Hearing deadline; full SSN must not be repeated       |
+| `cp11-math-error-balance-due.txt`  | CP11              | Two different dates on one notice                     |
+| `cp12-refund-reduced.txt`          | CP12              | Reduced refund, not a bill                            |
+| `letter525-exam-proposal.txt`      | Letter 525        | Audit proposal with three paths                       |
+| `cp3219a-notice-of-deficiency.txt` | CP3219A           | Tax Court deadline that can't be extended             |
+| `cp9999-unknown-code.txt`          | CP9999 (invented) | Unknown code; no reference entry                      |
+| `not-a-notice-client-email.txt`    | none              | Not an IRS notice at all                              |
 
 ## How to use them
 
@@ -47,7 +47,9 @@ Run `npm run check:samples` to check these rules automatically.
 document and question through the app, compares the case panel's details with `expected`,
 and has an AI grader mark each check true or false. It prints what failed and saves the full
 results in `grading-results/` (not committed). Options: `-- --only <case-id>`,
-`-- --model <model-id>` (which model answers), `-- --grader <model-id>`. A full run costs
+`-- --model <model-id>` (which model answers), `-- --grader <model-id>`, `-- --min <percent>`
+(threshold, default 95), `-- --save-baseline` (record a good full run). `npm run grade:if-needed`
+runs it only when something that affects answers has changed since the baseline. A full run costs
 about $1 with the default model. The AI grader is imperfect, so read a failure's reason
 before trusting it.
 

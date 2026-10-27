@@ -10,13 +10,18 @@
 //   npm run grade -- --only cp9999-unknown-code
 //   npm run grade -- --model claude-haiku-5-5
 //   npm run grade -- --grader claude-sonnet-5-5 --base http://localhost:3000
+//   npm run grade -- --min 90           change the pass-rate threshold (default 95, in percent)
+//   npm run grade -- --save-baseline    after a good full run, record it as the new baseline
+// A full run fails (exit code 1) when the pass rate is under the threshold, or when a case that
+// was clean in the saved baseline (samples/irs-notices/grading-baseline.json) now fails twice.
 // Results are also written to grading-results/ (not committed).
-// Needs ANTHROPIC_API_KEY (from .env.local) for the grader. Costs real money: a full run is a
-// few dollars on the default model. Exit code 1 means a failure, so it can gate a change.
+// Needs ANTHROPIC_API_KEY (from .env.local) for the grader. Costs real money: a full run is
+// about $1 on the default model.
 
 import Anthropic from "@anthropic-ai/sdk";
 import { betaZodOutputFormat } from "@anthropic-ai/sdk/helpers/beta/zod";
-import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { execFileSync } from "node:child_process";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { z } from "zod";
@@ -35,6 +40,9 @@ const model = opt("model", undefined); // undefined: the app's default
 const graderModel = opt("grader", "claude-sonnet-5-5");
 const only = opt("only", undefined);
 const concurrency = Number(opt("concurrency", "3"));
+const minPercent = Number(opt("min", "95"));
+const saveBaseline = args.includes("--save-baseline");
+const baselinePath = path.join(dir, "grading-baseline.json");
 
 // --- API key from .env.local --------------------------------------------------
 if (!process.env.ANTHROPIC_API_KEY) {
@@ -82,6 +90,8 @@ async function post(route, body) {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
+    // A stuck request shouldn't hang the whole run.
+    signal: AbortSignal.timeout(300_000),
   });
   return res;
 }
@@ -130,6 +140,7 @@ async function readAnswer(res) {
 const Verdict = z.object({
   checks: z.array(
     z.object({
+      n: z.number().describe("The number of the check, as listed."),
       pass: z.boolean().describe("True if the answer satisfies the check."),
       reason: z
         .string()
@@ -138,6 +149,7 @@ const Verdict = z.object({
   ),
   mustNot: z.array(
     z.object({
+      n: z.number().describe("The number of the item, as listed."),
       violated: z
         .boolean()
         .describe("True if the answer does the forbidden thing."),
@@ -148,7 +160,7 @@ const Verdict = z.object({
   ),
 });
 
-const anthropic = new Anthropic();
+const anthropic = new Anthropic({ timeout: 180_000, maxRetries: 2 });
 
 async function grade(c, attachment, answer) {
   const checks = [...c.checks, ...key.globalChecks];
@@ -189,25 +201,36 @@ async function grade(c, attachment, answer) {
             doc,
             {
               type: "text",
-              text: `QUESTION ASKED:\n${c.prompt}\n\nANSWER TO GRADE:\n<answer>\n${answer}\n</answer>\n\nCHECKS (return exactly ${checks.length} results, one per check, in order):\n${list(checks)}\n\nMUST NOT (return exactly ${mustNot.length} results, one per item, in order; violated=true if the answer does it):\n${list(mustNot)}`,
+              text: `QUESTION ASKED:\n${c.prompt}\n\nANSWER TO GRADE:\n<answer>\n${answer}\n</answer>\n\nCHECKS (return exactly ${checks.length} results, numbered 1 to ${checks.length}):\n${list(checks)}\n\nMUST NOT (return exactly ${mustNot.length} results, numbered 1 to ${mustNot.length}; violated=true if the answer does it):\n${list(mustNot)}`,
             },
           ],
         },
       ],
     });
     const out = res.parsed_output;
-    // The grader occasionally returns the wrong number of results; ask again.
-    if (
-      out &&
-      out.checks.length === checks.length &&
-      out.mustNot.length === mustNot.length
-    )
-      v = out;
+    // Match results to items by number. The grader occasionally skips or repeats one; ask again.
+    const byNumber = (items, count) => {
+      const map = new Map(items.map((x) => [x.n, x]));
+      return Array.from({ length: count }, (_, i) => map.get(i + 1));
+    };
+    if (out) {
+      const c = byNumber(out.checks, checks.length);
+      const m = byNumber(out.mustNot, mustNot.length);
+      if (c.every(Boolean) && m.every(Boolean)) v = { checks: c, mustNot: m };
+    }
   }
-  if (!v) throw new Error("The grader returned the wrong number of results.");
+  if (!v) throw new Error("The grader's results didn't match the checklist.");
   return {
-    checks: checks.map((text, i) => ({ text, ...v.checks[i] })),
-    mustNot: mustNot.map((text, i) => ({ text, ...v.mustNot[i] })),
+    checks: checks.map((text, i) => ({
+      text,
+      pass: v.checks[i].pass,
+      reason: v.checks[i].reason,
+    })),
+    mustNot: mustNot.map((text, i) => ({
+      text,
+      violated: v.mustNot[i].violated,
+      reason: v.mustNot[i].reason,
+    })),
   };
 }
 
@@ -271,30 +294,72 @@ try {
   process.exit(2);
 }
 
+const isClean = (r) =>
+  !r.error &&
+  r.details.ok &&
+  r.checks.every((x) => x.pass) &&
+  r.mustNot.every((x) => !x.violated);
+
 console.log(
   `Grading ${cases.length} case${cases.length === 1 ? "" : "s"} · answers by ${model ?? "the app's default model"} · grader ${graderModel}\n`,
 );
-const results = new Array(cases.length);
-let next = 0;
-await Promise.all(
-  Array.from({ length: Math.min(concurrency, cases.length) }, async () => {
-    while (next < cases.length) {
-      const i = next++;
-      results[i] = await runCase(cases[i]);
-      const r = results[i];
-      const bad =
-        r.checks.filter((x) => !x.pass).length +
-        r.mustNot.filter((x) => x.violated).length;
-      console.log(
-        r.error
-          ? `  ERROR  ${r.id}: ${r.error}`
-          : `  ${bad === 0 && r.details.ok ? "pass " : "FAIL "} ${r.id}`,
-      );
+
+/** Runs the cases, a few at a time, and prints one line per case as each finishes. */
+async function runAll(list) {
+  const out = new Array(list.length);
+  let next = 0;
+  await Promise.all(
+    Array.from({ length: Math.min(concurrency, list.length) }, async () => {
+      while (next < list.length) {
+        const i = next++;
+        out[i] = await runCase(list[i]);
+        const r = out[i];
+        console.log(
+          r.error
+            ? `  ERROR  ${r.id}: ${r.error}`
+            : `  ${isClean(r) ? "pass " : "FAIL "} ${r.id}`,
+        );
+      }
+    }),
+  );
+  return out;
+}
+
+const results = await runAll(cases);
+
+// --- compare with the saved baseline ---------------------------------------------------
+const baseline =
+  existsSync(baselinePath) && !only
+    ? JSON.parse(readFileSync(baselinePath, "utf8"))
+    : null;
+const regressions = [];
+const noise = [];
+if (baseline) {
+  const wasClean = new Set(baseline.cleanCases);
+  const suspects = results.filter((r) => wasClean.has(r.id) && !isClean(r));
+  if (suspects.length) {
+    // The AI grader is a little noisy, so a regression has to happen twice to count.
+    console.log(
+      `\nChecking ${suspects.length} case${suspects.length === 1 ? "" : "s"} that were clean in the baseline, once more…`,
+    );
+    const again = await runAll(
+      cases.filter((c) => suspects.some((s) => s.id === c.id)),
+    );
+    for (const r of again) {
+      const at = results.findIndex((x) => x.id === r.id);
+      if (isClean(r)) {
+        results[at] = { ...r, cost: r.cost + results[at].cost };
+        noise.push(r.id);
+      } else {
+        results[at] = { ...r, cost: r.cost + results[at].cost };
+        regressions.push(r.id);
+      }
     }
-  }),
-);
+  }
+}
 
 // --- report ---------------------------------------------------------------------------
+const globalCount = key.globalChecks.length + key.globalMustNot.length;
 let totalChecks = 0;
 let passedChecks = 0;
 let casesFailing = 0;
@@ -303,7 +368,12 @@ console.log("");
 for (const r of results) {
   cost += r.cost;
   const failed = [];
-  if (r.error) failed.push(`error: ${r.error}`);
+  if (r.error) {
+    failed.push(`error: ${r.error}`);
+    // A case that couldn't be graded counts every one of its checks as missed.
+    const c = cases.find((x) => x.id === r.id);
+    totalChecks += c.checks.length + c.mustNot.length + globalCount + 1;
+  }
   for (const p of r.details.problems) failed.push(`case panel – ${p}`);
   for (const x of r.checks) {
     totalChecks++;
@@ -315,24 +385,28 @@ for (const r of results) {
     if (!x.violated) passedChecks++;
     else failed.push(`MUST NOT – ${x.text}\n        ↳ ${x.reason}`);
   }
-  if (!r.details.ok && !r.error) {
+  if (!r.error) {
     totalChecks++; // the case panel counts as one check
-  } else if (!r.error) {
-    totalChecks++;
-    passedChecks++;
+    if (r.details.ok) passedChecks++;
   }
   if (failed.length) {
     casesFailing++;
-    console.log(`${r.id}`);
+    console.log(`${r.id}${regressions.includes(r.id) ? "  (REGRESSION)" : ""}`);
     for (const f of failed) console.log(`    - ${f}`);
   }
 }
-const pct = totalChecks
-  ? ((passedChecks / totalChecks) * 100).toFixed(1)
-  : "0.0";
+const rate = totalChecks ? (passedChecks / totalChecks) * 100 : 0;
 console.log(
-  `\n${passedChecks}/${totalChecks} checks passed (${pct}%) · ${cases.length - casesFailing}/${cases.length} cases clean · about $${cost.toFixed(2)} for the answers and case panel`,
+  `\n${passedChecks}/${totalChecks} checks passed (${rate.toFixed(1)}%) · ${cases.length - casesFailing}/${cases.length} cases clean · about $${cost.toFixed(2)} for the answers and case panel`,
 );
+if (noise.length)
+  console.log(
+    `Passed on the second try (grader noise, not counted): ${noise.join(", ")}`,
+  );
+if (baseline)
+  console.log(
+    `Baseline: ${baseline.passRate.toFixed(1)}% from ${baseline.savedAt.slice(0, 10)} · ${regressions.length} regression${regressions.length === 1 ? "" : "s"}`,
+  );
 
 mkdirSync(path.join(root, "grading-results"), { recursive: true });
 const file = path.join(
@@ -355,4 +429,54 @@ writeFileSync(
   ),
 );
 console.log(`Full results: ${path.relative(root, file)}`);
-process.exit(casesFailing === 0 ? 0 : 1);
+
+// --- verdict ----------------------------------------------------------------------------
+if (saveBaseline) {
+  if (only) {
+    console.error("Not saving a baseline from a single-case run.");
+  } else {
+    let commit = "unknown";
+    try {
+      commit = execFileSync("git", ["rev-parse", "--short", "HEAD"], {
+        cwd: root,
+      })
+        .toString()
+        .trim();
+    } catch {
+      /* not a git checkout */
+    }
+    writeFileSync(
+      baselinePath,
+      JSON.stringify(
+        {
+          savedAt: new Date().toISOString(),
+          commit,
+          model: model ?? "default",
+          graderModel,
+          passRate: Math.round(rate * 10) / 10,
+          cleanCases: results.filter(isClean).map((r) => r.id),
+        },
+        null,
+        2,
+      ) + "\n",
+    );
+    console.log(`Saved a new baseline: ${path.relative(root, baselinePath)}`);
+  }
+}
+
+const underThreshold = !only && rate < minPercent;
+if (underThreshold)
+  console.log(
+    `\nFAILED: pass rate ${rate.toFixed(1)}% is under the ${minPercent}% threshold.`,
+  );
+if (regressions.length)
+  console.log(
+    `\nFAILED: cases that were clean before now fail: ${regressions.join(", ")}.`,
+  );
+if (!underThreshold && !regressions.length)
+  console.log(
+    only
+      ? "\nSingle-case run: no threshold applied."
+      : `\nOK: at or above the ${minPercent}% threshold, no regressions.`,
+  );
+process.exit(underThreshold || regressions.length ? 1 : 0);

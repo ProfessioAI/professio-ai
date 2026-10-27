@@ -5,6 +5,12 @@ a new feature or a visible redesign bumps the middle number (0.7.0), a notable f
 the last (0.6.1), and 1.0.0 is the first release for real customers.
 Run `npm run release -- minor "What changed"` to bump it and add an entry here.
 
+## [0.7.0] - 2026-10-27
+
+- Phase 3 done: grading has a 95% pass threshold, a saved baseline with regression checks, and a grade-if-needed command.
+- Quality tab in Settings shows the grading score, a chart over time, and what each test notice missed.
+- Client emails are now short and use [Client name] and [Your name] placeholders.
+
 ## [0.6.0] - 2026-10-26
 
 - Saved conversations: kept in the browser, with folders, icons, renamable titles, and descriptions.

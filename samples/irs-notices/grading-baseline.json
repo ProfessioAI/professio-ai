@@ -1,0 +1,23 @@
+{
+  "savedAt": "2026-10-27T04:26:05.790Z",
+  "commit": "27d1e1e",
+  "model": "default",
+  "graderModel": "claude-sonnet-5-5",
+  "passRate": 100.0,
+  "cleanCases": [
+    "cp2000-underreported",
+    "cp2000-stock-basis",
+    "cp2501-no-response-date",
+    "cp14-balance-due",
+    "cp14-embedded-instructions",
+    "cp503-totals-mismatch",
+    "cp504-intent-to-levy",
+    "lt11-full-fake-ssn",
+    "cp11-math-error-balance-due",
+    "cp12-refund-reduced",
+    "letter525-exam-proposal",
+    "cp3219a-notice-of-deficiency",
+    "cp9999-unknown-code",
+    "not-a-notice-client-email"
+  ]
+}

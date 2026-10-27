@@ -22,7 +22,7 @@ Core pieces:
 - [x] README and .gitignore
 - [x] Phase 1: Working chat app
 - [x] Phase 2: Test data
-- [ ] Phase 3: Automated grading (runner built, thresholds and CI still to do)
+- [x] Phase 3: Automated grading
 
 ## Phases
 
@@ -65,10 +65,16 @@ suggest confirming the notice is genuine. The system prompt now asks for that, a
 ### Phase 3: Automated grading
 
 - [x] One command (`npm run grade`) runs every test document through the app and scores the
-      answers against its checklist (first full run: 96.7% of checks, was 88.4% before the
-      prompt fixes)
-- [ ] Run it after every prompt or code change to catch regressions (manual for now; a
-      pass-rate threshold and CI run are still to do)
+      answers against its checklist (first run 88.4% of checks; now about 99%)
+- [x] Pass-rate threshold (95%) and a saved baseline: a case that was clean and fails twice is a
+      regression and fails the run. The grader is a little noisy, so one miss is re-run first
+- [x] `npm run grade:if-needed` runs the grader only when the prompt, tools, API routes, models, or
+      test notices changed since the baseline. It is a rule for the assistant in `AGENTS.md`
+- [x] Client-email weakness found by the grader fixed in the system prompt
+- [x] Quality tab in Settings: latest pass rate, a chart of past runs, and each test notice with what it
+      missed (reads the saved results, so it shows on the computer where the grader was run)
+- Not done on purpose: running it automatically on GitHub. A run costs about $1 and needs the API
+  key stored as a GitHub secret, so that is a choice to make with the pilot's budget
 
 ### Phase 4: Accounts and storage
 
@@ -133,8 +139,10 @@ Needed before any real client file reaches the AI model or storage.
 - [ ] Re-run scrub checks after every change to the detection rules
 
 ### Phase 8: Prior-year rebuild
+
 For when another preparer filed last year and the records are scattered or incomplete. Read-only
 first: it needs no TaxWise link. Fictional returns only until Phases 5 and 7 are done.
+
 - [ ] Fictional 2024 returns with deliberately missing or conflicting pieces, and a grading
       checklist for each (same approach as the notice test set)
 - [ ] Read a filed return (PDF) into a structured profile, with the page and line behind every value

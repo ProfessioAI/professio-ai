@@ -14,3 +14,10 @@ Every major change (a new feature, a visible redesign, a roadmap item finished) 
 bump and a CHANGELOG entry in the same commit: run `npm run release -- minor "What changed"`
 (use `patch` for a notable fix; `major` is reserved for the first customer release). The number
 shows in the sidebar badge and Settings > About. Small tweaks don't need a bump.
+
+## Grading
+
+After changing the system prompt, tools, API routes, models, or the test notices, run
+`npm run grade:if-needed` (the app must be running). It runs the full grader only when one of
+those changed since the saved baseline, fails under 95% or on a regression, and costs about $1.
+Save a new baseline with `npm run grade -- --save-baseline` after a good run that you intend to keep.
