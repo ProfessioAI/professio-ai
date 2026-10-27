@@ -1,6 +1,7 @@
 import type { Attachment, ChatMessage } from "@/lib/chat-types";
 import { MAX_FILE_BYTES } from "@/lib/chat-types";
 import type { ExportFormat } from "@/lib/settings";
+import type { ScrubbedMessage } from "@/lib/scrub-client";
 
 /**
  * A chat message plus what only the page needs: tool activity, and for a
@@ -11,6 +12,8 @@ export type UIMessage = ChatMessage & {
   draftTitle?: string;
   /** Estimated cost of this reply in dollars (assistant messages). */
   costUsd?: number;
+  /** A user message as it was sent to the AI, with identifiers replaced by tokens. */
+  sent?: ScrubbedMessage;
 };
 
 export type Draft = { title: string; text: string };

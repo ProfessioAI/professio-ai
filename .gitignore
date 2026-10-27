@@ -38,3 +38,7 @@ next-env.d.ts
 *.pem
 .vercel
 grading-results/
+
+# Privacy scrubber (Python environment)
+/services/scrubber/.venv/
+/services/scrubber/__pycache__/

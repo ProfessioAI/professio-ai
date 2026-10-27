@@ -514,6 +514,18 @@ function Data({
 }) {
   return (
     <>
+      <Card title="Privacy scrubber">
+        <SettingRow
+          label="Hide client identifiers from the AI"
+          description="Before anything is sent, names, addresses, Social Security and employer ID numbers, bank details, birth dates, phone numbers, and emails are swapped for tokens like [SSN_1]. The real values stay in this browser and are put back when you read the answer. If the scrubber isn't running, nothing is sent. Needs `npm run scrubber`."
+        >
+          <Switch
+            label="Hide client identifiers from the AI"
+            checked={s.scrubUploads}
+            onChange={(scrubUploads) => set({ scrubUploads })}
+          />
+        </SettingRow>
+      </Card>
       <Card title="Saved conversations">
         <SettingRow
           label="Save conversations in this browser"

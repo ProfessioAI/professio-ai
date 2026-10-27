@@ -2,6 +2,7 @@
 
 import { useMemo, useSyncExternalStore } from "react";
 import type { NoticeDetails } from "./notice-types";
+import type { VaultEntry } from "./scrub-types";
 import type { UIMessage } from "@/components/chat/types";
 
 // Saved conversations live in this browser only. The small list (titles, descriptions, icons,
@@ -50,6 +51,8 @@ export type Library = { folders: Folder[]; items: LibraryItem[] };
 export type SavedBody = {
   messages: UIMessage[];
   details: NoticeDetails | null;
+  /** What each privacy token stands for. Kept only in this browser. */
+  vault?: VaultEntry[];
 };
 
 const EMPTY: Library = { folders: [], items: [] };

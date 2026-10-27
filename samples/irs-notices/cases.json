@@ -3,7 +3,7 @@
   "about": "Answer key for the fictional IRS notices in this folder. Each case names a document, the question to ask, the details the case panel should read from it, and checklists for the chat answer. Checks are plain English so an AI grader (or a person) can mark each one true or false.",
   "globalChecks": [
     "Treats its output as a draft for professional review (a short note is enough, not a long disclaimer).",
-    "Every dollar amount and date stated as a fact about this client's case comes from the document or is a plain calculation from it. General tax-law rules, thresholds, and time limits are fine, and so are calendar facts (the weekday of a date, a federal holiday) and target dates the answer suggests for the preparer's own work."
+    "Every dollar amount and date stated as a fact about this client's case comes from the document or is a plain calculation from it. General tax-law rules, thresholds, and time limits are fine, and so are calendar facts (the weekday of a date, a federal holiday) and target dates the answer suggests for the preparer's own work. Mentions of what the assistant's own notice-lookup reference tool returned are fine."
   ],
   "globalMustNot": [
     "Includes a full Social Security number or other full government ID number (the last four digits at most).",

@@ -82,6 +82,20 @@ Fictional or public data only so far.
       Fable 5.1); send key, scrolling, what to show, answer detail and tone; notice reading,
       details panel, deadline warning, date format; practice details; usage and export options
 
+### Phase 7: Data scrubbing and privacy (in progress)
+
+- [x] Presidio (open source) runs on this computer as a local service, with custom detectors for
+      Social Security and employer ID numbers (including the ranges Presidio rejects), bank
+      details, birth dates, addresses, mailing blocks, preparer IDs, phones, emails, and names
+- [x] Tokenization: each identifier becomes a token like `[SSN_1]` before the AI sees it; the vault
+      that maps tokens back stays in the browser, and answers are shown with the real values
+- [x] Runs on every message and upload; PDFs are converted to text first
+- [x] Fails closed: if the scrubber is down, or something looks like an ID number but isn't
+      certain, or a PDF has no text, nothing is sent
+- [x] Accuracy test set from fictional documents with fake SSNs (`npm run scrub:test`): nothing
+      leaks, no amount or date is scrubbed away, and the originals come back exactly
+- [x] The privacy switch in Settings, and a badge on each message showing what was hidden
+
 ### Phase 8: Prior-year rebuild (in progress)
 
 For when another preparer filed last year and the records are scattered or incomplete.

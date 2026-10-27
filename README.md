@@ -79,6 +79,17 @@ and ask for an explanation and a response plan.
   borders, soft backgrounds, and text on buttons are worked out from them, so a custom theme stays
   readable. The JSON format is `{"format": "professioai-theme", "version": 1, "name": "...",
 "light": {...}, "dark": {...}}`; missing colors are filled in from Classic or Glass.
+- **Privacy scrubber:** before anything is sent to the AI, your message and attached files go
+  through a scrubber that runs on this computer (`services/scrubber`, built on Microsoft's open-source
+  Presidio plus detectors for tax IDs). Names, addresses, Social Security and employer ID numbers,
+  bank details, birth dates, phones, emails, and preparer IDs become tokens like `[SSN_1]`. The
+  tokens stand for real values kept in a vault that never leaves the browser, and answers are shown
+  with the real values put back. PDFs are converted to text first. If the scrubber is down, or
+  isn't sure about something (a bare 9-digit number, a scanned PDF), nothing is sent. Turn it off in
+  Settings > Data & privacy for fictional test data. One-time setup: `npm run scrubber:setup`
+  (needs Python 3.12). Run it next to the app with `npm run scrubber`. Check it with
+  `npm run scrub:test` (free, no AI): it must leak no listed identifier, scrub away no dollar amount
+  or date, and put the originals back exactly.
 - **Prior-year rebuild:** `POST /api/prior-year` takes a filed return, an IRS transcript, and a list of
   documents received, and returns the figures (with page and line), the carryovers (only when a
   document states them), missing pages and documents, conflicts with the transcript, questions for

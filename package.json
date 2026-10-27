@@ -1,6 +1,6 @@
 {
   "name": "professio-ai",
-  "version": "0.8.0",
+  "version": "0.9.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -10,7 +10,10 @@
     "check:samples": "node scripts/check-samples.mjs && node scripts/check-samples.mjs samples/prior-year",
     "grade": "node scripts/grade.mjs",
     "release": "node scripts/release.mjs",
-    "grade:if-needed": "node scripts/grade-if-needed.mjs"
+    "grade:if-needed": "node scripts/grade-if-needed.mjs",
+    "scrubber": "services/scrubber/.venv/bin/python -m uvicorn server:app --host 127.0.0.1 --port 5002 --app-dir services/scrubber",
+    "scrubber:setup": "/usr/local/bin/python3.12 -m venv services/scrubber/.venv && services/scrubber/.venv/bin/pip install -r services/scrubber/requirements.txt && services/scrubber/.venv/bin/python -m spacy download en_core_web_sm",
+    "scrub:test": "node scripts/scrub-test.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^1.3.0",

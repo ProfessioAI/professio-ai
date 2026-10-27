@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   loadBody,
   makeConversationId,
@@ -11,6 +11,8 @@ import SettingsView from "@/components/settings/SettingsView";
 import QualityView from "./QualityView";
 import { useSettings } from "@/components/settings/settings-store";
 import { aiPreferences } from "@/lib/settings";
+import { scrubMessage } from "@/lib/scrub-client";
+import { rehydrate, type VaultEntry } from "@/lib/scrub-types";
 import type { Attachment, StreamEvent } from "@/lib/chat-types";
 import { MAX_FILES_PER_MESSAGE } from "@/lib/chat-types";
 import type { ExtractResponse, NoticeDetails } from "@/lib/notice-types";
@@ -39,6 +41,9 @@ const TOOL_STATUS: Record<string, string> = {
 
 export default function Chat() {
   const [messages, setMessages] = useState<UIMessage[]>([]);
+  // What each privacy token stands for. It stays in this browser and is never sent to the AI.
+  const [vault, setVault] = useState<VaultEntry[]>([]);
+  const vaultRef = useRef<VaultEntry[]>([]);
   const [input, setInput] = useState("");
   const [files, setFiles] = useState<Attachment[]>([]);
   const [busy, setBusy] = useState(false);
@@ -65,12 +70,25 @@ export default function Chat() {
     data: NoticeDetails | null;
   } | null>(null);
 
+  // The conversation as the preparer reads it: tokens in the AI's answers put back to real values.
+  const shown = useMemo(
+    () =>
+      vault.length
+        ? messages.map((m) =>
+            m.role === "assistant"
+              ? { ...m, text: rehydrate(m.text, vault) }
+              : m,
+          )
+        : messages,
+    [messages, vault],
+  );
+
   const empty = messages.length === 0;
   const title = empty
     ? null
     : (savedItem?.title ?? conversationTitle(messages));
   const docs = documentCount(messages);
-  const drafts = collectDrafts(messages, busy);
+  const drafts = collectDrafts(shown, busy);
   const noticeInfo =
     details.status === "ready" && details.data.isIrsNotice
       ? details.data
@@ -96,10 +114,10 @@ export default function Chat() {
     lastSavedRef.current = { messages, data: readyDetails };
     void saveConversation(
       currentId,
-      { messages, details: readyDetails },
+      { messages, details: readyDetails, vault },
       conversationTitle(messages),
     );
-  }, [messages, readyDetails, busy, currentId, settings.saveChats]);
+  }, [messages, readyDetails, vault, busy, currentId, settings.saveChats]);
 
   useEffect(() => {
     if (!settings.autoScroll) return;
@@ -144,7 +162,7 @@ export default function Chat() {
       lastSavedRef.current = { messages: history, data: readyDetails };
       void saveConversation(
         id,
-        { messages: history, details: readyDetails },
+        { messages: history, details: readyDetails, vault: vaultRef.current },
         conversationTitle(history),
       );
     }
@@ -161,11 +179,17 @@ export default function Chat() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          messages: history.map(({ role, text, attachments }) => ({
-            role,
-            text,
-            ...(attachments?.length ? { attachments } : {}),
-          })),
+          // The AI gets the scrubbed version of each of your messages when scrubbing is on.
+          messages: history.map(({ role, text, attachments, sent }) => {
+            const out = sent ?? { text, attachments };
+            return {
+              role,
+              text: out.text,
+              ...(out.attachments?.length
+                ? { attachments: out.attachments }
+                : {}),
+            };
+          }),
           // The model chosen in Settings, and the answer style and signing details (left out when default).
           model: settings.model,
           preferences: aiPreferences(settings),
@@ -273,7 +297,40 @@ export default function Chat() {
     }
   }
 
-  function send(text: string, draftTitle?: string) {
+  /**
+   * Makes sure every message of yours in `history` has a scrubbed copy, when scrubbing is on.
+   * Returns the history with them filled in, or null (with a notice shown) if anything couldn't
+   * be scrubbed with confidence: nothing is sent in that case.
+   */
+  async function scrubHistory(
+    history: UIMessage[],
+  ): Promise<UIMessage[] | null> {
+    if (!settings.scrubUploads) return history;
+    let current = vault;
+    const out: UIMessage[] = [];
+    for (const m of history) {
+      if (m.role !== "user" || m.sent) {
+        out.push(m);
+        continue;
+      }
+      const r = await scrubMessage(m.text, m.attachments ?? [], current);
+      if (!r.ok) {
+        const found = r.review
+          .slice(0, 3)
+          .map((x) => `${x.type}: ${x.text || x.reason}`)
+          .join("; ");
+        setNotice(found ? `${r.error} (${found})` : r.error);
+        return null;
+      }
+      current = r.vault;
+      out.push({ ...m, sent: r.message });
+    }
+    vaultRef.current = current;
+    setVault(current);
+    return out;
+  }
+
+  async function send(text: string, draftTitle?: string) {
     const trimmed = text.trim();
     if (busy || (!trimmed && files.length === 0)) return;
     const userMessage: UIMessage = {
@@ -282,22 +339,41 @@ export default function Chat() {
       ...(files.length ? { attachments: files } : {}),
       ...(draftTitle ? { draftTitle } : {}),
     };
+    setNotice(null);
+    setBusy(true);
+    setStatus("Hiding client identifiers…");
+    const history = await scrubHistory([...messages, userMessage]);
+    if (!history) {
+      setBusy(false);
+      setStatus(null);
+      return; // the text and files stay in the box
+    }
+    const sentFiles = history[history.length - 1].sent?.attachments ?? files;
     if (files.length) {
-      if (settings.autoReadNotice) extract(files);
-      else lastExtractFilesRef.current = files; // so "Read details now" still works
+      if (settings.autoReadNotice) extract(sentFiles);
+      else lastExtractFilesRef.current = sentFiles; // so "Read details now" still works
     }
     setInput("");
     setFiles([]);
-    run([...messages, userMessage]);
+    run(history);
   }
 
-  function regenerate() {
+  async function regenerate() {
     if (busy) return;
     const history =
       messages[messages.length - 1]?.role === "assistant"
         ? messages.slice(0, -1)
         : messages;
-    if (history.length) run(history);
+    if (!history.length) return;
+    setBusy(true);
+    setStatus("Hiding client identifiers…");
+    const ready = await scrubHistory(history);
+    if (!ready) {
+      setBusy(false);
+      setStatus(null);
+      return;
+    }
+    run(ready);
   }
 
   function quickAction(prompt: string, draftTitle?: string) {
@@ -323,6 +399,8 @@ export default function Chat() {
     setDetails({ status: "idle" });
     setPanelOpen(false);
     setMessages([]);
+    vaultRef.current = [];
+    setVault([]);
     setCurrentId(null);
     lastSavedRef.current = null;
     setFiles([]);
@@ -356,6 +434,8 @@ export default function Chat() {
     setView("chat");
     setCurrentId(id);
     setMessages(body.messages);
+    vaultRef.current = body.vault ?? [];
+    setVault(body.vault ?? []);
     setDetails(data ? { status: "ready", data } : { status: "idle" });
     setPanelOpen(false);
     setFiles([]);
@@ -369,7 +449,7 @@ export default function Chat() {
   }
 
   function exportChat() {
-    const file = conversationExport(messages, settings.exportFormat);
+    const file = conversationExport(shown, settings.exportFormat);
     const blob = new Blob([file.content], { type: file.mime });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -553,7 +633,7 @@ export default function Chat() {
               <>
                 <div className="scroll-fade flex-1 overflow-y-auto px-4 pt-6 sm:px-8 sm:pt-8">
                   <div className="mx-auto flex w-full max-w-[var(--chat-width)] flex-col gap-[var(--chat-gap)] pb-10">
-                    {messages.map((m, i) =>
+                    {shown.map((m, i) =>
                       m.role === "user" ? (
                         <UserMessage key={i} message={m} />
                       ) : (

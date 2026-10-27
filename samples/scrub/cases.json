@@ -1,0 +1,274 @@
+{
+  "about": "Test set for the privacy scrubber (services/scrubber). `units` are small texts with the identifiers that must disappear and the content that must stay. `corpus` runs the scrubber over the sample documents: every listed identifier must be gone, no SSN-, EIN-, or bare 9-digit-shaped number may remain, and every dollar amount and written-out date must survive. Identifiers listed here are fictional. Run: npm run scrub:test",
+  "units": [
+    {
+      "id": "ssn-dashed-fake-ranges",
+      "text": "Taxpayer SSNs: 000-12-3456, 666-45-6789 and 912-34-5678.",
+      "identifiers": ["000-12-3456", "666-45-6789", "912-34-5678"],
+      "keep": ["SSNs"]
+    },
+    {
+      "id": "ssn-spaces",
+      "text": "SSN on file: 900 12 3456. Please confirm.",
+      "identifiers": ["900 12 3456"],
+      "keep": ["Please confirm"]
+    },
+    {
+      "id": "ssn-bare-with-label",
+      "text": "Social Security number 900123456 appears on the form.",
+      "identifiers": ["900123456"],
+      "keep": ["appears on the form"]
+    },
+    {
+      "id": "ssn-already-masked",
+      "text": "Social Security number: XXX-XX-0000",
+      "identifiers": [],
+      "keep": ["XXX-XX-0000"]
+    },
+    {
+      "id": "ein",
+      "text": "Employer: Harborview Logistics Inc, EIN 00-0000101, paid wages of $78,400.",
+      "identifiers": ["00-0000101"],
+      "keep": ["Harborview Logistics Inc", "$78,400"]
+    },
+    {
+      "id": "bank",
+      "text": "Direct deposit: routing number 000000000, account number 123456789012.",
+      "identifiers": ["000000000", "123456789012"],
+      "keep": ["Direct deposit"]
+    },
+    {
+      "id": "dob",
+      "text": "Dependent Morgan Fiction, born March 4, 2016, lived with the taxpayer all year.",
+      "identifiers": ["March 4, 2016", "Morgan Fiction"],
+      "keep": ["lived with the taxpayer all year"]
+    },
+    {
+      "id": "dob-numeric",
+      "text": "DOB: 03/04/1988 for the primary taxpayer.",
+      "identifiers": ["03/04/1988"],
+      "keep": ["primary taxpayer"]
+    },
+    {
+      "id": "email-and-phone",
+      "text": "Reach me at pat.example@example.com or (555) 010-4477. IRS line: 1-800-829-1040.",
+      "identifiers": ["pat.example@example.com", "(555) 010-4477"],
+      "keep": ["1-800-829-1040"]
+    },
+    {
+      "id": "address-inline",
+      "text": "Mail it to 88 Example Street, Sampleton, ST 00000 by Friday.",
+      "identifiers": ["88 Example Street"],
+      "keep": ["by Friday"]
+    },
+    {
+      "id": "mailing-block-caps",
+      "text": "Notice CP14\n\nJORDAN A SAMPLE\n100 EXAMPLE LANE\nSPRINGFIELD ST 00000\n\nYou owe $2,145.78.",
+      "identifiers": ["JORDAN A SAMPLE", "100 EXAMPLE LANE"],
+      "keep": ["Notice CP14", "$2,145.78"]
+    },
+    {
+      "id": "labeled-names",
+      "text": "Taxpayers: Alex Nguyen and Sam Nguyen\nDependent: Riley Nguyen (child, age 8)",
+      "identifiers": ["Alex Nguyen", "Sam Nguyen", "Riley Nguyen"],
+      "keep": ["child, age 8"]
+    },
+    {
+      "id": "name-spread-everywhere",
+      "text": "Client: Jordan Rivera\n\nDear Jordan,\nYour refund for Rivera, J. is $644.",
+      "identifiers": ["Jordan Rivera", "Dear Jordan", "Rivera, J"],
+      "keep": ["is $644"]
+    },
+    {
+      "id": "ptin",
+      "text": "Prepared by Harbor Light Tax Service, PTIN P00000001.",
+      "identifiers": ["P00000001"],
+      "keep": ["Harbor Light Tax Service"]
+    },
+    {
+      "id": "card",
+      "text": "Paid with card 4111 1111 1111 1111 on file.",
+      "identifiers": ["4111 1111 1111 1111"],
+      "keep": ["on file"]
+    },
+    {
+      "id": "keeps-tax-content",
+      "text": "Respond by October 31, 2026 to the IRS at irs.gov. Form 1040, Schedule D, line 21 shows ($3,000). Tax year 2024.",
+      "identifiers": [],
+      "keep": [
+        "October 31, 2026",
+        "irs.gov",
+        "Form 1040",
+        "Schedule D",
+        "($3,000)",
+        "Tax year 2024"
+      ]
+    },
+    {
+      "id": "bare-nine-digits-flagged",
+      "text": "Reference 123456789 was on the envelope.",
+      "identifiers": [],
+      "keep": [],
+      "expectReview": true
+    },
+    {
+      "id": "consistent-tokens",
+      "text": "Jordan Rivera filed. Later, Jordan Rivera amended. SSN 912-34-5678 again 912-34-5678.",
+      "identifiers": ["Jordan Rivera", "912-34-5678"],
+      "keep": [],
+      "expectTokenCounts": {
+        "SSN": 1
+      }
+    }
+  ],
+  "corpus": [
+    {
+      "dir": "samples/irs-notices",
+      "file": "cp11-math-error-balance-due.txt",
+      "identifiers": ["DREW M NOTREAL", "7 MOCK LANE"]
+    },
+    {
+      "dir": "samples/irs-notices",
+      "file": "cp12-refund-reduced.txt",
+      "identifiers": ["JAMIE K FAKENAME", "515 TESTING STREET"]
+    },
+    {
+      "dir": "samples/irs-notices",
+      "file": "cp14-balance-due.txt",
+      "identifiers": ["AVERY L PLACEHOLDER", "48 DEMO COURT"]
+    },
+    {
+      "dir": "samples/irs-notices",
+      "file": "cp14-embedded-instructions.txt",
+      "identifiers": ["TAYLOR S FICTION"]
+    },
+    {
+      "dir": "samples/irs-notices",
+      "file": "cp2000-fictional.txt",
+      "identifiers": ["JORDAN A SAMPLE", "100 EXAMPLE LANE"]
+    },
+    {
+      "dir": "samples/irs-notices",
+      "file": "cp2000-stock-basis.txt",
+      "identifiers": ["MORGAN T TESTCASE", "210 EXAMPLE STREET"]
+    },
+    {
+      "dir": "samples/irs-notices",
+      "file": "cp2501-no-response-date.txt",
+      "identifiers": ["RILEY J DEMO", "75 SAMPLE AVENUE"]
+    },
+    {
+      "dir": "samples/irs-notices",
+      "file": "cp3219a-notice-of-deficiency.txt",
+      "identifiers": ["HARPER Z SAMPLEFIELD", "12 PLACEHOLDER WAY"]
+    },
+    {
+      "dir": "samples/irs-notices",
+      "file": "cp503-totals-mismatch.txt",
+      "identifiers": ["QUINN B MOCKUP", "302 SAMPLEWOOD DRIVE"]
+    },
+    {
+      "dir": "samples/irs-notices",
+      "file": "cp9999-unknown-code.txt",
+      "identifiers": ["EMERSON V PRETEND", "403 DEMO HILL ROAD"]
+    },
+    {
+      "dir": "samples/irs-notices",
+      "file": "letter525-exam-proposal.txt",
+      "identifiers": ["BLAIR N DEMONSTRATION", "66 SAMPLE PLACE"]
+    },
+    {
+      "dir": "samples/irs-notices",
+      "file": "lt11-full-fake-ssn.txt",
+      "identifiers": ["CASEY R EXAMPLE", "200 SAMPLE ROAD", "900-12-3456"]
+    },
+    {
+      "dir": "samples/irs-notices",
+      "file": "not-a-notice-client-email.txt",
+      "identifiers": ["Sam Q Clientperson", "sam@example.com"]
+    },
+    {
+      "dir": "samples/irs-notices",
+      "file": "cp504-intent-to-levy.pdf",
+      "identifiers": ["SKYLER P SAMPLEWORTH", "88 EXAMPLE BOULEVARD"]
+    },
+    {
+      "dir": "samples/prior-year",
+      "file": "rivera-return-2024.txt",
+      "identifiers": ["Jordan Rivera", "88 Example Street", "P00000001"]
+    },
+    {
+      "dir": "samples/prior-year",
+      "file": "rivera-transcript-2024.txt",
+      "identifiers": ["Jordan Rivera", "88 Example Street", "P00000001"]
+    },
+    {
+      "dir": "samples/prior-year",
+      "file": "rivera-received.txt",
+      "identifiers": ["Jordan Rivera", "88 Example Street", "P00000001"]
+    },
+    {
+      "dir": "samples/prior-year",
+      "file": "okafor-return-2024.txt",
+      "identifiers": ["Taylor Okafor", "17 Sample Avenue", "P00000002"]
+    },
+    {
+      "dir": "samples/prior-year",
+      "file": "okafor-transcript-2024.txt",
+      "identifiers": ["Taylor Okafor", "17 Sample Avenue", "P00000002"]
+    },
+    {
+      "dir": "samples/prior-year",
+      "file": "okafor-received.txt",
+      "identifiers": ["Taylor Okafor", "17 Sample Avenue", "P00000002"]
+    },
+    {
+      "dir": "samples/prior-year",
+      "file": "nguyen-return-2024.txt",
+      "identifiers": [
+        "Alex Nguyen",
+        "Sam Nguyen",
+        "Riley Nguyen",
+        "301 Placeholder Lane",
+        "P00000003"
+      ]
+    },
+    {
+      "dir": "samples/prior-year",
+      "file": "nguyen-transcript-2024.txt",
+      "identifiers": [
+        "Alex Nguyen",
+        "Sam Nguyen",
+        "Riley Nguyen",
+        "301 Placeholder Lane",
+        "P00000003"
+      ]
+    },
+    {
+      "dir": "samples/prior-year",
+      "file": "nguyen-received.txt",
+      "identifiers": [
+        "Alex Nguyen",
+        "Sam Nguyen",
+        "Riley Nguyen",
+        "301 Placeholder Lane",
+        "P00000003"
+      ]
+    },
+    {
+      "dir": "samples/prior-year",
+      "file": "patel-return-2024.txt",
+      "identifiers": ["Casey Patel", "Morgan Patel", "9 Demo Road"]
+    },
+    {
+      "dir": "samples/prior-year",
+      "file": "patel-transcript-2024.txt",
+      "identifiers": ["Casey Patel", "Morgan Patel", "9 Demo Road"]
+    },
+    {
+      "dir": "samples/prior-year",
+      "file": "patel-received.txt",
+      "identifiers": ["Casey Patel", "Morgan Patel", "9 Demo Road"]
+    }
+  ]
+}

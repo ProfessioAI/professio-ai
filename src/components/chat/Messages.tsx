@@ -55,6 +55,12 @@ export function UserMessage({ message }: { message: UIMessage }) {
           </div>
         </div>
       ))}
+      {message.sent && message.sent.replaced > 0 ? (
+        <span className="text-xs text-muted">
+          Privacy scrubber: {message.sent.replaced} identifier
+          {message.sent.replaced === 1 ? "" : "s"} hidden from the AI
+        </span>
+      ) : null}
       {message.text ? (
         <div className="ui-bubble max-w-[min(560px,85%)] rounded-[14px_14px_4px_14px] bg-user-bubble px-4 py-3 whitespace-pre-wrap text-user-bubble-fg">
           {message.text}

@@ -127,6 +127,8 @@ export type Settings = {
   showUsageMeter: boolean;
   /** Keep conversations (and attached documents) in this browser between visits. */
   saveChats: boolean;
+  /** Replace client identifiers with tokens before anything is sent to the AI. */
+  scrubUploads: boolean;
   usageDetailsOpen: boolean;
   exportFormat: ExportFormat;
 };
@@ -169,6 +171,7 @@ export const DEFAULT_SETTINGS: Settings = {
 
   showUsageMeter: true,
   saveChats: true,
+  scrubUploads: true,
   usageDetailsOpen: false,
   exportFormat: "markdown",
 };
@@ -268,6 +271,7 @@ export function sanitizeSettings(raw: unknown): Settings {
 
     showUsageMeter: bool(r.showUsageMeter, d.showUsageMeter),
     saveChats: bool(r.saveChats, d.saveChats),
+    scrubUploads: bool(r.scrubUploads, d.scrubUploads),
     usageDetailsOpen: bool(r.usageDetailsOpen, d.usageDetailsOpen),
     exportFormat: pick(r.exportFormat, EXPORT_FORMATS, d.exportFormat),
   };
