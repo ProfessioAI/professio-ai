@@ -238,11 +238,17 @@ export function ConfirmButton({
   confirmLabel,
   onConfirm,
   danger,
+  ariaLabel,
+  compact,
 }: {
   label: string;
   confirmLabel: string;
   onConfirm: () => void;
   danger?: boolean;
+  /** What a screen reader says for the resting button, when the label is only a symbol. */
+  ariaLabel?: string;
+  /** A small version, for tight lists. */
+  compact?: boolean;
 }) {
   const [confirming, setConfirming] = useState(false);
   const id = useId();
@@ -257,6 +263,7 @@ export function ConfirmButton({
     <button
       id={id}
       type="button"
+      aria-label={confirming ? confirmLabel : ariaLabel}
       onClick={() => {
         if (confirming) {
           setConfirming(false);
@@ -265,7 +272,9 @@ export function ConfirmButton({
           setConfirming(true);
         }
       }}
-      className={`ui-raised ui-pill h-10 rounded-lg border px-3.5 text-sm font-medium whitespace-nowrap ${
+      className={`ui-raised ui-pill rounded-lg border font-medium whitespace-nowrap ${
+        compact ? "h-8 px-2 text-xs" : "h-10 px-3.5 text-sm"
+      } ${
         confirming
           ? "border-transparent bg-error-bg text-error-fg"
           : danger

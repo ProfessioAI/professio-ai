@@ -44,13 +44,13 @@ and ask for an explanation and a response plan.
 
 ## How it works
 
-| Part | File |
-|---|---|
-| Chat page | `src/components/Chat.tsx` |
-| Chat API (talks to Claude, streams replies, runs tools) | `src/app/api/chat/route.ts` |
-| ProfessioAI's role and ground rules | `src/lib/system-prompt.ts` |
-| Tools ("API links") | `src/lib/tools/` |
-| Test documents and answer key | `samples/` (see [samples/README.md](samples/README.md)) |
+| Part                                                    | File                                                    |
+| ------------------------------------------------------- | ------------------------------------------------------- |
+| Chat page                                               | `src/components/Chat.tsx`                               |
+| Chat API (talks to Claude, streams replies, runs tools) | `src/app/api/chat/route.ts`                             |
+| ProfessioAI's role and ground rules                     | `src/lib/system-prompt.ts`                              |
+| Tools ("API links")                                     | `src/lib/tools/`                                        |
+| Test documents and answer key                           | `samples/` (see [samples/README.md](samples/README.md)) |
 
 - **Model:** Claude Opus 5.5 through the Anthropic API.
 - **Usage meter:** each reply, and each document read for the case panel, is priced from the
@@ -74,12 +74,17 @@ and ask for an explanation and a response plan.
   The model, answer detail, tone, and practice details are sent to the AI with each message. The
   server only accepts models from `src/lib/models.ts`. Answer style and practice details go on the
   latest message only, so the saved instructions and the cache aren't affected.
+
 - **Custom colors:** a theme is ten colors per mode (`src/lib/custom-theme.ts`). Hover shades,
   borders, soft backgrounds, and text on buttons are worked out from them, so a custom theme stays
   readable. The JSON format is `{"format": "professioai-theme", "version": 1, "name": "...",
-  "light": {...}, "dark": {...}}`; missing colors are filled in from Classic or Glass.
-- **Documents:** PDF and .txt files are sent to Claude with the question. Nothing is stored;
-  the conversation lives in the browser tab and is gone when you refresh.
+"light": {...}, "dark": {...}}`; missing colors are filled in from Classic or Glass.
+- **Documents:** PDF and .txt files are sent to Claude with the question.
+- **Saved conversations:** conversations (with their documents) are saved in this browser, in
+  IndexedDB, and listed in the sidebar. Each one can be renamed, given a description and an icon,
+  and put in a folder (the pencil button on its row). Settings > Data & privacy turns saving off
+  and deletes everything saved. Nothing is uploaded; sign-in and server storage come later.
+  Code: `src/lib/library.ts`, `src/components/chat/ConversationList.tsx`.
 - **API links:** the assistant can call tools. The example tool,
   `lookup_irs_notice`, reads a built-in reference table of common IRS notices.
 

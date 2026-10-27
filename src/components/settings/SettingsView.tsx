@@ -22,6 +22,7 @@ import {
   TextField,
   type Option,
 } from "./controls";
+import { clearLibrary } from "@/lib/library";
 import CustomColors from "./CustomColors";
 import { AccentPicker, FontPicker, ModelPicker, StylePicker } from "./pickers";
 import { useSettings } from "./settings-store";
@@ -513,6 +514,29 @@ function Data({
 }) {
   return (
     <>
+      <Card title="Saved conversations">
+        <SettingRow
+          label="Save conversations in this browser"
+          description="Keeps your conversations, and the documents you attached, so you can come back to them. They never leave this browser. Turn off on a shared computer."
+        >
+          <Switch
+            label="Save conversations in this browser"
+            checked={s.saveChats}
+            onChange={(saveChats) => set({ saveChats })}
+          />
+        </SettingRow>
+        <SettingRow
+          label="Delete saved conversations"
+          description="Removes every saved conversation and folder from this browser."
+        >
+          <ConfirmButton
+            label="Delete all"
+            confirmLabel="Press again to delete"
+            danger
+            onConfirm={() => void clearLibrary()}
+          />
+        </SettingRow>
+      </Card>
       <Card title="Usage meter">
         <SettingRow
           label="Show usage in the sidebar"
@@ -589,7 +613,7 @@ function Data({
         </SettingRow>
         <SettingRow
           label="Clear everything stored here"
-          description="Settings and usage totals, from this browser."
+          description="Settings, usage totals, and saved conversations, from this browser."
         >
           <ConfirmButton
             label="Clear everything"
@@ -598,6 +622,7 @@ function Data({
             onConfirm={() => {
               reset();
               meter.resetAll();
+              void clearLibrary();
               onCleared();
             }}
           />
@@ -615,8 +640,9 @@ function Data({
             <strong className="font-semibold text-foreground">
               Conversations and documents
             </strong>{" "}
-            aren&apos;t saved anywhere. They disappear when you close or refresh
-            the tab.
+            are saved in this browser only, while &quot;Save conversations&quot;
+            is on. They aren&apos;t uploaded anywhere except to the AI when you
+            send them.
           </li>
           <li>
             <strong className="font-semibold text-foreground">
@@ -752,8 +778,8 @@ export default function SettingsView({
         </div>
       </header>
 
-      <div className="flex-1 overflow-y-auto">
-        <div className="mx-auto w-full max-w-[860px] px-4 py-6 sm:px-8">
+      <div className="scroll-fade flex-1 overflow-y-auto">
+        <div className="mx-auto w-full max-w-[860px] px-4 pt-6 pb-12 sm:px-8">
           <div
             role="tablist"
             aria-label="Settings sections"

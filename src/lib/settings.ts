@@ -125,6 +125,8 @@ export type Settings = {
 
   // Usage and data
   showUsageMeter: boolean;
+  /** Keep conversations (and attached documents) in this browser between visits. */
+  saveChats: boolean;
   usageDetailsOpen: boolean;
   exportFormat: ExportFormat;
 };
@@ -166,6 +168,7 @@ export const DEFAULT_SETTINGS: Settings = {
   usePracticeDetails: true,
 
   showUsageMeter: true,
+  saveChats: true,
   usageDetailsOpen: false,
   exportFormat: "markdown",
 };
@@ -264,6 +267,7 @@ export function sanitizeSettings(raw: unknown): Settings {
     usePracticeDetails: bool(r.usePracticeDetails, d.usePracticeDetails),
 
     showUsageMeter: bool(r.showUsageMeter, d.showUsageMeter),
+    saveChats: bool(r.saveChats, d.saveChats),
     usageDetailsOpen: bool(r.usageDetailsOpen, d.usageDetailsOpen),
     exportFormat: pick(r.exportFormat, EXPORT_FORMATS, d.exportFormat),
   };

@@ -8,7 +8,6 @@ import {
   CheckIcon,
   CopyIcon,
   DocLinesIcon,
-  Logo,
   PenIcon,
   RegenerateIcon,
 } from "./Icons";
@@ -104,12 +103,9 @@ export function AssistantMessage({
         aria-label="ProfessioAI response"
         className="ui-panel ui-reply flex flex-col gap-3 sm:flex-row sm:gap-3.5"
       >
-        <div className="flex items-center gap-2 sm:self-start">
-          <Logo />
-          <span className="text-[0.8125rem] font-semibold sm:hidden">
-            ProfessioAI
-          </span>
-        </div>
+        <span className="text-[0.8125rem] font-semibold sm:hidden">
+          ProfessioAI
+        </span>
         <div className="flex min-w-0 flex-1 flex-col gap-4">
           {(settings.showToolChips ? message.tools : undefined)?.map(
             (label, i) => (

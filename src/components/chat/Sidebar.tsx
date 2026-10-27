@@ -1,10 +1,14 @@
 import { PILOT_NAME } from "@/lib/config";
 import { initials } from "@/lib/settings";
 import { useSettings } from "@/components/settings/settings-store";
-import { CloseIcon, DocIcon, GearIcon, Logo, PlusIcon } from "./Icons";
+import ConversationList from "./ConversationList";
+import { CloseIcon, GearIcon, Logo, PlusIcon } from "./Icons";
 
 type Props = {
-  title: string | null;
+  /** The open conversation's saved id, if it has been saved. */
+  currentId: string | null;
+  onOpen: (id: string) => void;
+  onDeleted: (id: string) => void;
   onNewChat: () => void;
   onClose?: () => void;
   /** The usage meter, shown above the pilot note. */
@@ -15,7 +19,9 @@ type Props = {
 };
 
 export default function Sidebar({
-  title,
+  currentId,
+  onOpen,
+  onDeleted,
   onNewChat,
   onClose,
   meter,
@@ -63,28 +69,20 @@ export default function Sidebar({
         New conversation
       </button>
 
-      {title ? (
-        <div className="flex flex-col gap-1">
-          <div className="px-2 pb-1 text-xs font-semibold tracking-[0.06em] text-muted uppercase">
-            Today
-          </div>
-          <div
-            aria-current="page"
-            className="ui-pill flex items-center gap-2.5 rounded-lg bg-accent-soft p-2.5 text-sm font-semibold"
-          >
-            <DocIcon size={16} className="shrink-0 text-accent-text" />
-            <span className="truncate">{title}</span>
-          </div>
-        </div>
-      ) : null}
+      <ConversationList
+        currentId={currentId}
+        onOpen={onOpen}
+        onDeleted={onDeleted}
+      />
 
       <div className="mt-auto flex flex-col gap-3 overflow-y-auto">
         {settings.showUsageMeter ? meter : null}
         <div className="ui-soft rounded-[10px] border border-warn-border bg-warn-bg px-3.5 py-3 text-[0.8125rem] leading-snug text-warn-fg">
           <strong className="mb-0.5 block">Pilot mode</strong>
-          Use fictional or public test data only. Conversations aren&apos;t
-          saved after you close the tab; only the usage totals stay in this
-          browser.
+          Use fictional or public test data only.{" "}
+          {settings.saveChats
+            ? "Conversations are saved in this browser only."
+            : "Saving is off, so conversations disappear when you close the tab."}
         </div>
         <button
           type="button"

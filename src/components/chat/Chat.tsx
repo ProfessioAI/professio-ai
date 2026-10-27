@@ -1,12 +1,18 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import {
+  loadBody,
+  makeConversationId,
+  saveConversation,
+  useItem,
+} from "@/lib/library";
 import SettingsView from "@/components/settings/SettingsView";
 import { useSettings } from "@/components/settings/settings-store";
 import { aiPreferences } from "@/lib/settings";
 import type { Attachment, StreamEvent } from "@/lib/chat-types";
 import { MAX_FILES_PER_MESSAGE } from "@/lib/chat-types";
-import type { ExtractResponse } from "@/lib/notice-types";
+import type { ExtractResponse, NoticeDetails } from "@/lib/notice-types";
 import CasePanel from "./CasePanel";
 import Composer from "./Composer";
 import { DownloadIcon, MenuIcon, PanelIcon, PenIcon } from "./Icons";
@@ -50,8 +56,18 @@ export default function Chat() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
 
+  const [currentId, setCurrentId] = useState<string | null>(null);
+  const savedItem = useItem(currentId);
+  // What was last written (or just opened), so opening a conversation doesn't re-save it.
+  const lastSavedRef = useRef<{
+    messages: UIMessage[];
+    data: NoticeDetails | null;
+  } | null>(null);
+
   const empty = messages.length === 0;
-  const title = empty ? null : conversationTitle(messages);
+  const title = empty
+    ? null
+    : (savedItem?.title ?? conversationTitle(messages));
   const docs = documentCount(messages);
   const drafts = collectDrafts(messages, busy);
   const noticeInfo =
@@ -65,6 +81,24 @@ export default function Chat() {
     settings.motion === "reduced" ||
     (typeof window !== "undefined" &&
       window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+
+  const readyDetails: NoticeDetails | null =
+    details.status === "ready" ? details.data : null;
+
+  // Keep the saved copy up to date once a reply has finished.
+  useEffect(() => {
+    if (!settings.saveChats || busy || !currentId || messages.length === 0)
+      return;
+    const last = lastSavedRef.current;
+    if (last && last.messages === messages && last.data === readyDetails)
+      return;
+    lastSavedRef.current = { messages, data: readyDetails };
+    void saveConversation(
+      currentId,
+      { messages, details: readyDetails },
+      conversationTitle(messages),
+    );
+  }, [messages, readyDetails, busy, currentId, settings.saveChats]);
 
   useEffect(() => {
     if (!settings.autoScroll) return;
@@ -99,6 +133,20 @@ export default function Chat() {
 
   /** Sends `history` (ending with a user message) and streams the reply. */
   async function run(history: UIMessage[]) {
+    // A new conversation gets its saved entry right away, so it shows in the sidebar.
+    let id = currentId;
+    if (!id) {
+      id = makeConversationId();
+      setCurrentId(id);
+    }
+    if (settings.saveChats) {
+      lastSavedRef.current = { messages: history, data: readyDetails };
+      void saveConversation(
+        id,
+        { messages: history, details: readyDetails },
+        conversationTitle(history),
+      );
+    }
     setMessages([...history, { role: "assistant", text: "", tools: [] }]);
     setNotice(null);
     setBusy(true);
@@ -274,10 +322,49 @@ export default function Chat() {
     setDetails({ status: "idle" });
     setPanelOpen(false);
     setMessages([]);
+    setCurrentId(null);
+    lastSavedRef.current = null;
     setFiles([]);
     setInput("");
     setNotice(null);
     setDrawerOpen(false);
+  }
+
+  /** Opens a saved conversation from the sidebar. */
+  async function openConversation(id: string) {
+    if (id === currentId && view === "chat") {
+      setDrawerOpen(false);
+      return;
+    }
+    stop();
+    extractAbortRef.current?.abort();
+    const body = await loadBody(id);
+    if (!body) {
+      setNotice("Couldn't open that conversation. It may have been removed.");
+      setView("chat");
+      setDrawerOpen(false);
+      return;
+    }
+    const data = body.details && body.details.isIrsNotice ? body.details : null;
+    lastSavedRef.current = { messages: body.messages, data };
+    const lastWithFiles = [...body.messages]
+      .reverse()
+      .find((m) => m.attachments?.length);
+    lastExtractFilesRef.current = lastWithFiles?.attachments ?? null;
+    meter.startConversation();
+    setView("chat");
+    setCurrentId(id);
+    setMessages(body.messages);
+    setDetails(data ? { status: "ready", data } : { status: "idle" });
+    setPanelOpen(false);
+    setFiles([]);
+    setInput("");
+    setNotice(null);
+    setDrawerOpen(false);
+  }
+
+  function conversationDeleted(id: string) {
+    if (id === currentId) newChat();
   }
 
   function exportChat() {
@@ -323,7 +410,9 @@ export default function Chat() {
       />
 
       <Sidebar
-        title={title}
+        currentId={currentId}
+        onOpen={openConversation}
+        onDeleted={conversationDeleted}
         onNewChat={newChat}
         meter={<UsageMeter meter={meter} />}
         onOpenSettings={() => setView("settings")}
@@ -340,7 +429,9 @@ export default function Chat() {
             onClick={() => setDrawerOpen(false)}
           />
           <Sidebar
-            title={title}
+            currentId={currentId}
+            onOpen={openConversation}
+            onDeleted={conversationDeleted}
             onNewChat={newChat}
             meter={<UsageMeter meter={meter} />}
             onOpenSettings={() => {

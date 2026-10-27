@@ -47,7 +47,7 @@ export default function Welcome({
   const [dragging, setDragging] = useState(false);
 
   return (
-    <div className="flex flex-1 items-start justify-center overflow-y-auto px-4 py-10 sm:items-center sm:px-8 sm:py-16">
+    <div className="scroll-fade flex flex-1 items-start justify-center overflow-y-auto px-4 py-10 sm:items-center sm:px-8 sm:py-16">
       <div className="flex w-full max-w-[720px] flex-col gap-8">
         <div className="flex flex-col items-center gap-2 text-center">
           <Logo size={44} />
