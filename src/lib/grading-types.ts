@@ -27,10 +27,19 @@ export type GradingRun = {
   cases: GradingCase[];
 };
 
-export type GradingSummary = {
-  /** Full runs (every test notice), oldest first. */
+export type GradingSuite = {
+  id: string;
+  /** For the heading, e.g. "IRS notices". */
+  label: string;
+  /** What each test document is called, singular and plural, e.g. "notice". */
+  unit: string;
+  /** Full runs (every test document in the suite), oldest first. */
   runs: GradingRun[];
   baseline: { savedAt: string; passRate: number; commit: string } | null;
+};
+
+export type GradingSummary = {
+  suites: GradingSuite[];
   /** The pass rate a run must reach, in percent. */
   threshold: number;
 };

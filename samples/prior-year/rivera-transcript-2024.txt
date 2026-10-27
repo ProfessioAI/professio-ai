@@ -1,0 +1,28 @@
+*** FICTIONAL SAMPLE FOR TESTING ONLY. Every name, number, and ID in this file is invented. ***
+
+WAGE AND INCOME TRANSCRIPT — TAX YEAR 2024
+Taxpayer: Jordan Rivera     SSN: XXX-XX-0000
+Information reported to the IRS by payers
+
+Form W-2
+   Employer: Harborview Logistics Inc     EIN: 00-0000101
+   Wages, tips, other compensation: 78,400      Federal income tax withheld: 9,120
+
+Form 1099-INT
+   Payer: First Example Savings Bank      EIN: 00-0000102
+   Interest income: 212
+
+Form 1099-INT
+   Payer: Lakeshore Credit Union          EIN: 00-0000103
+   Interest income: 48
+
+Form 1099-B
+   Payer: Cedar Ridge Brokerage           EIN: 00-0000104
+   Proceeds: 18,550      Cost basis reported to the IRS: 34,500
+
+Form 1099-B
+   Payer: Pinewood Securities             EIN: 00-0000105
+   Proceeds: 4,310       Cost basis reported to the IRS: 3,900
+
+
+*** END OF FICTIONAL SAMPLE ***

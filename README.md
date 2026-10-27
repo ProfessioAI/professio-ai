@@ -79,6 +79,11 @@ and ask for an explanation and a response plan.
   borders, soft backgrounds, and text on buttons are worked out from them, so a custom theme stays
   readable. The JSON format is `{"format": "professioai-theme", "version": 1, "name": "...",
 "light": {...}, "dark": {...}}`; missing colors are filled in from Classic or Glass.
+- **Prior-year rebuild:** `POST /api/prior-year` takes a filed return, an IRS transcript, and a list of
+  documents received, and returns the figures (with page and line), the carryovers (only when a
+  document states them), missing pages and documents, conflicts with the transcript, questions for
+  the preparer, and a draft client email. Read-only. Code: `src/app/api/prior-year/`,
+  `src/lib/prior-year-*.ts`. There is no screen for it yet.
 - **Quality:** the Quality page (switch at the top of the sidebar) shows how well the assistant answers the fictional test notices
   (the latest `npm run grade` score, past runs, and misses). It reads `grading-results/` on the
   computer running the app.

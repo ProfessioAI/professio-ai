@@ -1,0 +1,173 @@
+{
+  "suite": "prior-year",
+  "version": 1,
+  "about": "Answer key for the fictional 2024 returns in this folder. Each case has the filed return (or a partial copy), an IRS wage and income transcript, and the list of documents the client handed over for the 2025 intake. The assistant reads them with /api/prior-year. `expected.figures` and `expected.carryovers` are compared exactly; the checks are plain English for an AI grader.",
+  "globalChecks": [
+    "Every figure in the report is in the documents or is a plain calculation from them.",
+    "Anything it cannot determine is marked unknown or to confirm, instead of being guessed.",
+    "Treats the report as a draft for the preparer to verify, and does not present the earlier preparer's return as definitely right or definitely wrong."
+  ],
+  "globalMustNot": [
+    "Includes a full Social Security number or other full government ID number (the last four digits at most).",
+    "Invents a figure, date, form, or document that is not in the files."
+  ],
+  "cases": [
+    {
+      "id": "rivera-capital-loss",
+      "files": [
+        "rivera-return-2024.txt",
+        "rivera-transcript-2024.txt",
+        "rivera-received.txt"
+      ],
+      "why": "Capital loss carryover is only on the last page (a worksheet), not on Schedule D. The transcript lists a second broker's 1099-B and a small 1099-INT that are not on the return and were not given by the client.",
+      "expected": {
+        "filingStatus": "single",
+        "figures": {
+          "wages": { "value": 78400, "page": 1 },
+          "taxable_interest": { "value": 212, "page": 1 },
+          "capital_gain_loss": { "value": -3000, "page": 1 },
+          "total_income": { "value": 75612, "page": 1 },
+          "agi": { "value": 75612, "page": 1 },
+          "taxable_income": { "value": 61012, "page": 2 },
+          "total_tax": { "value": 8476, "page": 2 },
+          "total_payments": { "value": 9120, "page": 2 },
+          "refund": { "value": 644, "page": 2 },
+          "applied_to_next_year": { "value": 0, "page": 2 }
+        },
+        "carryovers": [
+          { "type": "capital_loss_short_term", "amount": 3150, "page": 9 },
+          { "type": "capital_loss_long_term", "amount": 9800, "page": 9 }
+        ]
+      },
+      "checks": [
+        "Lists a short-term capital loss carryover of $3,150 and a long-term carryover of $9,800 (total $12,950) and points to the carryover worksheet on page 9.",
+        "Flags that the IRS transcript shows a Form 1099-B from Pinewood Securities (proceeds $4,310, cost basis $3,900) that is not on the return and was not among the documents the client gave.",
+        "Flags the Lakeshore Credit Union Form 1099-INT of $48 that is on the transcript but not on the return or in the documents received.",
+        "Says the missing Pinewood 1099-B could change the capital loss figures, so the carryover should be confirmed before it is used in 2025.",
+        "Lists the missing documents to request from the client, or drafts a short request using placeholders such as [Client name] and [Your name]."
+      ],
+      "mustNot": [
+        "Reports any carryover amount other than the $3,150 short-term and $9,800 long-term figures on page 9.",
+        "Says the Pinewood Securities or Lakeshore Credit Union amounts are included on the return.",
+        "Invents a 2023 carryover or any earlier-year figure."
+      ]
+    },
+    {
+      "id": "okafor-self-employed",
+      "files": [
+        "okafor-return-2024.txt",
+        "okafor-transcript-2024.txt",
+        "okafor-received.txt"
+      ],
+      "why": "Three carryovers sit on three different late pages (remaining depreciation basis, IRA basis on Form 8606, and the overpayment applied to 2025). The transcript shows a second 1099-NEC of $3,200 that is not in Schedule C gross receipts and was not given by the client.",
+      "expected": {
+        "filingStatus": "single",
+        "figures": {
+          "wages": { "value": 0, "page": 1 },
+          "taxable_interest": { "value": 0, "page": 1 },
+          "capital_gain_loss": { "value": null },
+          "total_income": { "value": 36500, "page": 1 },
+          "agi": { "value": 33921, "page": 1 },
+          "taxable_income": { "value": 15457, "page": 2 },
+          "total_tax": { "value": 6780, "page": 2 },
+          "total_payments": { "value": 7980, "page": 2 },
+          "refund": { "value": 0, "page": 2 },
+          "applied_to_next_year": { "value": 1200, "page": 2 }
+        },
+        "carryovers": [
+          { "type": "depreciation_remaining_basis", "amount": 1344, "page": 7 },
+          { "type": "ira_basis_8606", "amount": 13000, "page": 8 },
+          { "type": "overpayment_applied", "amount": 1200, "page": 2 }
+        ]
+      },
+      "checks": [
+        "Flags that the transcript shows a second Form 1099-NEC (Elm Street Studio, $3,200) that is not in the Schedule C gross receipts of $44,900 and was not among the documents the client gave.",
+        "Notes that the unreported $3,200 would also affect self-employment tax and the 2024 return, so the preparer should decide whether an amended return is needed.",
+        "Lists the remaining depreciation basis of $1,344 for the laptop and monitors, with scheduled 2025 depreciation of $538, from the page 7 schedule.",
+        "Lists the total Form 8606 IRA basis of $13,000 (not just the $6,500 contributed in 2024) as carrying into 2025.",
+        "Lists the $1,200 overpayment applied to 2025 estimated tax, so it can be credited when the 2025 return is prepared."
+      ],
+      "mustNot": [
+        "Says the Schedule C gross receipts match the transcript's total of nonemployee compensation.",
+        "Gives $6,500 as the IRA basis carrying into 2025.",
+        "Treats the Elm Street Studio income as already reported."
+      ]
+    },
+    {
+      "id": "nguyen-rental-passive-loss",
+      "files": [
+        "nguyen-return-2024.txt",
+        "nguyen-transcript-2024.txt",
+        "nguyen-received.txt"
+      ],
+      "why": "The passive loss carryforward is on Form 8582 (page 5) and mixes this year's loss with an older one. One spouse's wages differ between the return and the transcript. The return says a Form 4562 depreciation schedule is attached, but it is not in the copy or the documents received.",
+      "expected": {
+        "filingStatus": "married filing jointly",
+        "figures": {
+          "wages": { "value": 176300, "page": 1 },
+          "taxable_interest": { "value": 640, "page": 1 },
+          "capital_gain_loss": { "value": null },
+          "total_income": { "value": 176940, "page": 1 },
+          "agi": { "value": 176940, "page": 1 },
+          "taxable_income": { "value": 147740, "page": 2 },
+          "total_tax": { "value": 20609, "page": 2 },
+          "total_payments": { "value": 23500, "page": 2 },
+          "refund": { "value": 2891, "page": 2 },
+          "applied_to_next_year": { "value": 0, "page": 2 }
+        },
+        "carryovers": [
+          { "type": "passive_activity_loss", "amount": 9028, "page": 5 }
+        ]
+      },
+      "checks": [
+        "Lists a passive activity loss carryforward of $9,028 for 412 Maple Court ($3,828 from 2024 plus $5,200 from earlier years), from Form 8582 on page 5.",
+        "Flags that Sam's wages are $64,300 on the return but $66,100 on the transcript, a difference of $1,800, and suggests asking about a corrected W-2 or a payroll error.",
+        "Flags that Schedule E says Form 4562 is attached for the $6,200 of depreciation, but that form is not in the return copy or the documents received, so the property's depreciation schedule and remaining basis are unknown.",
+        "Explains or notes that the rental loss was fully suspended because the couple's income was too high for the special allowance, so the carryforward grew."
+      ],
+      "mustNot": [
+        "Says any of the rental loss was deductible on the 2024 return.",
+        "States the property's cost basis, in-service date, or remaining depreciation as known.",
+        "Says which of the two wage figures ($64,300 or $66,100) is correct."
+      ]
+    },
+    {
+      "id": "patel-partial-copy",
+      "files": [
+        "patel-return-2024.txt",
+        "patel-transcript-2024.txt",
+        "patel-received.txt"
+      ],
+      "why": "Only 3 of 7 pages of the return survive, including no Schedule 1, and the preparer is unknown. The transcript shows a pension distribution and unemployment pay that the return does not clearly include. Nothing about carryovers can be known, and the assistant must not guess.",
+      "expected": {
+        "filingStatus": "head of household",
+        "figures": {
+          "wages": { "value": 51200, "page": 1 },
+          "taxable_interest": { "value": 0, "page": 1 },
+          "capital_gain_loss": { "value": null },
+          "total_income": { "value": 53600, "page": 1 },
+          "agi": { "value": 53600, "page": 1 },
+          "taxable_income": { "value": 31700, "page": 2 },
+          "total_tax": { "value": 1473, "page": 2 },
+          "total_payments": { "value": 3900, "page": 2 },
+          "refund": { "value": 2427, "page": 2 },
+          "applied_to_next_year": { "value": 0, "page": 2 }
+        },
+        "carryovers": [],
+        "strictCarryovers": true
+      },
+      "checks": [
+        "States that carryovers cannot be determined because pages 3, 4, 6, and 7 of the return (including Schedule 1) are missing, and reports no carryover amounts as known.",
+        "Flags that line 4b shows $0 but the transcript shows a Form 1099-R with a taxable distribution of $9,800 (code 1, $980 withheld).",
+        "Flags the Form 1099-G unemployment compensation of $3,100 on the transcript against the $2,400 of additional income on line 8, and says it cannot tell what the $2,400 is without Schedule 1.",
+        "Asks for the complete return or suggests getting the IRS return transcript to fill in the missing pages.",
+        "Mentions, with hedging, that a code 1 distribution may carry an early-distribution additional tax (Form 5329) for the preparer to review."
+      ],
+      "mustNot": [
+        "Lists any carryover as a known amount.",
+        "Says what the $2,400 on line 8 consists of.",
+        "States as certain that the return was wrong or that tax is owed."
+      ]
+    }
+  ]
+}

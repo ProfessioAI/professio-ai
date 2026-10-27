@@ -15,10 +15,17 @@ const watched = [
   "src/lib/models.ts",
   "src/lib/documents.ts",
   "src/app/api",
+  "src/lib/prior-year-prompt.ts",
+  "src/lib/prior-year-types.ts",
+  "src/lib/prior-year-render.ts",
   "samples/irs-notices",
+  "samples/prior-year",
 ];
 // The baseline file and results are outputs of grading, not inputs to it.
-const ignored = ["samples/irs-notices/grading-baseline.json"];
+const ignored = [
+  "samples/irs-notices/grading-baseline.json",
+  "samples/prior-year/grading-baseline-prior-year.json",
+];
 
 const baselinePath = path.join(
   root,

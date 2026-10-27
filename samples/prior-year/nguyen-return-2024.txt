@@ -1,0 +1,88 @@
+*** FICTIONAL SAMPLE FOR TESTING ONLY. Every name, number, and ID in this file is invented. ***
+
+COPY OF FILED RETURN — TAX YEAR 2024
+Prepared by: Lantern Row Accounting (fictional)   PTIN: P00000003
+Taxpayers: Alex Nguyen and Sam Nguyen      SSNs: XXX-XX-0000 and XXX-XX-0000
+Address: 301 Placeholder Lane, Samplewood, ST 00000
+Filing status: Married filing jointly      Filed electronically on 2025-03-28
+Dependent: Riley Nguyen (child, age 8)
+Total pages in the filed return: 8
+
+
+=== PAGE 1 of 8 — Form 1040, page 1 ===
+
+Line 1a   Total amount from Form(s) W-2, box 1 ................... 176,300
+Line 1z   Add lines 1a through 1h ................................ 176,300
+Line 2b   Taxable interest ........................................... 640
+Line 8    Additional income from Schedule 1, line 10 ................... 0
+Line 9    Total income ........................................... 176,940
+Line 10   Adjustments to income from Schedule 1, line 26 ............... 0
+Line 11   Adjusted gross income .................................. 176,940
+
+=== PAGE 2 of 8 — Form 1040, page 2 ===
+
+Line 12   Standard deduction or itemized deductions ............... 29,200
+Line 14   Add lines 12 and 13 ..................................... 29,200
+Line 15   Taxable income ......................................... 147,740
+Line 16   Tax ..................................................... 22,609
+Line 19   Child tax credit and credit for other dependents ......... 2,000
+Line 22   Subtract line 21 from line 18 ........................... 20,609
+Line 24   Total tax ............................................... 20,609
+Line 25a  Federal income tax withheld from Form(s) W-2 ............ 23,500
+Line 33   Total payments .......................................... 23,500
+Line 34   Amount you overpaid ...................................... 2,891
+Line 35a  Amount of line 34 you want refunded to you ............... 2,891
+Line 36   Amount of line 34 you want applied to your 2025 estimated tax .. 0
+
+=== PAGE 3 of 8 — Wages and Schedule B ===
+
+Form W-2, Pioneer Health Group (Alex)  box 1 wages: 112,000   box 2 withholding: 17,400
+Form W-2, Redwood Unified School District (Sam)  box 1 wages: 64,300   box 2 withholding: 6,100
+Sch B line 1 Lakeview Bank interest .................................. 640
+Sch B line 4 Total taxable interest .................................. 640
+
+=== PAGE 4 of 8 — Schedule E, Part I, Rental Real Estate ===
+
+Property A: 412 Maple Court, Samplewood, ST 00000 (single-family rental, 365 days rented)
+Line 3    Rents received .......................................... 21,600
+Line 9    Insurance ................................................ 1,150
+Line 12   Mortgage interest paid to banks .......................... 9,100
+Line 14   Repairs .................................................. 2,350
+Line 16   Taxes .................................................... 3,600
+Line 17   Utilities ................................................ 1,300
+Line 11   Management fees .......................................... 1,728
+Line 18   Depreciation expense or depletion (Form 4562 attached) ... 6,200
+Line 20   Total expenses .......................................... 25,428
+Line 21   Income or (loss) from rental real estate ............... (3,828)
+Line 22   Deductible rental real estate loss after limitation, from Form 8582 .. 0
+Line 26   Total rental real estate and royalty income or (loss) ........ 0
+
+=== PAGE 5 of 8 — Form 8582, Passive Activity Loss Limitations ===
+
+Line 1a   Activities with net income ................................... 0
+Line 1b   Activities with net loss (412 Maple Court) ............. (3,828)
+Line 1c   Prior years' unallowed losses .......................... (5,200)
+Line 1d   Combine lines 1a, 1b, and 1c ........................... (9,028)
+Line 6    Modified adjusted gross income ......................... 176,940
+Line 9    Special allowance (phased out at this income) ................ 0
+Line 16   Total losses allowed from all passive activities ............. 0
+Worksheet 5, Allocation of unallowed losses
+          412 Maple Court: current year loss ....................... 3,828
+          412 Maple Court: prior years' unallowed loss ............. 5,200
+          Unallowed loss carried forward to 2025 ................... 9,028
+
+=== PAGE 6 of 8 — Form 8812, Credits for Qualifying Children ===
+
+Line 4    Number of qualifying children under age 17 ................... 1
+Line 5    Multiply line 4 by $2,000 ................................ 2,000
+Line 14   Child tax credit ......................................... 2,000
+
+=== PAGE 7 of 8 — Dependent information ===
+
+Riley Nguyen, SSN XXX-XX-0000, relationship: child, born 2016, lived with taxpayers all year
+
+=== PAGE 8 of 8 — Preparer's file: refund summary ===
+
+Federal refund: 2,891, direct deposit to account on file
+
+*** END OF FICTIONAL SAMPLE ***

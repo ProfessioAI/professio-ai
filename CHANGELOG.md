@@ -5,6 +5,12 @@ a new feature or a visible redesign bumps the middle number (0.7.0), a notable f
 the last (0.6.1), and 1.0.0 is the first release for real customers.
 Run `npm run release -- minor "What changed"` to bump it and add an entry here.
 
+## [0.8.0] - 2026-10-27
+
+- Prior-year rebuild: reads a filed return into figures with page and line, carryovers, missing items, and conflicts with the IRS transcript (API only).
+- Four fictional 2024 returns with answer keys, graded by the same runner. The Quality page shows both test sets.
+- Roadmap trimmed to finished work.
+
 ## [0.7.0] - 2026-10-27
 
 - Phase 3 done: grading has a 95% pass threshold, a saved baseline with regression checks, and a grade-if-needed command.

@@ -1,13 +1,13 @@
 {
   "name": "professio-ai",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "check:samples": "node scripts/check-samples.mjs",
+    "check:samples": "node scripts/check-samples.mjs && node scripts/check-samples.mjs samples/prior-year",
     "grade": "node scripts/grade.mjs",
     "release": "node scripts/release.mjs",
     "grade:if-needed": "node scripts/grade-if-needed.mjs"

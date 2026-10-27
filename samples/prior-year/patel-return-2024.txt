@@ -1,0 +1,40 @@
+*** FICTIONAL SAMPLE FOR TESTING ONLY. Every name, number, and ID in this file is invented. ***
+
+PHOTOCOPY OF FILED RETURN — TAX YEAR 2024 (client's own copy)
+Taxpayer: Casey Patel          SSN: XXX-XX-0000
+Address: 9 Demo Road, Testford, ST 00000
+Filing status: Head of household      Dependent: Morgan Patel (child)
+Total pages in the filed return: 7      Pages in this copy: 1, 2, and 5
+Preparer: name not shown on the copy
+
+
+=== PAGE 1 of 7 — Form 1040, page 1 ===
+
+Line 1a   Total amount from Form(s) W-2, box 1 .................... 51,200
+Line 1z   Add lines 1a through 1h ................................. 51,200
+Line 2b   Taxable interest ............................................. 0
+Line 4b   Taxable amount of IRA distributions .......................... 0
+Line 8    Additional income from Schedule 1, line 10 ............... 2,400
+Line 9    Total income ............................................ 53,600
+Line 10   Adjustments to income from Schedule 1, line 26 ............... 0
+Line 11   Adjusted gross income ................................... 53,600
+
+=== PAGE 2 of 7 — Form 1040, page 2 ===
+
+Line 12   Standard deduction or itemized deductions ............... 21,900
+Line 15   Taxable income .......................................... 31,700
+Line 16   Tax ...................................................... 3,473
+Line 19   Child tax credit and credit for other dependents ......... 2,000
+Line 24   Total tax ................................................ 1,473
+Line 25a  Federal income tax withheld from Form(s) W-2 ............. 3,900
+Line 33   Total payments ........................................... 3,900
+Line 34   Amount you overpaid ...................................... 2,427
+Line 35a  Amount of line 34 you want refunded to you ............... 2,427
+Line 36   Amount of line 34 you want applied to your 2025 estimated tax .. 0
+
+=== PAGE 5 of 7 — Form 8812, Credits for Qualifying Children ===
+
+Line 4    Number of qualifying children under age 17 ................... 1
+Line 14   Child tax credit ......................................... 2,000
+
+*** END OF FICTIONAL SAMPLE ***

@@ -1,0 +1,20 @@
+*** FICTIONAL SAMPLE FOR TESTING ONLY. Every name, number, and ID in this file is invented. ***
+
+WAGE AND INCOME TRANSCRIPT — TAX YEAR 2024
+Taxpayer: Taylor Okafor     SSN: XXX-XX-0000
+Information reported to the IRS by payers
+
+Form 1099-NEC
+   Payer: Birchwood Media Group     EIN: 00-0000201
+   Nonemployee compensation: 44,900
+
+Form 1099-NEC
+   Payer: Elm Street Studio         EIN: 00-0000202
+   Nonemployee compensation: 3,200
+
+Form 5498
+   Trustee: Cedar Pond Bank (traditional IRA)   EIN: 00-0000203
+   IRA contributions: 6,500      Fair market value of account: 31,200
+
+
+*** END OF FICTIONAL SAMPLE ***

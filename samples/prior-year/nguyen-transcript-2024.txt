@@ -1,0 +1,24 @@
+*** FICTIONAL SAMPLE FOR TESTING ONLY. Every name, number, and ID in this file is invented. ***
+
+WAGE AND INCOME TRANSCRIPT — TAX YEAR 2024
+Taxpayers: Alex Nguyen and Sam Nguyen     SSNs: XXX-XX-0000 and XXX-XX-0000
+Information reported to the IRS by payers
+
+Form W-2 (Alex Nguyen)
+   Employer: Pioneer Health Group              EIN: 00-0000301
+   Wages, tips, other compensation: 112,000     Federal income tax withheld: 17,400
+
+Form W-2 (Sam Nguyen)
+   Employer: Redwood Unified School District   EIN: 00-0000302
+   Wages, tips, other compensation: 66,100      Federal income tax withheld: 6,100
+
+Form 1099-INT
+   Payer: Lakeview Bank                         EIN: 00-0000303
+   Interest income: 640
+
+Form 1098 (mortgage interest statement)
+   Lender: First Example Mortgage               EIN: 00-0000304
+   Mortgage interest received: 9,100
+
+
+*** END OF FICTIONAL SAMPLE ***

@@ -1,5 +1,6 @@
-// Checks the test documents in samples/irs-notices against the rules in samples/README.md.
-// Usage: npm run check:samples            (checks samples/irs-notices)
+// Checks the test documents in samples/irs-notices and samples/prior-year against the rules in
+// samples/README.md.
+// Usage: npm run check:samples            (checks both folders)
 //        node scripts/check-samples.mjs DIR   (checks another folder, for testing the checker)
 
 import { execFileSync } from "node:child_process";
@@ -57,11 +58,25 @@ for (const c of key.cases) {
   else if (ids.has(c.id)) fail(where, "duplicate id");
   else ids.add(c.id);
 
-  if (!c.file || !existsSync(path.join(dir, c.file)))
-    fail(where, `file "${c.file}" not found`);
-  else keyedFiles.add(c.file);
+  const isPriorYear = key.suite === "prior-year";
+  const caseFiles = isPriorYear ? c.files : [c.file];
+  if (
+    !Array.isArray(caseFiles) ||
+    caseFiles.length === 0 ||
+    caseFiles.some((f) => typeof f !== "string")
+  )
+    fail(
+      where,
+      isPriorYear ? "files must be a non-empty list" : "missing file",
+    );
+  else
+    for (const f of caseFiles) {
+      if (!existsSync(path.join(dir, f))) fail(where, `file "${f}" not found`);
+      else keyedFiles.add(f);
+    }
 
-  if (!c.prompt || typeof c.prompt !== "string") fail(where, "missing prompt");
+  if (!isPriorYear && (!c.prompt || typeof c.prompt !== "string"))
+    fail(where, "missing prompt");
   if (!c.why || typeof c.why !== "string") fail(where, "missing why");
   if (!isStringList(c.checks))
     fail(where, "checks must be a non-empty list of strings");
@@ -69,6 +84,22 @@ for (const c of key.cases) {
     fail(where, "mustNot must be a non-empty list of strings");
 
   const e = c.expected;
+  if (isPriorYear) {
+    if (!e || typeof e !== "object" || typeof e.figures !== "object")
+      fail(where, "expected.figures must be an object");
+    else {
+      for (const [field, f] of Object.entries(e.figures)) {
+        if (!f || (f.value !== null && typeof f.value !== "number"))
+          fail(
+            where,
+            `expected.figures.${field}.value must be a number or null`,
+          );
+      }
+      if (!Array.isArray(e.carryovers))
+        fail(where, "expected.carryovers must be a list (empty if none)");
+    }
+    continue;
+  }
   if (!e || typeof e !== "object" || typeof e.isIrsNotice !== "boolean") {
     fail(where, "expected.isIrsNotice must be true or false");
     continue;

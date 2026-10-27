@@ -1,0 +1,96 @@
+*** FICTIONAL SAMPLE FOR TESTING ONLY. Every name, number, and ID in this file is invented. ***
+
+COPY OF FILED RETURN — TAX YEAR 2024
+Prepared by: Summit Ledger & Co. (fictional)   PTIN: P00000002
+Taxpayer: Taylor Okafor          SSN: XXX-XX-0000
+Address: 17 Sample Avenue, Exampleville, ST 00000
+Filing status: Single            Filed electronically on 2025-04-10
+
+
+=== PAGE 1 of 9 — Form 1040, page 1 ===
+
+Line 1z   Add lines 1a through 1h ...................................... 0
+Line 2b   Taxable interest ............................................. 0
+Line 8    Additional income from Schedule 1, line 10 .............. 36,500
+Line 9    Total income ............................................ 36,500
+Line 10   Adjustments to income from Schedule 1, line 26 ........... 2,579
+Line 11   Adjusted gross income ................................... 33,921
+
+=== PAGE 2 of 9 — Form 1040, page 2 ===
+
+Line 12   Standard deduction or itemized deductions ............... 14,600
+Line 13   Qualified business income deduction ...................... 3,864
+Line 14   Add lines 12 and 13 ..................................... 18,464
+Line 15   Taxable income .......................................... 15,457
+Line 16   Tax ...................................................... 1,623
+Line 23   Other taxes, including self-employment tax, from Schedule 2, line 21 .. 5,157
+Line 24   Total tax ................................................ 6,780
+Line 26   2024 estimated tax payments and amount applied from 2023 return .. 7,980
+Line 33   Total payments ........................................... 7,980
+Line 34   Amount you overpaid ...................................... 1,200
+Line 35a  Amount of line 34 you want refunded to you ................... 0
+Line 36   Amount of line 34 you want applied to your 2025 estimated tax .. 1,200
+
+=== PAGE 3 of 9 — Schedule 1, Additional Income and Adjustments ===
+
+Line 3    Business income or (loss). Attach Schedule C ............ 36,500
+Line 10   Combine lines 1 through 9 ............................... 36,500
+Line 15   Deductible part of self-employment tax ................... 2,579
+Line 26   Total adjustments to income .............................. 2,579
+
+=== PAGE 4 of 9 — Schedule C, Profit or Loss From Business ===
+
+Business: Okafor Design Studio (sole proprietor; graphic design)   Accounting method: cash
+Line 1    Gross receipts or sales ................................. 44,900
+Line 7    Gross income ............................................ 44,900
+Line 8    Advertising ................................................ 650
+Line 13   Depreciation and section 179 deduction ..................... 896
+Line 15   Insurance (other than health) .............................. 720
+Line 18   Office expense ........................................... 1,134
+Line 27a  Other expenses (software subscriptions) .................. 2,400
+Line 24a  Travel ................................................... 1,200
+Line 27a  Other expenses (professional fees, phone) ................ 1,400
+Line 28   Total expenses ........................................... 8,400
+Line 31   Net profit or (loss) .................................... 36,500
+
+=== PAGE 5 of 9 — Schedule SE, Self-Employment Tax ===
+
+Line 2    Net profit from Schedule C, line 31 ..................... 36,500
+Line 4a   Multiply line 2 by 92.35% ............................... 33,708
+Line 12   Self-employment tax ...................................... 5,157
+Line 13   Deduction for one-half of self-employment tax ............ 2,579
+
+=== PAGE 6 of 9 — Form 8995, Qualified Business Income Deduction ===
+
+Line 1    Okafor Design Studio, qualified business income ......... 33,921
+Line 15   Qualified business income deduction ...................... 3,864
+
+=== PAGE 7 of 9 — Form 4562 statement: depreciation schedule ===
+
+Asset: Laptop computer and two monitors, 5-year property, half-year convention
+Placed in service: 2023-06-12      Cost basis: 2,800
+2023      Depreciation allowed (20.00%) .............................. 560
+2024      Depreciation this year (32.00%) ............................ 896
+          Total depreciation taken through 2024 .................... 1,456
+          Remaining basis to depreciate after 2024 ................. 1,344
+2025      Scheduled depreciation (19.20%) ............................ 538
+
+=== PAGE 8 of 9 — Form 8606, Nondeductible IRAs ===
+
+Line 1    Nondeductible contributions to traditional IRAs for 2024 .. 6,500
+Line 2    Total basis in traditional IRAs for 2023 and earlier years .. 6,500
+Line 3    Add lines 1 and 2 ....................................... 13,000
+Line 6    Value of all traditional IRAs at the end of 2024 ........ 31,200
+Line 7    Distributions from traditional IRAs in 2024 .................. 0
+Line 14   Total basis in traditional IRAs for 2024 and earlier years .. 13,000
+
+=== PAGE 9 of 9 — Estimated tax payment record, 2024 ===
+
+   Payment date    Amount
+   2024-04-15      1,995
+   2024-06-17      1,995
+   2024-09-16      1,995
+   2025-01-15      1,995
+          Total paid for 2024 ...................................... 7,980
+
+*** END OF FICTIONAL SAMPLE ***

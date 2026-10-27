@@ -1,0 +1,20 @@
+*** FICTIONAL SAMPLE FOR TESTING ONLY. Every name, number, and ID in this file is invented. ***
+
+WAGE AND INCOME TRANSCRIPT — TAX YEAR 2024
+Taxpayer: Casey Patel     SSN: XXX-XX-0000
+Information reported to the IRS by payers
+
+Form W-2
+   Employer: Lakeshore Dental Group              EIN: 00-0000401
+   Wages, tips, other compensation: 51,200        Federal income tax withheld: 3,900
+
+Form 1099-G
+   Payer: State Department of Labor              EIN: 00-0000402
+   Unemployment compensation: 3,100
+
+Form 1099-R
+   Payer: Meridian Retirement Services           EIN: 00-0000403
+   Gross distribution: 9,800   Taxable amount: 9,800   Distribution code: 1   Federal income tax withheld: 980
+
+
+*** END OF FICTIONAL SAMPLE ***

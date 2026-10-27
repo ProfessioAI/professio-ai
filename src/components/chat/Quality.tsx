@@ -1,7 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import type { GradingRun, GradingSummary } from "@/lib/grading-types";
+import type {
+  GradingRun,
+  GradingSuite,
+  GradingSummary,
+} from "@/lib/grading-types";
 import { modelInfo } from "@/lib/models";
 import { Card } from "@/components/settings/controls";
 
@@ -80,7 +84,7 @@ function Trend({ runs, threshold }: { runs: GradingRun[]; threshold: number }) {
   );
 }
 
-function Notices({ run }: { run: GradingRun }) {
+function CaseList({ run }: { run: GradingRun }) {
   const sorted = [...run.cases].sort(
     (a, b) => Number(a.clean) - Number(b.clean) || a.id.localeCompare(b.id),
   );
@@ -141,6 +145,7 @@ function Notices({ run }: { run: GradingRun }) {
 
 export default function Quality() {
   const [data, setData] = useState<GradingSummary | null | "error">(null);
+  const [suiteId, setSuiteId] = useState<string | null>(null);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -157,11 +162,11 @@ export default function Quality() {
         <p className="py-4 text-sm text-muted">Loading…</p>
       </Card>
     );
-  if (data === "error" || data.runs.length === 0)
+  if (data === "error" || data.suites.length === 0)
     return (
       <Card
         title="Answer quality"
-        description="How well the assistant answers the fictional test notices."
+        description="How well the assistant answers the fictional test documents."
       >
         <p className="py-4 text-sm leading-snug text-text-3">
           {data === "error"
@@ -172,15 +177,57 @@ export default function Quality() {
       </Card>
     );
 
-  const latest = data.runs[data.runs.length - 1];
-  const ok = latest.rate >= data.threshold;
-  const delta = data.baseline ? latest.rate - data.baseline.passRate : null;
+  const suite: GradingSuite =
+    data.suites.find((s) => s.id === suiteId) ?? data.suites[0];
+  return (
+    <>
+      {data.suites.length > 1 ? (
+        <div
+          role="tablist"
+          aria-label="Test set"
+          className="ui-inset ui-pill flex w-fit gap-1 rounded-lg bg-background p-1"
+        >
+          {data.suites.map((s) => (
+            <button
+              key={s.id}
+              type="button"
+              role="tab"
+              aria-selected={s.id === suite.id}
+              onClick={() => setSuiteId(s.id)}
+              className={`h-9 rounded-lg px-4 text-sm font-medium ${
+                s.id === suite.id
+                  ? "ui-seg-on bg-surface text-foreground shadow-sm"
+                  : "text-text-3 hover:text-foreground"
+              }`}
+            >
+              {s.label}
+            </button>
+          ))}
+        </div>
+      ) : null}
+      <SuiteView suite={suite} threshold={data.threshold} />
+    </>
+  );
+}
+
+function SuiteView({
+  suite,
+  threshold,
+}: {
+  suite: GradingSuite;
+  threshold: number;
+}) {
+  const latest = suite.runs[suite.runs.length - 1];
+  const ok = latest.rate >= threshold;
+  const delta = suite.baseline ? latest.rate - suite.baseline.passRate : null;
+  const count = latest.cases.length;
+  const unit = `${suite.unit}${count === 1 ? "" : "s"}`;
 
   return (
     <>
       <Card
-        title="Answer quality"
-        description="Each test notice is sent through the app, and an AI grader marks the answer against a checklist."
+        title={`Answer quality: ${suite.label.toLowerCase()}`}
+        description={`Each test ${suite.unit} is sent through the app, and an AI grader marks the answer against a checklist.`}
       >
         <div className="flex flex-wrap items-end gap-x-6 gap-y-2 py-4">
           <div>
@@ -196,12 +243,10 @@ export default function Quality() {
               ok ? "bg-accent-soft text-accent-text" : "bg-warn-bg text-warn-fg"
             }`}
           >
-            {ok
-              ? `Above the ${data.threshold}% bar`
-              : `Below the ${data.threshold}% bar`}
+            {ok ? `Above the ${threshold}% bar` : `Below the ${threshold}% bar`}
           </span>
           <div className="text-[0.8125rem] text-text-3">
-            {latest.cleanCases} of {latest.cases.length} notices fully clean
+            {latest.cleanCases} of {count} {unit} fully clean
             {delta !== null
               ? ` · ${delta >= 0 ? "+" : ""}${delta.toFixed(1)} points vs the saved baseline`
               : ""}
@@ -210,26 +255,26 @@ export default function Quality() {
         <p className="border-t border-border py-3 text-xs text-muted">
           Last run {when(latest.at)} · answers by {modelName(latest.model)} ·
           graded by {modelName(latest.graderModel)}
-          {data.baseline
-            ? ` · baseline ${data.baseline.passRate.toFixed(1)}% from ${day(data.baseline.savedAt)}`
+          {suite.baseline
+            ? ` · baseline ${suite.baseline.passRate.toFixed(1)}% from ${day(suite.baseline.savedAt)}`
             : ""}
         </p>
       </Card>
 
-      {data.runs.length > 1 ? (
+      {suite.runs.length > 1 ? (
         <Card
           title="Over time"
           description="Pass rate of each full run, newest on the right."
         >
-          <Trend runs={data.runs} threshold={data.threshold} />
+          <Trend runs={suite.runs} threshold={threshold} />
         </Card>
       ) : null}
 
       <Card
-        title="Test notices"
-        description="Notices with misses are listed first. Open one to see what was missed."
+        title={`Test ${unit}`}
+        description="Ones with misses are listed first. Open one to see what was missed."
       >
-        <Notices run={latest} />
+        <CaseList run={latest} />
       </Card>
     </>
   );

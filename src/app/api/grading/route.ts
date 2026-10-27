@@ -4,6 +4,7 @@ import type {
   GradingCase,
   GradingFailure,
   GradingRun,
+  GradingSuite,
   GradingSummary,
 } from "@/lib/grading-types";
 
@@ -30,12 +31,28 @@ type RawResult = {
   mustNot: RawCheck[];
 };
 type RawRun = {
+  suite?: string;
   model: string;
   graderModel: string;
   passedChecks: number;
   totalChecks: number;
   results: RawResult[];
 };
+
+const SUITES = [
+  {
+    id: "notices",
+    label: "IRS notices",
+    unit: "notice",
+    baseline: "samples/irs-notices/grading-baseline.json",
+  },
+  {
+    id: "prior-year",
+    label: "Prior-year returns",
+    unit: "return",
+    baseline: "samples/prior-year/grading-baseline-prior-year.json",
+  },
+] as const;
 
 /** "2026-10-27T04-26-05-790Z.json" -> "2026-10-27T04:26:05.790Z" */
 function timeFromName(name: string): string | null {
@@ -68,30 +85,26 @@ function summarizeCase(r: RawResult): GradingCase {
 }
 
 export async function GET() {
-  const empty: GradingSummary = {
-    runs: [],
-    baseline: null,
-    threshold: THRESHOLD,
-  };
+  const empty: GradingSummary = { suites: [], threshold: THRESHOLD };
   if (process.env.NODE_ENV === "production") return Response.json(empty);
 
   const root = process.cwd();
   const dir = path.join(root, "grading-results");
-  const runs: GradingRun[] = [];
+  const byId = new Map<string, GradingRun[]>(SUITES.map((s) => [s.id, []]));
   if (existsSync(dir)) {
     const names = readdirSync(dir)
       .filter((n) => timeFromName(n))
       .sort();
-    for (const name of names.slice(-MAX_RUNS * 3)) {
+    for (const name of names) {
       try {
         const raw = JSON.parse(
           readFileSync(path.join(dir, name), "utf8"),
         ) as RawRun;
-        if (
-          !Array.isArray(raw.results) ||
-          raw.results.length < FULL_RUN_MIN_CASES
-        )
-          continue;
+        const runs = byId.get(raw.suite ?? "notices");
+        if (!runs || !Array.isArray(raw.results)) continue;
+        // A run of one case is a spot check, not a score for the suite.
+        const need = raw.suite === "prior-year" ? 3 : FULL_RUN_MIN_CASES;
+        if (raw.results.length < need) continue;
         const cases = raw.results.map(summarizeCase);
         runs.push({
           at: timeFromName(name)!,
@@ -111,25 +124,32 @@ export async function GET() {
     }
   }
 
-  let baseline: GradingSummary["baseline"] = null;
-  const baselinePath = path.join(
-    root,
-    "samples",
-    "irs-notices",
-    "grading-baseline.json",
-  );
-  if (existsSync(baselinePath)) {
-    try {
-      const b = JSON.parse(readFileSync(baselinePath, "utf8"));
-      baseline = { savedAt: b.savedAt, passRate: b.passRate, commit: b.commit };
-    } catch {
-      baseline = null;
+  const suites = SUITES.map((s) => {
+    let baseline: GradingSuite["baseline"] = null;
+    const p = path.join(root, s.baseline);
+    if (existsSync(p)) {
+      try {
+        const b = JSON.parse(readFileSync(p, "utf8"));
+        baseline = {
+          savedAt: b.savedAt,
+          passRate: b.passRate,
+          commit: b.commit,
+        };
+      } catch {
+        baseline = null;
+      }
     }
-  }
+    return {
+      id: s.id,
+      label: s.label,
+      unit: s.unit,
+      runs: (byId.get(s.id) ?? []).slice(-MAX_RUNS),
+      baseline,
+    };
+  }).filter((s) => s.runs.length > 0);
 
   return Response.json({
-    runs: runs.slice(-MAX_RUNS),
-    baseline,
+    suites,
     threshold: THRESHOLD,
-  });
+  } satisfies GradingSummary);
 }
