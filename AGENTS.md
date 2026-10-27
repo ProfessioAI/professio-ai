@@ -17,7 +17,9 @@ shows in the sidebar badge and Settings > About. Small tweaks don't need a bump.
 
 ## Grading
 
-After changing the system prompt, tools, API routes, models, or the test notices, run
-`npm run grade:if-needed` (the app must be running). It runs the full grader only when one of
-those changed since the saved baseline, fails under 95% or on a regression, and costs about $1.
-Save a new baseline with `npm run grade -- --save-baseline` after a good run that you intend to keep.
+Grading calls the AI and costs real money (about $1.50 for a full run). **Never run it on your own.**
+Don't run `npm run grade` or `npm run grade:if-needed -- --run` unless the user asks for it in that
+message. After changing the system prompt, tools, API routes, models, or test documents, say that a
+grading run is worth doing and what it would cost, and let the user decide. `npm run grade:if-needed`
+without `--run` is free: it only lists what changed since the baseline. Save a new baseline with
+`npm run grade -- --save-baseline` only after a good run the user asked for.

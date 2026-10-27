@@ -314,13 +314,28 @@ function Chat({ s, set }: { s: Settings; set: Patch }) {
           />
         </SettingRow>
       </Card>
-      <Card title="What to show in conversations">
+      <Card
+        title="Skills"
+        description="The assistant uses these on its own when they help. You can also pick one for a message with the sparkle button next to the paperclip."
+      >
         <SettingRow
-          label="Tool activity"
-          description='The "Looked up CP2000 in the notice reference" line.'
+          label="Search official tax sites"
+          description="Lets the assistant look things up on IRS.gov, the Tax Court, the U.S. Code, and a few other official sites. What it searches for is written by the AI from your (scrubbed) message, and each search costs about 1 cent. Calculate, Dates, and Notice lookup are always on."
         >
           <Switch
-            label="Show tool activity"
+            label="Search official tax sites"
+            checked={s.skillSearch}
+            onChange={(skillSearch) => set({ skillSearch })}
+          />
+        </SettingRow>
+      </Card>
+      <Card title="What to show in conversations">
+        <SettingRow
+          label="Skills used"
+          description="The row under an answer that shows which skills it used (search, calculate, dates, notice lookup), with an icon for each."
+        >
+          <Switch
+            label="Show the skills used"
             checked={s.showToolChips}
             onChange={(showToolChips) => set({ showToolChips })}
           />

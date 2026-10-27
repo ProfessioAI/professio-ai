@@ -1,5 +1,7 @@
 import type Anthropic from "@anthropic-ai/sdk";
 import { z } from "zod";
+import type { SkillId } from "../skills";
+import type { ToolContext } from "./context";
 
 export type ToolResult = {
   content: string;
@@ -11,7 +13,9 @@ export type ToolResult = {
 /** A tool ("API link") the assistant can call during a chat. */
 export type AppTool = {
   definition: Anthropic.Beta.BetaTool;
-  run: (rawInput: unknown) => Promise<ToolResult>;
+  /** The skill this tool belongs to, for the skills row under an answer. */
+  skill: SkillId;
+  run: (rawInput: unknown, ctx: ToolContext) => Promise<ToolResult>;
 };
 
 /**
@@ -24,12 +28,14 @@ export type AppTool = {
 export function defineTool<S extends z.ZodType>(
   definition: Anthropic.Beta.BetaTool,
   schema: S,
-  handler: (input: z.infer<S>) => Promise<string> | string,
-  label?: (input: z.infer<S>) => string,
+  handler: (input: z.infer<S>, ctx: ToolContext) => Promise<string> | string,
+  label: ((input: z.infer<S>) => string) | undefined,
+  skill: SkillId,
 ): AppTool {
   return {
     definition,
-    async run(rawInput) {
+    skill,
+    async run(rawInput, ctx) {
       const parsed = schema.safeParse(rawInput);
       if (!parsed.success) {
         return {
@@ -39,7 +45,7 @@ export function defineTool<S extends z.ZodType>(
       }
       try {
         return {
-          content: await handler(parsed.data),
+          content: await handler(parsed.data, ctx),
           ...(label ? { label: label(parsed.data) } : {}),
         };
       } catch (err) {

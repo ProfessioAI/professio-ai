@@ -49,7 +49,7 @@ and has an AI grader mark each check true or false. It prints what failed and sa
 results in `grading-results/` (not committed). Options: `-- --only <case-id>`,
 `-- --model <model-id>` (which model answers), `-- --grader <model-id>`, `-- --min <percent>`
 (threshold, default 95), `-- --save-baseline` (record a good full run). `npm run grade:if-needed`
-runs it only when something that affects answers has changed since the baseline. A full run costs
+is free: it lists what changed since the baseline, and runs the grader only with `-- --run`. A full run costs
 about $1 with the default model. The AI grader is imperfect, so read a failure's reason
 before trusting it.
 

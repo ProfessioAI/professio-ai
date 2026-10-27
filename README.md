@@ -79,6 +79,16 @@ and ask for an explanation and a response plan.
   borders, soft backgrounds, and text on buttons are worked out from them, so a custom theme stays
   readable. The JSON format is `{"format": "professioai-theme", "version": 1, "name": "...",
 "light": {...}, "dark": {...}}`; missing colors are filled in from Classic or Glass.
+- **Skills:** the assistant has four, and uses them on its own when they help. **Search** looks up
+  current rules on IRS.gov, the Tax Court, the U.S. Code, and a few other official sites (about
+  1 cent a search, can be switched off in Settings > Chat). **Calculate** does exact arithmetic.
+  **Dates** works out weekdays, day counts, and deadlines that skip weekends and federal holidays
+  (including D.C. Emancipation Day). **Notice lookup** gives the reference summary for a notice code.
+  Calculate and Dates work with amounts and dates the scrubber hid: they use the real values on
+  this computer and give back only tokens, so the AI never sees the numbers. Under each answer a
+  "Skills used" row shows what was used, each with an icon (searches list the pages they read). The
+  sparkle button next to the paperclip picks a skill for your next message. Code: `src/lib/skills*.ts`,
+  `src/lib/tools/`. Check the math with `npm run skills:test` (free).
 - **Privacy scrubber:** before anything is sent to the AI, your message and attached files go
   through a scrubber that runs on this computer (`services/scrubber`, built on Microsoft's open-source
   Presidio plus detectors for tax IDs). Names, addresses, Social Security and employer ID numbers,
@@ -98,6 +108,9 @@ and ask for an explanation and a response plan.
   document states them), missing pages and documents, conflicts with the transcript, questions for
   the preparer, and a draft client email. Read-only. Code: `src/app/api/prior-year/`,
   `src/lib/prior-year-*.ts`. There is no screen for it yet.
+- **Right-hand panel:** besides the notice details, deadline, documents, and drafts, it shows what the
+  privacy scrubber hid in this conversation (counts by kind, and what each token stands for) and the
+  latest quality score for each test set, with a link to the Quality page.
 - **Quality:** the Quality page (switch at the top of the sidebar) shows how well the assistant answers the fictional test notices
   (the latest `npm run grade` score, past runs, and misses). It reads `grading-results/` on the
   computer running the app.

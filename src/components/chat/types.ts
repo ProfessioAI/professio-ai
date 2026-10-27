@@ -2,13 +2,19 @@ import type { Attachment, ChatMessage } from "@/lib/chat-types";
 import { MAX_FILE_BYTES } from "@/lib/chat-types";
 import type { ExportFormat } from "@/lib/settings";
 import type { ScrubbedMessage } from "@/lib/scrub-client";
+import type { SkillId, SkillUse } from "@/lib/skills";
 
 /**
  * A chat message plus what only the page needs: tool activity, and for a
  * user message that asked for a letter or checklist, the draft's title.
  */
 export type UIMessage = ChatMessage & {
+  /** Older saved answers listed tools as plain text; newer ones use `skills`. */
   tools?: string[];
+  /** The skills this answer used, for the skills row. */
+  skills?: SkillUse[];
+  /** A skill the preparer picked for this request (user messages). */
+  skill?: SkillId;
   draftTitle?: string;
   /** Estimated cost of this reply in dollars (assistant messages). */
   costUsd?: number;

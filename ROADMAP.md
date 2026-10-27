@@ -63,8 +63,8 @@ Fictional or public data only so far.
       answers against its checklist (first run 88.4% of checks; now about 99%)
 - [x] Pass-rate threshold (95%) and a saved baseline: a case that was clean and fails twice is a
       regression and fails the run. The grader is a little noisy, so one miss is re-run first
-- [x] `npm run grade:if-needed` runs the grader only when the prompt, tools, API routes, models, or
-      test documents changed since the baseline. It is a rule for the assistant in `AGENTS.md`
+- [x] `npm run grade:if-needed` says whether a run is worth doing (free), and only runs it with
+      `--run`. The assistant never runs grading on its own (rule in `AGENTS.md`), because it costs money
 - [x] Assistant fixes found by grading: confirms unfamiliar notices are genuine, flags weekend
       deadlines, hedges legal conclusions, writes short client emails with placeholders
 - [x] Quality page, switched to from the top of the sidebar: latest pass rate, a chart of past
@@ -113,3 +113,15 @@ Read-only, on fictional returns.
 - [x] Draft client email requesting the missing items
 - [x] Unknowns stay marked for the preparer; nothing is guessed
 - [x] Graded with the same runner and shown on the Quality page (`npm run grade -- --suite prior-year`)
+
+### Phase 12: Skills (in progress)
+
+- [x] Search: looks up current rules on IRS.gov, the Tax Court, the U.S. Code, and a few other
+      official sites, and lists the pages it read
+- [x] Calculate and Dates: exact arithmetic, weekdays, day counts, and deadlines that skip weekends
+      and federal holidays. They work with amounts and dates hidden by the scrubber and return only
+      tokens (`npm run skills:test`)
+- [x] Notice lookup as a skill
+- [x] A "Skills used" row with an icon for each skill under every answer
+- [x] A skill picker next to the paperclip, to choose a skill for a message
+- [x] Search can be switched off in Settings; searches are counted in the usage meter

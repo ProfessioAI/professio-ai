@@ -1,5 +1,7 @@
 // Shapes shared by the chat page (browser) and the chat API route (server).
 
+import type { SkillUse } from "./skills";
+import type { VaultEntry } from "./scrub-types";
 import type { UsageReport } from "./usage";
 
 export type AttachmentMediaType = "application/pdf" | "text/plain";
@@ -21,8 +23,10 @@ export type ChatMessage = {
 export type StreamEvent =
   | { type: "text"; text: string }
   | { type: "status"; status: "thinking" | "tool"; detail?: string }
-  /** A tool finished; `label` is a short description for the chat, e.g. "Looked up CP2000". */
-  | { type: "tool"; label: string }
+  /** A skill was used; shown in the skills row under the answer. */
+  | { type: "skill"; skill: SkillUse }
+  /** New hidden values (tokens) made by a skill, for the browser to keep in its vault. */
+  | { type: "vault"; entries: VaultEntry[] }
   /** What the whole reply used, sent once at the end. */
   | { type: "usage"; report: UsageReport }
   | { type: "error"; message: string }

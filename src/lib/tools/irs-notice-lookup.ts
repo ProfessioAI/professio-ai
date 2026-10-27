@@ -245,4 +245,5 @@ export const irsNoticeLookup = defineTool(
       ? `Looked up ${match.code} in the notice reference`
       : `Checked the notice reference for ${notice_code}`;
   },
+  "notice",
 );

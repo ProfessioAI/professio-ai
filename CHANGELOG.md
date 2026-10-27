@@ -5,6 +5,11 @@ a new feature or a visible redesign bumps the middle number (0.7.0), a notable f
 the last (0.6.1), and 1.0.0 is the first release for real customers.
 Run `npm run release -- minor "What changed"` to bump it and add an entry here.
 
+## [0.10.0] - 2026-10-27
+
+- Skills: Search (official tax sites), Calculate, Dates, and Notice lookup. A Skills used row with icons under each answer, and a picker next to the paperclip. Calculate and Dates work with hidden amounts and dates without the AI seeing them.
+- Searches are included in the usage meter.
+
 ## [0.9.1] - 2026-10-27
 
 - The privacy scrubber now also hides dates and dollar amounts (each has a Settings switch). The case panel still shows the real values.

@@ -104,6 +104,8 @@ export type Settings = {
   sendKey: SendKey;
   autoScroll: boolean;
   showToolChips: boolean;
+  /** Let the assistant search IRS.gov and other official tax sites (about 1 cent per search). */
+  skillSearch: boolean;
   showFollowUps: boolean;
   showReplyCost: boolean;
   replyDetail: ReplyDetail;
@@ -155,6 +157,7 @@ export const DEFAULT_SETTINGS: Settings = {
   sendKey: "enter",
   autoScroll: true,
   showToolChips: true,
+  skillSearch: true,
   showFollowUps: true,
   showReplyCost: true,
   replyDetail: "standard",
@@ -257,6 +260,7 @@ export function sanitizeSettings(raw: unknown): Settings {
     sendKey: pick(r.sendKey, SEND_KEYS, d.sendKey),
     autoScroll: bool(r.autoScroll, d.autoScroll),
     showToolChips: bool(r.showToolChips, d.showToolChips),
+    skillSearch: bool(r.skillSearch, d.skillSearch),
     showFollowUps: bool(r.showFollowUps, d.showFollowUps),
     showReplyCost: bool(r.showReplyCost, d.showReplyCost),
     replyDetail: pick(r.replyDetail, REPLY_DETAILS, d.replyDetail),

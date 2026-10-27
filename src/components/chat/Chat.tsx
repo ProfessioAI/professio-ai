@@ -12,6 +12,7 @@ import QualityView from "./QualityView";
 import { useSettings } from "@/components/settings/settings-store";
 import { aiPreferences } from "@/lib/settings";
 import { scrubMessage } from "@/lib/scrub-client";
+import type { SkillId } from "@/lib/skills";
 import {
   amountToNumber,
   dateToIso,
@@ -63,6 +64,9 @@ function unhideDetails(d: NoticeDetails, vault: VaultEntry[]): NoticeDetails {
 
 const TOOL_STATUS: Record<string, string> = {
   lookup_irs_notice: "Looking up the IRS notice…",
+  web_search: "Searching IRS.gov and other tax sites…",
+  calculate: "Calculating…",
+  check_dates: "Checking dates…",
 };
 
 export default function Chat() {
@@ -70,6 +74,8 @@ export default function Chat() {
   // What each privacy token stands for. It stays in this browser and is never sent to the AI.
   const [vault, setVault] = useState<VaultEntry[]>([]);
   const vaultRef = useRef<VaultEntry[]>([]);
+  // A skill the preparer picked for the next message.
+  const [pickedSkill, setPickedSkill] = useState<SkillId | null>(null);
   const [input, setInput] = useState("");
   const [files, setFiles] = useState<Attachment[]>([]);
   const [busy, setBusy] = useState(false);
@@ -102,7 +108,14 @@ export default function Chat() {
       vault.length
         ? messages.map((m) =>
             m.role === "assistant"
-              ? { ...m, text: rehydrate(m.text, vault) }
+              ? {
+                  ...m,
+                  text: rehydrate(m.text, vault),
+                  skills: m.skills?.map((u) => ({
+                    ...u,
+                    label: rehydrate(u.label, vault),
+                  })),
+                }
               : m,
           )
         : messages,
@@ -178,6 +191,8 @@ export default function Chat() {
 
   /** Sends `history` (ending with a user message) and streams the reply. */
   async function run(history: UIMessage[]) {
+    const lastUser = [...history].reverse().find((m) => m.role === "user");
+    const skillPicked = lastUser?.skill;
     // A new conversation gets its saved entry right away, so it shows in the sidebar.
     let id = currentId;
     if (!id) {
@@ -192,7 +207,7 @@ export default function Chat() {
         conversationTitle(history),
       );
     }
-    setMessages([...history, { role: "assistant", text: "", tools: [] }]);
+    setMessages([...history, { role: "assistant", text: "", skills: [] }]);
     setNotice(null);
     setBusy(true);
     setStatus("Thinking…");
@@ -219,6 +234,11 @@ export default function Chat() {
           // The model chosen in Settings, and the answer style and signing details (left out when default).
           model: settings.model,
           preferences: aiPreferences(settings),
+          // The skill picked for the latest request, which skills are on, and what the hidden
+          // values mean (read only by the tools on this computer, never sent to the AI).
+          ...(skillPicked ? { skill: skillPicked } : {}),
+          skills: { search: settings.skillSearch },
+          vault: settings.scrubUploads ? vaultRef.current : [],
         }),
         signal: controller.signal,
       });
@@ -248,11 +268,16 @@ export default function Chat() {
                 ? (TOOL_STATUS[event.detail ?? ""] ?? "Using a tool…")
                 : "Thinking…",
             );
-          } else if (event.type === "tool") {
+          } else if (event.type === "skill") {
             updateLastAssistant((m) => ({
               ...m,
-              tools: [...(m.tools ?? []), event.label],
+              skills: [...(m.skills ?? []), event.skill],
             }));
+          } else if (event.type === "vault") {
+            // A skill made new hidden values (a calculated amount, a computed date).
+            const next = [...vaultRef.current, ...event.entries];
+            vaultRef.current = next;
+            setVault(next);
           } else if (event.type === "usage") {
             meter.record(event.report);
             updateLastAssistant((m) => ({
@@ -369,6 +394,7 @@ export default function Chat() {
       text: trimmed,
       ...(files.length ? { attachments: files } : {}),
       ...(draftTitle ? { draftTitle } : {}),
+      ...(pickedSkill ? { skill: pickedSkill } : {}),
     };
     setNotice(null);
     setBusy(true);
@@ -386,6 +412,7 @@ export default function Chat() {
     }
     setInput("");
     setFiles([]);
+    setPickedSkill(null);
     run(history);
   }
 
@@ -507,6 +534,9 @@ export default function Chat() {
           : "Ask a follow-up, or attach another notice…"
       }
       autoFocusKey={focusKey}
+      skill={pickedSkill}
+      onPickSkill={setPickedSkill}
+      searchOn={settings.skillSearch}
     />
   );
 
@@ -698,6 +728,8 @@ export default function Chat() {
           details={details}
           documents={documentNames(messages)}
           drafts={drafts}
+          vault={vault}
+          onOpenQuality={() => setView("quality")}
           onRetry={() =>
             lastExtractFilesRef.current && extract(lastExtractFilesRef.current)
           }
@@ -717,6 +749,11 @@ export default function Chat() {
             details={details}
             documents={documentNames(messages)}
             drafts={drafts}
+            vault={vault}
+            onOpenQuality={() => {
+              setView("quality");
+              setPanelOpen(false);
+            }}
             onRetry={() =>
               lastExtractFilesRef.current &&
               extract(lastExtractFilesRef.current)

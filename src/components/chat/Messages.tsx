@@ -11,6 +11,8 @@ import {
   PenIcon,
   RegenerateIcon,
 } from "./Icons";
+import { skillInfo, type SkillUse } from "@/lib/skills";
+import { SKILL_ICONS } from "./skill-icons";
 import type { UIMessage } from "./types";
 
 const FOLLOW_UPS = [
@@ -34,6 +36,53 @@ const markdownComponents: Components = {
   ),
 };
 
+/** The skills an answer used, each with its icon, at the bottom of the answer. */
+function SkillsRow({ uses }: { uses: SkillUse[] }) {
+  return (
+    <div
+      aria-label="Skills used"
+      className="flex flex-col gap-1.5 border-t border-border pt-3"
+    >
+      <div className="text-xs font-semibold tracking-[0.06em] text-muted uppercase">
+        Skills used
+      </div>
+      <ul className="flex flex-wrap gap-2">
+        {uses.map((u, i) => {
+          const Icon = SKILL_ICONS[u.id];
+          return (
+            <li
+              key={`${u.id}-${i}`}
+              className="ui-inset ui-pill flex max-w-full flex-col gap-1 rounded-[10px] border border-border bg-surface py-1.5 pr-3 pl-2.5 text-[0.8125rem] text-text-2"
+            >
+              <span className="flex items-center gap-2">
+                <Icon size={15} className="shrink-0 text-accent-text" />
+                <span className="font-medium">{skillInfo(u.id).name}</span>
+                <span className="min-w-0 truncate text-text-3">{u.label}</span>
+              </span>
+              {u.sources?.length ? (
+                <span className="flex flex-wrap gap-x-3 gap-y-0.5 pl-6 text-xs">
+                  {u.sources.map((s) => (
+                    <a
+                      key={s.url}
+                      href={s.url}
+                      target="_blank"
+                      rel="noreferrer noopener"
+                      className="max-w-56 truncate text-accent-text underline underline-offset-2"
+                      title={s.title}
+                    >
+                      {s.title || new URL(s.url).hostname}
+                    </a>
+                  ))}
+                </span>
+              ) : null}
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+  );
+}
+
 export function UserMessage({ message }: { message: UIMessage }) {
   return (
     <div className="flex flex-col items-end gap-2">
@@ -55,6 +104,15 @@ export function UserMessage({ message }: { message: UIMessage }) {
           </div>
         </div>
       ))}
+      {message.skill ? (
+        <span className="flex items-center gap-1.5 rounded-full bg-accent-soft px-2.5 py-0.5 text-xs font-medium text-accent-text">
+          {(() => {
+            const Icon = SKILL_ICONS[message.skill];
+            return <Icon size={13} />;
+          })()}
+          Skill picked: {skillInfo(message.skill).name}
+        </span>
+      ) : null}
       {message.sent && message.sent.replaced > 0 ? (
         <span className="text-xs text-muted">
           Privacy scrubber: {message.sent.replaced} identifier
@@ -91,6 +149,10 @@ export function AssistantMessage({
   const { settings } = useSettings();
   const [copied, setCopied] = useState(false);
   const streaming = isLast && busy;
+  // Answers saved before skills existed listed plain-text tool names.
+  const uses: SkillUse[] =
+    message.skills ??
+    (message.tools ?? []).map((label) => ({ id: "notice" as const, label }));
   const finished = !streaming && message.text.trim().length > 0;
 
   async function copy() {
@@ -113,18 +175,6 @@ export function AssistantMessage({
           ProfessioAI
         </span>
         <div className="flex min-w-0 flex-1 flex-col gap-4">
-          {(settings.showToolChips ? message.tools : undefined)?.map(
-            (label, i) => (
-              <div
-                key={`${label}-${i}`}
-                className="ui-inset ui-pill inline-flex items-center gap-2 self-start rounded-full border border-border bg-surface py-1 pr-3 pl-2 text-[0.8125rem] text-text-3"
-              >
-                <CheckIcon size={16} className="text-accent-text" />
-                {label}
-              </div>
-            ),
-          )}
-
           {message.text ? (
             <div className="markdown">
               <ReactMarkdown
@@ -140,6 +190,10 @@ export function AssistantMessage({
             <p className="animate-pulse text-sm text-muted" aria-live="polite">
               {status}
             </p>
+          ) : null}
+
+          {settings.showToolChips && uses.length ? (
+            <SkillsRow uses={uses} />
           ) : null}
 
           {finished ? (

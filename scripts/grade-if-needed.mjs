@@ -1,7 +1,10 @@
-// Runs `npm run grade` only when something that changes the AI's answers has changed since the
-// saved baseline: the system prompt, tools, API routes, models, how documents are read, or the
+// Says whether a grading run is worth doing, and runs it only if you pass --run. Without --run it
+// is free: it just lists what changed since the saved baseline. A run calls the AI and costs about
+// $1.50, so it never happens by itself.
+// It looks at what changes the AI's answers since the saved baseline: the system prompt, tools, API routes, models, how documents are read, or the
 // test notices themselves. Anything else (styling, settings screens) can't change a grade.
-// Usage: npm run grade:if-needed [-- any options for npm run grade]
+// Usage: npm run grade:if-needed              (free: reports whether a run is worth it)
+//        npm run grade:if-needed -- --run     (does the run; other options go to npm run grade)
 
 import { spawnSync, execFileSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
@@ -70,9 +73,18 @@ if (changed.length === 0) {
   process.exit(0);
 }
 console.log(`Changed ${reason}:\n${changed.map((f) => `  ${f}`).join("\n")}\n`);
+if (!process.argv.includes("--run")) {
+  console.log(
+    "A grading run is worth doing, but it calls the AI and costs about $1.50. Nothing was run.\nTo run it: npm run grade:if-needed -- --run",
+  );
+  process.exit(0);
+}
 const run = spawnSync(
   process.execPath,
-  [path.join(root, "scripts/grade.mjs"), ...process.argv.slice(2)],
+  [
+    path.join(root, "scripts/grade.mjs"),
+    ...process.argv.slice(2).filter((a) => a !== "--run"),
+  ],
   { stdio: "inherit" },
 );
 process.exit(run.status ?? 1);

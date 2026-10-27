@@ -127,8 +127,14 @@ type UsageEntry = {
 
 export type MessageLike = {
   model: string;
-  usage: UsageEntry & { iterations?: UsageEntry[] | null };
+  usage: UsageEntry & {
+    iterations?: UsageEntry[] | null;
+    server_tool_use?: { web_search_requests?: number } | null;
+  };
 };
+
+/** Anthropic charges $10 per 1,000 web searches. */
+const WEB_SEARCH_USD = 0.01;
 
 /**
  * Tokens and estimated cost of one API response. When the API reports each attempt
@@ -170,6 +176,15 @@ export function reportFromMessage(message: MessageLike): UsageReport {
       models: [model],
     });
   }
+  // Searches are billed on top of the tokens, once per response.
+  const searches = message.usage.server_tool_use?.web_search_requests ?? 0;
+  if (searches > 0)
+    report = addReports(report, {
+      tokens: { input: 0, cacheRead: 0, cacheWrite: 0, output: 0 },
+      costUsd: round6(searches * WEB_SEARCH_USD),
+      priceKnown: true,
+      models: [],
+    });
   return report;
 }
 

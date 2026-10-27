@@ -8,12 +8,17 @@ import {
   formatMoney,
   type DetailsState,
 } from "./notice-utils";
+import type { VaultEntry } from "@/lib/scrub-types";
+import { QualitySection, ScrubberSection } from "./SidePanels";
 import type { Draft } from "./types";
 
 type Props = {
   details: DetailsState;
   documents: string[];
   drafts: Draft[];
+  /** What the privacy scrubber hid in this conversation. */
+  vault: VaultEntry[];
+  onOpenQuality: () => void;
   onRetry: () => void;
   onClose?: () => void;
   className?: string;
@@ -256,6 +261,8 @@ export default function CasePanel({
   details,
   documents,
   drafts,
+  vault,
+  onOpenQuality,
   onRetry,
   onClose,
   className = "",
@@ -336,6 +343,9 @@ export default function CasePanel({
           </div>
         )}
       </section>
+
+      <ScrubberSection vault={vault} />
+      <QualitySection onOpen={onOpenQuality} />
     </aside>
   );
 }
