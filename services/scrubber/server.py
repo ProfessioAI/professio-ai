@@ -25,11 +25,15 @@ class VaultEntry(BaseModel):
 class TextIn(BaseModel):
     text: str
     vault: list[VaultEntry] = []
+    dates: bool = False
+    amounts: bool = False
 
 
 class PdfIn(BaseModel):
     data: str  # base64
     vault: list[VaultEntry] = []
+    dates: bool = False
+    amounts: bool = False
 
 
 def _result(s, vault, extra=None):
@@ -51,7 +55,7 @@ def health():
 
 @app.post("/scrub")
 def scrub_text(body: TextIn):
-    s, vault = core.scrub(body.text, [v.model_dump() for v in body.vault])
+    s, vault = core.scrub(body.text, [v.model_dump() for v in body.vault], body.dates, body.amounts)
     return _result(s, vault)
 
 
@@ -71,5 +75,5 @@ def scrub_pdf(body: PdfIn):
     # PDF text comes back with each line padded with spaces; tidy that before scrubbing.
     tidy = [re.sub(r"[ \t]+\n", "\n", re.sub(r"[ \t]+$", "", t, flags=re.M)) for t in pages]
     joined = "\n".join(f"=== PAGE {i} of {len(pages)} ===\n{t}\n" for i, t in enumerate(tidy, 1))
-    s, vault = core.scrub(joined, [v.model_dump() for v in body.vault])
+    s, vault = core.scrub(joined, [v.model_dump() for v in body.vault], body.dates, body.amounts)
     return _result(s, vault, {"pages": len(pages)})

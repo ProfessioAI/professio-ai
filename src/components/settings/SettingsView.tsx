@@ -525,6 +525,26 @@ function Data({
             onChange={(scrubUploads) => set({ scrubUploads })}
           />
         </SettingRow>
+        <SettingRow
+          label="Also hide dates"
+          description="Notice dates, deadlines, and other dates become [DATE_1] and so on. The AI then can't work out weekdays or count days, so check deadlines yourself."
+        >
+          <Switch
+            label="Also hide dates"
+            checked={s.scrubUploads && s.scrubDates}
+            onChange={(scrubDates) => set({ scrubDates })}
+          />
+        </SettingRow>
+        <SettingRow
+          label="Also hide dollar amounts"
+          description="Amounts become [AMOUNT_1] and so on. The AI then can't add up or compare figures, so check the math yourself."
+        >
+          <Switch
+            label="Also hide dollar amounts"
+            checked={s.scrubUploads && s.scrubAmounts}
+            onChange={(scrubAmounts) => set({ scrubAmounts })}
+          />
+        </SettingRow>
       </Card>
       <Card title="Saved conversations">
         <SettingRow

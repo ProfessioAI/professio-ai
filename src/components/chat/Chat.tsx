@@ -12,7 +12,12 @@ import QualityView from "./QualityView";
 import { useSettings } from "@/components/settings/settings-store";
 import { aiPreferences } from "@/lib/settings";
 import { scrubMessage } from "@/lib/scrub-client";
-import { rehydrate, type VaultEntry } from "@/lib/scrub-types";
+import {
+  amountToNumber,
+  dateToIso,
+  rehydrate,
+  type VaultEntry,
+} from "@/lib/scrub-types";
 import type { Attachment, StreamEvent } from "@/lib/chat-types";
 import { MAX_FILES_PER_MESSAGE } from "@/lib/chat-types";
 import type { ExtractResponse, NoticeDetails } from "@/lib/notice-types";
@@ -34,6 +39,27 @@ import {
   type UIMessage,
 } from "./types";
 import Welcome from "./Welcome";
+
+/** Dates and amounts that were hidden from the AI come back as tokens; this turns them back. */
+function unhideDetails(d: NoticeDetails, vault: VaultEntry[]): NoticeDetails {
+  const date = (v: string | null) => {
+    if (!v || !/^\[DATE_\d+\]$/.test(v)) return v;
+    const original = rehydrate(v, vault);
+    return original === v ? null : dateToIso(original);
+  };
+  const { amountToken, ...rest } = d;
+  let amount = rest.amount;
+  if (amount === null && amountToken) {
+    const original = rehydrate(amountToken, vault);
+    amount = original === amountToken ? null : amountToNumber(original);
+  }
+  return {
+    ...rest,
+    noticeDate: date(rest.noticeDate),
+    respondBy: date(rest.respondBy),
+    amount,
+  };
+}
 
 const TOOL_STATUS: Record<string, string> = {
   lookup_irs_notice: "Looking up the IRS notice…",
@@ -273,8 +299,10 @@ export default function Chat() {
       if (body?.usage) meter.record(body.usage);
       if (!res.ok || !body)
         throw new Error(body?.error ?? "Couldn't read the notice details.");
-      const { usage: _usage, ...data } = body as ExtractResponse;
+      const { usage: _usage, ...raw } = body as ExtractResponse;
       void _usage;
+      // Dates and amounts hidden from the AI come back as tokens; turn them back into real ones.
+      const data = unhideDetails(raw, vaultRef.current);
       // A non-notice upload doesn't replace a notice already shown.
       setDetails((prev) =>
         data.isIrsNotice || !(prev.status === "ready" && prev.data.isIrsNotice)
@@ -313,7 +341,10 @@ export default function Chat() {
         out.push(m);
         continue;
       }
-      const r = await scrubMessage(m.text, m.attachments ?? [], current);
+      const r = await scrubMessage(m.text, m.attachments ?? [], current, {
+        dates: settings.scrubDates,
+        amounts: settings.scrubAmounts,
+      });
       if (!r.ok) {
         const found = r.review
           .slice(0, 3)

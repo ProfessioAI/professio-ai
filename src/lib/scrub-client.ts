@@ -27,6 +27,10 @@ export async function scrubMessage(
   text: string,
   attachments: Attachment[],
   vault: VaultEntry[],
+  options: { dates: boolean; amounts: boolean } = {
+    dates: false,
+    amounts: false,
+  },
 ): Promise<ScrubOutcome> {
   const items: ScrubItemIn[] = [];
   if (text.trim()) items.push({ id: "text", kind: "text", text });
@@ -45,7 +49,7 @@ export async function scrubMessage(
     res = await fetch("/api/scrub", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ items, vault }),
+      body: JSON.stringify({ items, vault, ...options }),
     });
   } catch {
     return {

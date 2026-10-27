@@ -5,6 +5,10 @@ a new feature or a visible redesign bumps the middle number (0.7.0), a notable f
 the last (0.6.1), and 1.0.0 is the first release for real customers.
 Run `npm run release -- minor "What changed"` to bump it and add an entry here.
 
+## [0.9.1] - 2026-10-27
+
+- The privacy scrubber now also hides dates and dollar amounts (each has a Settings switch). The case panel still shows the real values.
+
 ## [0.9.0] - 2026-10-27
 
 - Privacy scrubber: client identifiers are replaced with tokens before anything reaches the AI, and put back when you read the answer. Runs on your computer (Presidio), fails closed, and has its own accuracy test (npm run scrub:test).

@@ -129,6 +129,9 @@ export type Settings = {
   saveChats: boolean;
   /** Replace client identifiers with tokens before anything is sent to the AI. */
   scrubUploads: boolean;
+  /** Also hide written dates and dollar amounts. */
+  scrubDates: boolean;
+  scrubAmounts: boolean;
   usageDetailsOpen: boolean;
   exportFormat: ExportFormat;
 };
@@ -172,6 +175,8 @@ export const DEFAULT_SETTINGS: Settings = {
   showUsageMeter: true,
   saveChats: true,
   scrubUploads: true,
+  scrubDates: true,
+  scrubAmounts: true,
   usageDetailsOpen: false,
   exportFormat: "markdown",
 };
@@ -272,6 +277,8 @@ export function sanitizeSettings(raw: unknown): Settings {
     showUsageMeter: bool(r.showUsageMeter, d.showUsageMeter),
     saveChats: bool(r.saveChats, d.saveChats),
     scrubUploads: bool(r.scrubUploads, d.scrubUploads),
+    scrubDates: bool(r.scrubDates, d.scrubDates),
+    scrubAmounts: bool(r.scrubAmounts, d.scrubAmounts),
     usageDetailsOpen: bool(r.usageDetailsOpen, d.usageDetailsOpen),
     exportFormat: pick(r.exportFormat, EXPORT_FORMATS, d.exportFormat),
   };

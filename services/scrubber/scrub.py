@@ -16,8 +16,9 @@ from dataclasses import dataclass, field
 from presidio_analyzer import AnalyzerEngine, EntityRecognizer, RecognizerRegistry, RecognizerResult
 from presidio_analyzer.nlp_engine import NlpEngineProvider
 
-# Presidio entity types we ask for. Locations, dates, organizations, and URLs are left alone: the
-# assistant needs payer names, notice dates, and irs.gov links to be useful.
+# Presidio entity types we ask for. Locations, organizations, and URLs are left alone: the assistant
+# needs payer names and irs.gov links to be useful. Dates and dollar amounts are hidden only when the
+# caller asks (they are not identifiers, but the person may not want them leaving the computer).
 BUILT_IN = ["PERSON", "EMAIL_ADDRESS", "PHONE_NUMBER", "CREDIT_CARD", "US_ITIN"]
 TOKEN_NAME = {
     "PERSON": "PERSON",
@@ -32,6 +33,8 @@ TOKEN_NAME = {
     "DOB": "DOB",
     "ADDRESS": "ADDRESS",
     "PTIN": "PTIN",
+    "DATE": "DATE",
+    "AMOUNT": "AMOUNT",
 }
 # Below this score a hit is not replaced automatically; it is flagged for a person instead.
 CONFIRMED = 0.5
@@ -114,6 +117,20 @@ def _build_engine() -> AnalyzerEngine:
         RegexRecognizer("PHONE_NUMBER", r"\(\d{3}\)[ \t]?\d{3}[ .-]\d{4}\b", 0.8),
         RegexRecognizer("PHONE_NUMBER", r"(?<![\d-])\d{3}[ .-]\d{3}[ .-]\d{4}(?![\d-])", 0.75),
         RegexRecognizer("PTIN", r"\bP\d{8}\b", 0.9),
+        # Dates, written out, ISO, or numeric.
+        RegexRecognizer(
+            "DATE",
+            r"\b(?:Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|June?|July?|Aug(?:ust)?|Sep(?:t(?:ember)?)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)\.? \d{1,2}(?:st|nd|rd|th)?(?:, \d{4})?\b",
+            0.85,
+        ),
+        RegexRecognizer("DATE", r"\b\d{4}-\d{2}-\d{2}\b", 0.85),
+        RegexRecognizer("DATE", r"\b\d{1,2}/\d{1,2}/\d{2,4}\b", 0.85),
+        # Dollar amounts: with a dollar sign, with thousands commas, with cents, or after a dot leader.
+        RegexRecognizer("AMOUNT", r"\(\$\s?\d[\d,]*(?:\.\d+)?\)|-?\$\s?\d[\d,]*(?:\.\d+)?", 0.9),
+        RegexRecognizer("AMOUNT", r"\(\d{1,3}(?:,\d{3})+(?:\.\d{2})?\)|\(\d+\.\d{2}\)", 0.8),
+        RegexRecognizer("AMOUNT", r"(?<![\d,.])\d{1,3}(?:,\d{3})+(?:\.\d{2})?(?!\d|,\d)", 0.85),
+        RegexRecognizer("AMOUNT", r"(?<![\d.,-])\d+\.\d{2}(?![\d%])", 0.8),
+        RegexRecognizer("AMOUNT", r"(?m)\.{2,}[ \t]+(\(?\d[\d,]*(?:\.\d+)?\)?)[ \t]*$", 0.8, 1),
         # Street addresses, with the city, state, and ZIP when they follow.
         RegexRecognizer(
             "ADDRESS",
@@ -216,13 +233,14 @@ def plausible_name(span: str) -> bool:
     return not any(w.lower() in NOT_NAMES for w in s.split()) and s.lower() not in NOT_NAMES
 
 
-def find(text: str) -> list[Hit]:
+def find(text: str, dates: bool = False, amounts: bool = False) -> list[Hit]:
     """Every identifier in the text, with overlaps resolved (longer and higher score win)."""
-    results = engine().analyze(
-        text=text,
-        language="en",
-        entities=BUILT_IN + ["SSN", "EIN", "ROUTING", "ACCOUNT", "DOB", "ADDRESS", "PTIN"],
-    )
+    wanted_types = BUILT_IN + ["SSN", "EIN", "ROUTING", "ACCOUNT", "DOB", "ADDRESS", "PTIN"]
+    if dates:
+        wanted_types.append("DATE")
+    if amounts:
+        wanted_types.append("AMOUNT")
+    results = engine().analyze(text=text, language="en", entities=wanted_types)
     hits: list[Hit] = []
     for r in results:
         kind = r.entity_type
@@ -281,7 +299,7 @@ def _norm(kind: str, value: str) -> str:
     return v.upper() if kind in ("PERSON", "ADDRESS") else re.sub(r"[\s-]", "", v) if kind in ("SSN", "EIN") else v
 
 
-def scrub(text: str, vault: list[dict] | None = None) -> Scrubbed:
+def scrub(text: str, vault: list[dict] | None = None, dates: bool = False, amounts: bool = False) -> Scrubbed:
     """Replace identifiers with tokens. `vault` is the caller's existing {token, type, original} list;
     the same value always gets the same token, and new tokens carry on the numbering."""
     vault = [dict(v) for v in (vault or [])]
@@ -307,7 +325,7 @@ def scrub(text: str, vault: list[dict] | None = None) -> Scrubbed:
     review: list[dict] = []
     entities: dict[str, dict] = {}
     pos = 0
-    for h in find(text):
+    for h in find(text, dates, amounts):
         original = text[h.start : h.end]
         if h.score < CONFIRMED:
             review.append(

@@ -38,6 +38,9 @@ const RequestSchema = z.object({
     .min(1)
     .max(12),
   vault: VaultSchema.default([]),
+  // Also hide written dates and dollar amounts, not just identifiers.
+  dates: z.boolean().default(false),
+  amounts: z.boolean().default(false),
 });
 
 type ServiceReply = {
@@ -66,6 +69,7 @@ export async function POST(req: Request) {
     );
   }
 
+  const { dates, amounts } = parsed.data;
   let vault: VaultEntry[] = parsed.data.vault;
   const items: ScrubItemOut[] = [];
   let needsReview = false;
@@ -79,8 +83,8 @@ export async function POST(req: Request) {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(
             item.kind === "pdf"
-              ? { data: item.data, vault }
-              : { text: item.text, vault },
+              ? { data: item.data, vault, dates, amounts }
+              : { text: item.text, vault, dates, amounts },
           ),
           signal: AbortSignal.timeout(120_000),
         },

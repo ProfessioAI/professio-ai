@@ -86,7 +86,10 @@ and ask for an explanation and a response plan.
   tokens stand for real values kept in a vault that never leaves the browser, and answers are shown
   with the real values put back. PDFs are converted to text first. If the scrubber is down, or
   isn't sure about something (a bare 9-digit number, a scanned PDF), nothing is sent. Turn it off in
-  Settings > Data & privacy for fictional test data. One-time setup: `npm run scrubber:setup`
+  Settings > Data & privacy for fictional test data. Written dates (`[DATE_1]`) and dollar amounts
+  (`[AMOUNT_1]`) are hidden too, each with its own switch; the AI then can't do arithmetic or
+  weekday math with them, so check those yourself. The case panel still shows real dates and
+  amounts, because the browser turns the hidden ones back. One-time setup: `npm run scrubber:setup`
   (needs Python 3.12). Run it next to the app with `npm run scrubber`. Check it with
   `npm run scrub:test` (free, no AI): it must leak no listed identifier, scrub away no dollar amount
   or date, and put the originals back exactly.

@@ -20,4 +20,6 @@ export type NoticeDetails = {
   amount: number | null;
   /** What the amount is, e.g. "Proposed" or "Balance due". */
   amountLabel: string | null;
+  /** Set when the amount was hidden from the AI; the browser turns it back into a number. */
+  amountToken?: string | null;
 };

@@ -71,7 +71,7 @@ const note = (id, msg) => problems.push(`${id}: ${msg}`);
 
 // --- small texts -----------------------------------------------------------------------
 for (const u of key.units) {
-  const r = await post("/scrub", { text: u.text });
+  const r = await post("/scrub", { text: u.text, ...(u.options ?? {}) });
   for (const id of u.identifiers) {
     checked++;
     if (r.text.includes(id)) note(u.id, `leaked "${id}"`);
@@ -105,53 +105,73 @@ for (const u of key.units) {
 const money = /\$[\d,]+(?:\.\d{2})?/g;
 const longDate =
   /\b(?:January|February|March|April|May|June|July|August|September|October|November|December) \d{1,2}, \d{4}\b/g;
+const isoDate = /\b\d{4}-\d{2}-\d{2}\b/g;
+const commaNumber = /(?<![\d,.])\d{1,3}(?:,\d{3})+(?:\.\d{2})?(?!\d|,\d)/g;
+const flat = (s) => s.replace(/\s+/g, " ");
 let docs = 0;
 let tokens = 0;
-for (const c of key.corpus) {
-  const file = path.join(root, c.dir ?? "samples/irs-notices", c.file);
-  const isPdf = c.file.endsWith(".pdf");
-  let original;
-  let r;
-  if (isPdf) {
-    r = await post("/scrub-pdf", {
-      data: readFileSync(file).toString("base64"),
-    });
-    original = execFileSync("pdftotext", ["-layout", file, "-"], {
-      encoding: "utf8",
-    });
-  } else {
-    original = readFileSync(file, "utf8");
-    r = await post("/scrub", { text: original });
-  }
-  docs++;
-  tokens += r.entities.length;
-  const flat = (s) => s.replace(/\s+/g, " ");
-  for (const id of c.identifiers) {
-    checked++;
-    if (flat(r.text).includes(flat(id))) note(c.file, `leaked "${id}"`);
-  }
-  checked++;
-  const shaped = r.text
-    .replace(/\[[A-Z]+_\d+(?:_[A-Z]+)?\]/g, " ")
-    .match(/\b\d{3}-\d{2}-\d{4}\b|\b\d{2}-\d{7}\b|\b\d{9}\b/g);
-  if (shaped)
-    note(c.file, `an ID-shaped number is still there: ${shaped.join(", ")}`);
-  if (r.needsReview)
-    note(
-      c.file,
-      `held for review: ${r.review.map((x) => `${x.type} "${x.text}"`).join("; ")}`,
-    );
-  for (const pattern of [money, longDate]) {
-    for (const m of new Set(flat(original).match(pattern) ?? [])) {
+// Two modes: the default (dates and amounts must survive) and strict (they must be gone).
+for (const strict of [false, true]) {
+  const mode = strict ? "strict" : "default";
+  for (const c of key.corpus) {
+    const file = path.join(root, c.dir ?? "samples/irs-notices", c.file);
+    const isPdf = c.file.endsWith(".pdf");
+    const options = strict ? { dates: true, amounts: true } : {};
+    let original;
+    let r;
+    if (isPdf) {
+      r = await post("/scrub-pdf", {
+        data: readFileSync(file).toString("base64"),
+        ...options,
+      });
+      original = execFileSync("pdftotext", ["-layout", file, "-"], {
+        encoding: "utf8",
+      });
+    } else {
+      original = readFileSync(file, "utf8");
+      r = await post("/scrub", { text: original, ...options });
+    }
+    docs++;
+    tokens += r.entities.length;
+    const where = `${c.file} (${mode})`;
+    for (const id of c.identifiers) {
       checked++;
-      if (!flat(r.text).includes(m)) note(c.file, `scrubbed away "${m}"`);
+      if (flat(r.text).includes(flat(id))) note(where, `leaked "${id}"`);
+    }
+    checked++;
+    const shaped = r.text
+      .replace(/\[[A-Z]+_\d+(?:_[A-Z]+)?\]/g, " ")
+      .match(/\b\d{3}-\d{2}-\d{4}\b|\b\d{2}-\d{7}\b|\b\d{9}\b/g);
+    if (shaped)
+      note(where, `an ID-shaped number is still there: ${shaped.join(", ")}`);
+    if (r.needsReview)
+      note(
+        where,
+        `held for review: ${r.review.map((x) => `${x.type} "${x.text}"`).join("; ")}`,
+      );
+    // Round trip: putting the originals back must give the original text.
+    checked++;
+    const back = r.text.replace(
+      /\[[A-Z]+_\d+(?:_[A-Z]+)?\]/g,
+      (t) => r.vault.find((v) => v.token === t)?.original ?? t,
+    );
+    // (A PDF's text can't be compared with another extraction of it, so only text files are.)
+    if (!isPdf && !r.needsReview && flat(back) !== flat(original))
+      note(where, "putting the originals back didn't give the original text");
+    for (const pattern of [money, longDate, isoDate, commaNumber]) {
+      for (const m of new Set(flat(original).match(pattern) ?? [])) {
+        checked++;
+        const present = flat(r.text).includes(m);
+        if (!strict && !present) note(where, `scrubbed away "${m}"`);
+        if (strict && present) note(where, `leaked "${m}"`);
+      }
     }
   }
 }
 
 child?.kill();
 console.log(
-  `${key.units.length} small texts and ${docs} documents, ${checked} checks, ${tokens} replaced items found in the documents`,
+  `${key.units.length} small texts and ${docs} document runs (default and strict), ${checked} checks, ${tokens} replaced items found in the documents`,
 );
 if (problems.length) {
   console.log(`\n${problems.length} problem(s):`);

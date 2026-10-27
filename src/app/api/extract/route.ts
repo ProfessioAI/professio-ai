@@ -43,18 +43,26 @@ const ExtractionSchema = z.object({
   notice_date: z
     .string()
     .nullable()
-    .describe("Date of the notice, formatted YYYY-MM-DD."),
+    .describe(
+      "Date of the notice, formatted YYYY-MM-DD. If the document shows a hidden-date token such as [DATE_2] instead of a date, copy that token exactly.",
+    ),
   respond_by: z
     .string()
     .nullable()
     .describe(
-      "Response or payment deadline printed on the notice, formatted YYYY-MM-DD. Null if no date is printed; never calculate one.",
+      "Response or payment deadline printed on the notice, formatted YYYY-MM-DD. If the document shows a hidden-date token such as [DATE_2] instead of a date, copy that token exactly. Null if no date is printed; never calculate one.",
     ),
   amount: z
     .number()
     .nullable()
     .describe(
       "Total amount the notice says is due or proposed, in dollars, e.g. 4016.00.",
+    ),
+  amount_token: z
+    .string()
+    .nullable()
+    .describe(
+      "If the amount is shown as a hidden-amount token such as [AMOUNT_5], copy the token here exactly and set amount to null. Otherwise null.",
     ),
   amount_label: z
     .string()
@@ -65,8 +73,12 @@ const ExtractionSchema = z.object({
 });
 
 const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
+const TOKEN = /^\[(DATE|AMOUNT)_\d+\]$/;
+// A real date, or a hidden-date token that the browser turns back into one.
 const cleanDate = (d: string | null) =>
-  d && ISO_DATE.test(d) && !Number.isNaN(Date.parse(d)) ? d : null;
+  d && ((ISO_DATE.test(d) && !Number.isNaN(Date.parse(d))) || TOKEN.test(d))
+    ? d
+    : null;
 
 export async function POST(req: Request) {
   let body: unknown;
@@ -143,6 +155,10 @@ export async function POST(req: Request) {
           ? out.amount
           : null,
       amountLabel: out.amount_label?.trim() || null,
+      amountToken:
+        out.amount_token && TOKEN.test(out.amount_token.trim())
+          ? out.amount_token.trim()
+          : null,
     };
     const body: ExtractResponse = {
       ...details,

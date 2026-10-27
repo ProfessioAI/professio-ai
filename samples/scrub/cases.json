@@ -119,6 +119,61 @@
       "expectTokenCounts": {
         "SSN": 1
       }
+    },
+    {
+      "id": "strict-dates",
+      "options": {
+        "dates": true
+      },
+      "text": "Notice date: October 1, 2026. Respond by 10/31/2026; filed 2025-03-14; paid Nov 9.",
+      "identifiers": ["October 1, 2026", "10/31/2026", "2025-03-14", "Nov 9"],
+      "keep": ["Notice date", "Respond by", "filed", "paid"]
+    },
+    {
+      "id": "strict-amounts",
+      "options": {
+        "amounts": true
+      },
+      "text": "You owe $4,016.00 (tax $3,170.00, penalty $634.00). Line 7 ........ (3,000)  Line 8 ........ 644 and 12,950 total.",
+      "identifiers": ["$4,016.00", "$3,170.00", "$634.00", "(3,000)", "12,950"],
+      "keep": ["You owe", "penalty", "Line 7", "Line 8"]
+    },
+    {
+      "id": "strict-keeps-years-and-codes",
+      "options": {
+        "dates": true,
+        "amounts": true
+      },
+      "text": "Notice CP2000 for tax year 2024, Form 1040, IRC section 6662, 92.35% of net, 19.20% rate, Letter 525, line 15.",
+      "identifiers": [],
+      "keep": [
+        "CP2000",
+        "tax year 2024",
+        "Form 1040",
+        "6662",
+        "92.35%",
+        "19.20%",
+        "Letter 525",
+        "line 15"
+      ]
+    },
+    {
+      "id": "strict-same-amount-same-token",
+      "options": {
+        "amounts": true
+      },
+      "text": "Refund $644 and later $644 again.",
+      "identifiers": ["$644"],
+      "keep": [],
+      "expectTokenCounts": {
+        "AMOUNT": 1
+      }
+    },
+    {
+      "id": "default-keeps-dates-and-amounts",
+      "text": "Due October 31, 2026: $4,016.00.",
+      "identifiers": [],
+      "keep": ["October 31, 2026", "$4,016.00"]
     }
   ],
   "corpus": [

@@ -95,6 +95,8 @@ Fictional or public data only so far.
 - [x] Accuracy test set from fictional documents with fake SSNs (`npm run scrub:test`): nothing
       leaks, no amount or date is scrubbed away, and the originals come back exactly
 - [x] The privacy switch in Settings, and a badge on each message showing what was hidden
+- [x] Dates and dollar amounts can be hidden too (each has a switch). The case panel still shows
+      the real ones, because the browser turns the hidden ones back
 
 ### Phase 8: Prior-year rebuild (in progress)
 
