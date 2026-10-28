@@ -83,6 +83,9 @@ and ask for an explanation and a response plan.
   right-hand panel and moves as you scroll (Settings > Appearance, Glass only; off with reduced motion).
   Messages, cards, menus, and panels ease in, and buttons lift on hover and press in on click. All of
   it stops with the Reduce motion setting.
+- **Tax engine:** `src/engine/` works out a 2024 federal return for simple cases with no AI (see
+  `src/engine/README.md`). It's checked against every row of the IRS Tax Table and EIC Table
+  (`npm run engine:test`, free). It isn't connected to a screen yet.
 - **Skills:** the assistant has four, and uses them on its own when they help. **Search** looks up
   current rules on IRS.gov, the Tax Court, the U.S. Code, and a few other official sites (about
   1 cent a search, can be switched off in Settings > Chat). **Calculate** does exact arithmetic.

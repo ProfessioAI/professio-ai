@@ -127,3 +127,15 @@ Read-only, on fictional returns.
 - [x] A "Skills used" row with an icon for each skill under every answer
 - [x] A skill picker next to the paperclip, to choose a skill for a message
 - [x] Search can be switched off in Settings; searches are counted in the usage meter
+
+### Phase 13: Tax engine, tax year 2024 (in progress)
+
+Plain code, no AI, that works out a federal return line by line (`src/engine/`).
+
+- [x] The 2024 rules in one place: brackets, standard deduction, child credit, earned income credit
+- [x] Form 1040 for simple returns: wages, interest, dividends, unemployment, standard deduction
+- [x] Tax Table and rate schedules, checked against every row of the IRS 2024 Tax Table
+- [x] Child tax credit, credit for other dependents, and additional child tax credit (Schedule 8812)
+- [x] Earned income credit, checked against every row of the IRS 2024 EIC Table
+- [x] A record of every line and how it was reached, so any number can be explained
+- [x] Refuses (or marks incomplete) anything it can't do, instead of guessing
