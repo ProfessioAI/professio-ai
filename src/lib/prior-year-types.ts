@@ -47,6 +47,8 @@ export type CarryoverType = (typeof CARRYOVER_TYPES)[number];
 
 export type Figure = {
   value: number | null;
+  /** Set instead of `value` when the amount was hidden from the AI, like [AMOUNT_3]. */
+  token: string | null;
   /** The page number from the "=== PAGE n of N" heading. */
   page: number | null;
   line: string | null;
@@ -57,6 +59,8 @@ export type Carryover = {
   description: string;
   /** Null when it can't be determined. */
   amount: number | null;
+  /** Set instead of `amount` when the amount was hidden from the AI. */
+  amountToken: string | null;
   /** "found": a document states it. "unknown": it exists or may exist, but the documents don't show it. */
   status: "found" | "unknown";
   document: string | null;
@@ -74,7 +78,9 @@ export type MissingItem = {
 export type Conflict = {
   description: string;
   returnValue: number | null;
+  returnToken: string | null;
   otherValue: number | null;
+  otherToken: string | null;
   /** Where the other number comes from, e.g. "IRS wage and income transcript". */
   otherSource: string;
 };

@@ -113,6 +113,8 @@ Read-only, on fictional returns.
 - [x] Draft client email requesting the missing items
 - [x] Unknowns stay marked for the preparer; nothing is guessed
 - [x] Graded with the same runner and shown on the Quality page (`npm run grade -- --suite prior-year`)
+- [x] The Prior year page: upload the return, transcript, and received list; read through the privacy
+      scrubber with amounts and dates hidden, then shown with the real values put back
 
 ### Phase 12: Skills (in progress)
 

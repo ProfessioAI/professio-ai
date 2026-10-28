@@ -13,6 +13,9 @@ How to read the files:
 - "confirm": short questions or unknowns the preparer must settle. Say that something is likely or possible rather than certain when the documents don't prove it.
 - "clientEmail": a short, plain-language email (under 150 words) asking the client for what is missing. Address it to [Client name], sign it [Your name], and use no names from the documents. Leave it empty when nothing is missing.
 
+Hidden values:
+- To protect the client, names, addresses, ID numbers, and sometimes dates and dollar amounts are replaced by tokens such as [PERSON_1], [SSN_1], [DATE_2], or [AMOUNT_3]. Use a token exactly as written and never guess what is behind it. Where a figure is a token, leave the number null and copy the token into the token field ("token", "amount_token", "return_token", "other_token"). You can't compare two hidden amounts; say so in "confirm" instead of guessing.
+
 Rules:
 - Use only what is in the files. Never invent a figure, date, form, or page. When something can't be determined, say so.
 - Never repeat a full Social Security number or other full ID number; the last four digits at most.

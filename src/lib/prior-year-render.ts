@@ -4,9 +4,9 @@ import {
   type PriorYearReport,
 } from "./prior-year-types";
 
-const money = (n: number | null) =>
+const money = (n: number | null, token: string | null = null) =>
   n === null
-    ? "unknown"
+    ? (token ?? "unknown")
     : n < 0
       ? `($${Math.abs(n).toLocaleString("en-US")})`
       : `$${n.toLocaleString("en-US")}`;
@@ -29,14 +29,14 @@ export function reportToMarkdown(r: PriorYearReport): string {
   for (const f of FIGURE_FIELDS) {
     const fig = r.figures[f];
     out.push(
-      `- ${FIGURE_LINES[f]}: ${money(fig.value)}${where(fig.page, fig.line)}`,
+      `- ${FIGURE_LINES[f]}: ${money(fig.value, fig.token)}${where(fig.page, fig.line)}`,
     );
   }
   out.push("", "## Carries into the next year");
   if (r.carryovers.length === 0) out.push("- None found.");
   for (const c of r.carryovers) {
     out.push(
-      `- ${c.description}: ${c.status === "found" ? money(c.amount) : "unknown"}${where(c.page, c.line)}${c.document ? ` in ${c.document}` : ""}. ${c.note}`.trim(),
+      `- ${c.description}: ${c.status === "found" ? money(c.amount, c.amountToken) : "unknown"}${where(c.page, c.line)}${c.document ? ` in ${c.document}` : ""}. ${c.note}`.trim(),
     );
   }
   out.push("", "## Missing items");
@@ -47,7 +47,7 @@ export function reportToMarkdown(r: PriorYearReport): string {
   if (r.conflicts.length === 0) out.push("- None found.");
   for (const c of r.conflicts)
     out.push(
-      `- ${c.description} Return: ${money(c.returnValue)}. ${c.otherSource}: ${money(c.otherValue)}.`,
+      `- ${c.description} Return: ${money(c.returnValue, c.returnToken)}. ${c.otherSource}: ${money(c.otherValue, c.otherToken)}.`,
     );
   out.push("", "## To confirm");
   if (r.confirm.length === 0) out.push("- Nothing.");

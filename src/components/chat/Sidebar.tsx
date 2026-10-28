@@ -16,8 +16,8 @@ type Props = {
   onOpenSettings: () => void;
   settingsOpen: boolean;
   /** Which page is showing, for the Chat / Quality switch at the top. */
-  page: "chat" | "quality" | "settings";
-  onSelectPage: (page: "chat" | "quality") => void;
+  page: "chat" | "prior" | "quality" | "settings";
+  onSelectPage: (page: "chat" | "prior" | "quality") => void;
   className?: string;
 };
 
@@ -73,6 +73,7 @@ export default function Sidebar({
         {(
           [
             ["chat", "Chat"],
+            ["prior", "Prior year"],
             ["quality", "Quality"],
           ] as const
         ).map(([id, label]) => (

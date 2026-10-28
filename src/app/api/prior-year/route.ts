@@ -26,6 +26,12 @@ const RequestSchema = z.object({
 
 const Figure = z.object({
   value: z.number().nullable(),
+  token: z
+    .string()
+    .nullable()
+    .describe(
+      "If the amount is shown as a hidden-amount token like [AMOUNT_3], copy it here exactly and set value to null. Otherwise null.",
+    ),
   page: z.number().int().nullable(),
   line: z.string().nullable(),
 });
@@ -48,6 +54,12 @@ const ReportSchema = z.object({
       type: z.enum(CARRYOVER_TYPES),
       description: z.string(),
       amount: z.number().nullable(),
+      amount_token: z
+        .string()
+        .nullable()
+        .describe(
+          "If the amount is a hidden-amount token like [AMOUNT_3], copy it here and set amount to null. Otherwise null.",
+        ),
       status: z.enum(["found", "unknown"]),
       document: z.string().nullable(),
       page: z.number().int().nullable(),
@@ -66,7 +78,9 @@ const ReportSchema = z.object({
     z.object({
       description: z.string(),
       return_value: z.number().nullable(),
+      return_token: z.string().nullable(),
       other_value: z.number().nullable(),
+      other_token: z.string().nullable(),
       other_source: z.string(),
     }),
   ),
@@ -143,12 +157,24 @@ export async function POST(req: Request) {
       filingStatus: out.filing_status,
       preparer: out.preparer,
       figures: out.figures,
-      carryovers: out.carryovers,
+      carryovers: out.carryovers.map((c) => ({
+        type: c.type,
+        description: c.description,
+        amount: c.amount,
+        amountToken: c.amount_token,
+        status: c.status,
+        document: c.document,
+        page: c.page,
+        line: c.line,
+        note: c.note,
+      })),
       missingItems: out.missing_items,
       conflicts: out.conflicts.map((c) => ({
         description: c.description,
         returnValue: c.return_value,
+        returnToken: c.return_token,
         otherValue: c.other_value,
+        otherToken: c.other_token,
         otherSource: c.other_source,
       })),
       confirm: out.confirm,

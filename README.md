@@ -111,7 +111,7 @@ and ask for an explanation and a response plan.
   documents received, and returns the figures (with page and line), the carryovers (only when a
   document states them), missing pages and documents, conflicts with the transcript, questions for
   the preparer, and a draft client email. Read-only. Code: `src/app/api/prior-year/`,
-  `src/lib/prior-year-*.ts`. There is no screen for it yet.
+  `src/lib/prior-year-*.ts`. The **Prior year** page (the middle tab of the switch at the top of the sidebar) is its screen: upload the filed return, the IRS transcript, and the list of documents received, and it shows the figures with their page and line, the carryovers, what's missing, the conflicts, questions to confirm, and a draft client email. Everything goes through the privacy scrubber first (even amounts and dates), and the browser puts the real values back; nothing on that page is saved.
 - **Right-hand panel:** besides the notice details, deadline, documents, and drafts, it shows what the
   privacy scrubber hid in this conversation (counts by kind, and what each token stands for) and the
   latest quality score for each test set, with a link to the Quality page.

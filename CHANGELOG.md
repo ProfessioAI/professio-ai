@@ -5,6 +5,10 @@ a new feature or a visible redesign bumps the middle number (0.7.0), a notable f
 the last (0.6.1), and 1.0.0 is the first release for real customers.
 Run `npm run release -- minor "What changed"` to bump it and add an entry here.
 
+## [0.11.0] - 2026-10-28
+
+- Prior year page: upload a filed return, the IRS transcript, and the documents received, and see the figures, carryovers, missing items, conflicts, and a draft client email. Runs through the privacy scrubber, including hidden amounts and dates.
+
 ## [0.10.1] - 2026-10-27
 
 - The UI halo (an orange glint on panel outlines) moves as you scroll, and the app has smoother animations (all off with reduced motion). Right-panel sections are titled Scrubber and Quality.
