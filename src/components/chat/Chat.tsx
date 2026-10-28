@@ -9,6 +9,7 @@ import {
 } from "@/lib/library";
 import SettingsView from "@/components/settings/SettingsView";
 import PriorYearView from "./PriorYearView";
+import ReturnView from "./ReturnView";
 import QualityView from "./QualityView";
 import { useSettings } from "@/components/settings/settings-store";
 import { aiPreferences } from "@/lib/settings";
@@ -88,9 +89,9 @@ export default function Chat() {
   const [panelOpen, setPanelOpen] = useState(false);
   const meter = useUsageMeter();
   const { settings } = useSettings();
-  const [view, setView] = useState<"chat" | "prior" | "quality" | "settings">(
-    "chat",
-  );
+  const [view, setView] = useState<
+    "chat" | "return" | "prior" | "quality" | "settings"
+  >("chat");
   const abortRef = useRef<AbortController | null>(null);
   const extractAbortRef = useRef<AbortController | null>(null);
   const lastExtractFilesRef = useRef<Attachment[] | null>(null);
@@ -600,6 +601,8 @@ export default function Chat() {
       <main className="ui-main flex min-w-0 flex-1 flex-col">
         {view === "settings" ? (
           <SettingsView onBack={() => setView("chat")} meter={meter} />
+        ) : view === "return" ? (
+          <ReturnView onBack={() => setView("chat")} />
         ) : view === "prior" ? (
           <PriorYearView onBack={() => setView("chat")} meter={meter} />
         ) : view === "quality" ? (

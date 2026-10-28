@@ -139,3 +139,5 @@ Plain code, no AI, that works out a federal return line by line (`src/engine/`).
 - [x] Earned income credit, checked against every row of the IRS 2024 EIC Table
 - [x] A record of every line and how it was reached, so any number can be explained
 - [x] Refuses (or marks incomplete) anything it can't do, instead of guessing
+- [x] The Return page: enter the facts and see the return worked out live, with every line and a
+      click-to-explain trace

@@ -85,7 +85,7 @@ and ask for an explanation and a response plan.
   it stops with the Reduce motion setting.
 - **Tax engine:** `src/engine/` works out a 2024 federal return for simple cases with no AI (see
   `src/engine/README.md`). It's checked against every row of the IRS Tax Table and EIC Table
-  (`npm run engine:test`, free). It isn't connected to a screen yet.
+  (`npm run engine:test`, free). The **Return** page (second tab of the switch at the top of the sidebar) is its screen: fill in the filing status, ages, dependents, W-2s, interest, dividends, unemployment, and estimated payments, and the return is worked out as you type, with a refund or amount owed, every Form 1040 line, and a click-to-explain trace for each number. It runs entirely in the browser and saves nothing.
 - **Skills:** the assistant has four, and uses them on its own when they help. **Search** looks up
   current rules on IRS.gov, the Tax Court, the U.S. Code, and a few other official sites (about
   1 cent a search, can be switched off in Settings > Chat). **Calculate** does exact arithmetic.

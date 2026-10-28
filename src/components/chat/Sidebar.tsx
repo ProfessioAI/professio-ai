@@ -16,8 +16,8 @@ type Props = {
   onOpenSettings: () => void;
   settingsOpen: boolean;
   /** Which page is showing, for the Chat / Quality switch at the top. */
-  page: "chat" | "prior" | "quality" | "settings";
-  onSelectPage: (page: "chat" | "prior" | "quality") => void;
+  page: "chat" | "return" | "prior" | "quality" | "settings";
+  onSelectPage: (page: "chat" | "return" | "prior" | "quality") => void;
   className?: string;
 };
 
@@ -68,11 +68,12 @@ export default function Sidebar({
       <div
         role="tablist"
         aria-label="Site sections"
-        className="ui-inset ui-pill flex gap-1 rounded-lg bg-background p-1"
+        className="ui-inset ui-pill grid grid-cols-2 gap-1 rounded-lg bg-background p-1"
       >
         {(
           [
             ["chat", "Chat"],
+            ["return", "Return"],
             ["prior", "Prior year"],
             ["quality", "Quality"],
           ] as const
@@ -83,7 +84,7 @@ export default function Sidebar({
             role="tab"
             aria-selected={page === id}
             onClick={() => onSelectPage(id)}
-            className={`h-9 flex-1 rounded-lg text-sm font-medium ${
+            className={`h-9 rounded-lg text-sm font-medium ${
               page === id
                 ? "ui-seg-on bg-surface text-foreground shadow-sm"
                 : "text-text-3 hover:text-foreground"

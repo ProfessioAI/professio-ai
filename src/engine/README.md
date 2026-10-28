@@ -16,6 +16,8 @@ result.refund; // 969
 result.explain("1040.16"); // the tax line and everything it came from
 ```
 
+On screen: the **Return** page in the app (`src/components/chat/ReturnView.tsx`).
+
 ## What it covers
 
 Any filing status; W-2 wages; taxable interest; ordinary dividends; unemployment pay; the standard

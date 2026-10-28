@@ -5,6 +5,10 @@ a new feature or a visible redesign bumps the middle number (0.7.0), a notable f
 the last (0.6.1), and 1.0.0 is the first release for real customers.
 Run `npm run release -- minor "What changed"` to bump it and add an entry here.
 
+## [0.12.1] - 2026-10-28
+
+- Return page: enter the facts and see the 2024 return worked out live, with every Form 1040 line and a click-to-explain trace. Sidebar switch is now Chat, Return, Prior year, Quality.
+
 ## [0.12.0] - 2026-10-28
 
 - Tax engine for tax year 2024: works out a simple federal return with no AI, line by line, with a record of how each number was reached. Checked against every row of the IRS Tax Table and EIC Table.
