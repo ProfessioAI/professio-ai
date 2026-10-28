@@ -100,7 +100,7 @@ export default function Composer({
           {notice}
         </p>
       ) : null}
-      <div className="ui-panel ui-shine flex flex-col gap-2 rounded-[14px] border border-border-strong bg-surface py-2.5 pr-3 pl-4 shadow-[0_1px_2px_rgba(16,24,40,0.05),0_4px_12px_rgba(16,24,40,0.04)] focus-within:border-accent-text">
+      <div className="ui-panel flex flex-col gap-2 rounded-[14px] border border-border-strong bg-surface py-2.5 pr-3 pl-4 shadow-[0_1px_2px_rgba(16,24,40,0.05),0_4px_12px_rgba(16,24,40,0.04)] focus-within:border-accent-text">
         {files.length ? (
           <div className="flex flex-wrap gap-2 pt-1">
             {files.map((f, i) => (
@@ -162,7 +162,7 @@ export default function Composer({
               aria-haspopup="menu"
               aria-expanded={menuOpen}
               title="Skills"
-              className="ui-raised ui-pill flex size-10 items-center justify-center rounded-lg text-accent-text hover:bg-hover disabled:opacity-40"
+              className="ui-raised ui-pill flex size-10 items-center justify-center rounded-lg text-foreground hover:bg-hover disabled:opacity-40"
             >
               <SparkIcon size={21} />
             </button>

@@ -206,11 +206,11 @@ function Appearance({ s, set }: { s: Settings; set: Patch }) {
         ) : null}
         {s.style === "glass" ? (
           <SettingRow
-            label="Orange shine"
-            description="A soft orange highlight on the outline of the main panels that moves as you scroll."
+            label="UI halo"
+            description="A soft orange shine that travels round the outline of the sidebar and the right-hand panel as you scroll."
           >
             <Segmented
-              label="Orange shine"
+              label="UI halo"
               value={s.shine}
               onChange={(shine) => set({ shine })}
               options={[

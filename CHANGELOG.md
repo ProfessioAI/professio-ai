@@ -7,7 +7,7 @@ Run `npm run release -- minor "What changed"` to bump it and add an entry here.
 
 ## [0.10.1] - 2026-10-27
 
-- The orange shine on panel outlines moves as you scroll, and the app has smoother animations (all off with reduced motion). Right-panel sections are titled Scrubber and Quality.
+- The UI halo (an orange glint on panel outlines) moves as you scroll, and the app has smoother animations (all off with reduced motion). Right-panel sections are titled Scrubber and Quality.
 
 ## [0.10.0] - 2026-10-27
 

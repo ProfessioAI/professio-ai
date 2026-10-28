@@ -32,6 +32,8 @@ const KIND_LABEL: Record<string, [string, string]> = {
   AMOUNT: ["amount", "amounts"],
 };
 
+const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
+
 /** What the privacy scrubber hid from the AI in this conversation. */
 export function ScrubberSection({ vault }: { vault: VaultEntry[] }) {
   const { settings } = useSettings();
@@ -74,9 +76,6 @@ export function ScrubberSection({ vault }: { vault: VaultEntry[] }) {
             </p>
           ) : (
             <>
-              <div className="mb-1 text-sm font-medium">
-                {total} hidden from the AI
-              </div>
               <ul className="flex flex-col gap-1 text-[0.8125rem] text-text-2">
                 {counts.map(([type, n]) => {
                   const [one, many] = KIND_LABEL[type] ?? [
@@ -85,7 +84,7 @@ export function ScrubberSection({ vault }: { vault: VaultEntry[] }) {
                   ];
                   return (
                     <li key={type} className="flex justify-between gap-3">
-                      <span>{n === 1 ? one : many}</span>
+                      <span>{capitalize(n === 1 ? one : many)}:</span>
                       <span className="text-muted tabular-nums">{n}</span>
                     </li>
                   );
@@ -93,7 +92,7 @@ export function ScrubberSection({ vault }: { vault: VaultEntry[] }) {
               </ul>
               <details className="mt-3 text-[0.8125rem]">
                 <summary className="cursor-pointer text-text-3 hover:text-foreground">
-                  Show what each token stands for
+                  Tokens
                 </summary>
                 <ul className="mt-2 flex max-h-56 flex-col gap-1.5 overflow-y-auto">
                   {vault.map((v) => (

@@ -79,7 +79,7 @@ and ask for an explanation and a response plan.
   borders, soft backgrounds, and text on buttons are worked out from them, so a custom theme stays
   readable. The JSON format is `{"format": "professioai-theme", "version": 1, "name": "...",
 "light": {...}, "dark": {...}}`; missing colors are filled in from Classic or Glass.
-- **Glass polish:** an orange shine runs along the outline of the sidebar, header, composer, and
+- **Glass polish:** a UI halo (a soft orange shine) glides smoothly round the outline of the sidebar and
   right-hand panel and moves as you scroll (Settings > Appearance, Glass only; off with reduced motion).
   Messages, cards, menus, and panels ease in, and buttons lift on hover and press in on click. All of
   it stops with the Reduce motion setting.

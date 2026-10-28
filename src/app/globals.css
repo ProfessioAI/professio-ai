@@ -337,6 +337,33 @@ button:disabled {
   --accent-soft: light-dark(#e7ecff, rgba(66, 99, 235, 0.22));
 }
 
+/* The glow behind the panels drifts very slowly. It is its own layer behind everything (so only a
+   transform is animated, which is cheap), a little larger than the window so its edges never show. */
+:root[data-style="glass"] body {
+  background: var(--background);
+}
+:root[data-style="glass"] body::before {
+  content: "";
+  position: fixed;
+  inset: -5%;
+  z-index: -1;
+  pointer-events: none;
+  background: var(--page-gradient);
+  will-change: transform;
+  animation: glow-drift 80s ease-in-out infinite alternate;
+}
+@keyframes glow-drift {
+  0% {
+    transform: translate3d(-2.2%, -1.4%, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(1.8%, 1.2%, 0) scale(1.035);
+  }
+  100% {
+    transform: translate3d(-0.6%, 2.2%, 0) scale(1.015);
+  }
+}
+
 /* Floating layout: the app sits on the gradient as separate rounded panels */
 :root[data-style="glass"] .ui-shell {
   padding: 0.75rem;
@@ -629,13 +656,9 @@ button:disabled {
   margin-top: 0.4rem;
 }
 
-/* ---------- The orange shine on the outline of the main Glass panels ---------- */
-/* --shine is the angle of the bright spot. ScrollShine turns it as the page scrolls. */
-@property --shine {
-  syntax: "<angle>";
-  inherits: true;
-  initial-value: 40deg;
-}
+/* ---------- The UI halo: an orange shine on the outline of the main Glass panels ---------- */
+/* --shine is the angle of the bright spot round the outline. ScrollShine turns it, smoothly, as the
+   page scrolls. */
 :root[data-style="glass"]:not([data-shine="off"]) .ui-shine {
   position: relative;
 }
@@ -643,17 +666,17 @@ button:disabled {
   content: "";
   position: absolute;
   inset: -1.5px;
-  padding: 2px;
+  padding: 1.5px;
   border-radius: inherit;
   pointer-events: none;
   /* A short bright arc with a soft tail, fading to nothing round the rest of the outline. */
   background: conic-gradient(
-    from var(--shine),
-    transparent 0deg 170deg,
-    rgba(255, 138, 31, 0.2) 215deg,
-    rgba(255, 138, 31, 0.85) 290deg,
-    #ffc58a 330deg,
-    transparent 354deg
+    from var(--shine, 40deg),
+    transparent 0deg 200deg,
+    rgba(255, 138, 31, 0.07) 240deg,
+    rgba(255, 138, 31, 0.28) 305deg,
+    rgba(255, 190, 130, 0.4) 332deg,
+    transparent 352deg
   );
   /* Show only the ring: the whole box minus its inside. */
   -webkit-mask:
@@ -663,8 +686,7 @@ button:disabled {
   mask:
     linear-gradient(#000 0 0) content-box exclude,
     linear-gradient(#000 0 0);
-  filter: drop-shadow(0 0 4px rgba(255, 138, 31, 0.45));
-  transition: opacity 0.4s;
+  filter: drop-shadow(0 0 3px rgba(255, 138, 31, 0.12));
 }
 
 /* ---------- Animations ---------- */
